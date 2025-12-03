@@ -1,12 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>My First Website</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Recipe Homepage</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+margin: 0;
+padding: 20px;
+background: #fafafa;
+}
+.container {
+max-width: 800px;
+margin: auto;
+text-align: center;
+}
+.recipe-card {
+background: white;
+padding: 20px;
+margin-top: 20px;
+border-radius: 16px;
+box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.recipe-card img {
+width: 100%;
+border-radius: 12px;
+}
+.recipe-card h2 {
+margin-top: 15px;
+}
+.recipe-card a {
+display: inline-block;
+margin-top: 10px;
+text-decoration: none;
+color: #0077cc;
+font-weight: bold;
+}
+</style>
 </head>
 <body>
-  <h1>Hello World!</h1>
-  <p>If you can read this, your website is working.</p>
+<div class="container">
+<h1>My Recipes</h1>
+
+
+<!-- Example Recipe Card -->
+<div class="recipe-card">
+<img src="example.jpg" alt="Recipe Image" />
+<h2>Recipe Name</h2>
+<p>A short description of the recipe goes here. Simple, clean, and clickable.</p>
+<a href="#">View Recipe</a>
+</div>
+
+
+</div>
 </body>
 </html>
