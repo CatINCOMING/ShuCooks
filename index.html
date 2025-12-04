@@ -1,68 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Recipe Homepage</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShuCooks - Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Poppins', sans-serif;
-            background: #fafafa;
-            text-align: center;
-        }
+<header>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="recipes.html">Recipes</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+</header>
 
-        h1 {
-            margin-top: 30px;
-            font-size: 2.4rem;
-        }
+<div class="container">
+    <h1>Welcome to ShuCooks 🍽️</h1>
+    <p>Discover delicious recipes and step-by-step cooking guides.</p>
 
-        .recipe-card {
-            width: 90%;
-            max-width: 600px;
-            background: white;
-            margin: 25px auto;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-
-        .recipe-card img {
-            width: 100%;
-            border-radius: 12px;
-        }
-
-        .recipe-title {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin: 15px 0 5px;
-        }
-
-        .recipe-desc {
-            font-size: 1rem;
-            color: #555;
-        }
-
-        .recipe-link {
-            display: inline-block;
-            margin-top: 15px;
-            text-decoration: none;
-            font-weight: 600;
-            color: #ff5722;
-        }
-    </style>
-
-
-<!-- Example Recipe Card -->
-<div class="recipe-card">
-    <img src="mmexport1764539084706.jpg" alt="Jambalaya">
-    <div class="recipe-title">Jambalaya (CPK Style)</div>
-    <div class="recipe-desc">A spicy Cajun pasta-style jambalaya inspired by California Pizza Kitchen.</div>
-    <a class="recipe-link" href="jambalaya.html">View Recipe →</a>
-</div>
+    <!-- Example Recipe Card -->
+    <div class="recipe-card">
+        <img src="mmexport1764539084706.jpg" alt="Jambalaya">
+        <div class="recipe-title">Jambalaya (CPK Style)</div>
+        <div class="recipe-desc">A spicy Cajun pasta-style jambalaya inspired by California Pizza Kitchen.</div>
+        <a class="recipe-link" href="recipes.html">View Recipe →</a>
+    </div>
 
 </div>
 </body>
