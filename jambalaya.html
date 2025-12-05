@@ -3,196 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jambalaya – ShuCooks</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Jambalaya Recipe - ShuCooks</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="images/favicon-64.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+
     <link rel="stylesheet" href="style.css">
 
-    <style>
-        .recipe-toolbar {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
+    <script>
+        function printRecipe() {
+            window.print();
         }
 
-        .toolbar-btn {
-            background: #eee;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background 0.3s;
-        }
+        let wakeLock = null;
+        let chefMode = false;
 
-        .toolbar-btn img {
-            width: 22px;
-            height: 22px;
-        }
+        async function toggleChefMode() {
+            chefMode = !chefMode;
+            const btn = document.getElementById("chefBtn");
 
-        .chef-on {
-            background: #46d46c !important;
-            color: white;
+            if (chefMode) {
+                btn.classList.add("chef-on");
+                try {
+                    if ("wakeLock" in navigator) {
+                        wakeLock = await navigator.wakeLock.request("screen");
+                    }
+                } catch (err) {
+                    console.log("Wake Lock failed:", err);
+                }
+            } else {
+                btn.classList.remove("chef-on");
+                if (wakeLock) {
+                    wakeLock.release();
+                    wakeLock = null;
+                }
+            }
         }
-
-        /* Serving scaler */
-        .servings-box {
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .servings-box input {
-            width: 70px;
-            padding: 8px;
-            font-size: 1.1rem;
-            text-align: center;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-        }
-    </style>
-    <link rel="icon" type="image/png" href="images/favicon.png">
+    </script>
 </head>
-
 <body>
 
-<header>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="recipes.html">Recipes</a>
-        <a href="contact.html">Contact</a>
-    </nav>
-</header>
+<nav class="navbar">
+    <a href="index.html" class="logo">ShuCooks</a>
+    <a href="index.html">Home</a>
+    <a href="recipes.html">Recipes</a>
+    <a href="contact.html">Contact</a>
+</nav>
 
-    <header>
-    <nav class="navbar">
-        <a href="index.html" class="logo">
-            <img src="images/ShuCooksLOGO.png" alt="ShuCooks Logo">
-        </a>
+<section class="content">
+    <h1>Jambalaya (CPK-Style)</h1>
 
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="recipes.html">Recipes</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-    </nav>
-</header>
-    
-<div class="container">
+    <img src="images/mmexport.jpg" class="recipe-photo">
 
-    <h1>Jambalaya (California Pizza Kitchen Style)</h1>
-    <p>A spicy, rich, pasta-style jambalaya inspired by California Pizza Kitchen.</p>
-
-    <!-- TOOLBAR -->
-    <div class="recipe-toolbar">
-        <button class="toolbar-btn" onclick="window.print()">
-            <img src="https://img.icons8.com/ios-filled/50/000000/print.png">
-            Print
-        </button>
-
-        <button class="toolbar-btn" id="chefModeBtn">
-            <img src="https://img.icons8.com/ios-filled/50/000000/chef-hat.png">
-            Chef Mode
-        </button>
+    <div class="button-row">
+        <button onclick="printRecipe()">🖨️ Print Recipe</button>
+        <button id="chefBtn" onclick="toggleChefMode()">👨‍🍳 Chef Mode</button>
     </div>
 
-    <!-- SERVING SCALER -->
-    <div class="servings-box">
-        <label><strong>Servings:</strong></label><br>
-        <input type="number" id="servingsInput" value="4" min="1">
-    </div>
-
-    <h2>Ingredients</h2>
-    <ul id="ingredientList">
-        <li data-amount="3">3 tbsp Cajun spice</li>
-        <li data-amount="14">12–16 shrimp (avg displayed as 14)</li>
-        <li data-amount="0.5">½ red bell pepper, diced</li>
-        <li data-amount="1">1 jalapeño, diced</li>
-        <li data-amount="0.5">½ large red onion, diced</li>
-        <li data-amount="0.5">½ pound cooked linguine pasta</li>
-        <li data-amount="1">1 andouille sausage, sliced</li>
-        <li data-amount="1.5">1 ½ cups chicken stock</li>
-        <li data-amount="1">1 tbsp tomato sauce</li>
-        <li data-amount="0.5">½ tsp salt</li>
-        <li data-amount="0.25">¼ tsp black pepper</li>
-        <li data-amount="3">3 cloves garlic, minced</li>
-        <li data-amount="3">3 tbsp cooking oil</li>
+    <h2>Ingredients (Serves 4)</h2>
+    <ul>
+        <li>3 tbsp Cajun spice</li>
+        <li>12–16 shrimp, deveined</li>
+        <li>½ red bell pepper, diced</li>
+        <li>1 jalapeño, diced</li>
+        <li>½ red onion, diced</li>
+        <li>½ lb cooked linguine</li>
+        <li>1 andouille sausage, sliced</li>
+        <li>1 ½ cups chicken stock</li>
+        <li>1 tbsp tomato sauce</li>
+        <li>½ tsp salt</li>
+        <li>¼ tsp black pepper</li>
+        <li>3 cloves garlic, minced</li>
+        <li>3 tbsp cooking oil</li>
     </ul>
 
     <h2>Instructions</h2>
     <ol>
-        <li><strong>Season the vegetables:</strong> Combine bell pepper, jalapeño, red onion, garlic, Cajun seasoning, and pepper. Toss well.</li>
-        <li><strong>Sear the shrimp:</strong> Heat 1–2 tbsp oil. Sear shrimp 30–60 seconds per side until opaque.</li>
-        <li><strong>Cook the sausage:</strong> Add more oil if needed. Sauté sausage for 1 minute.</li>
-        <li><strong>Cook the vegetables:</strong> Add seasoned vegetables and cook 3–4 minutes.</li>
-        <li><strong>Build the sauce:</strong> Add chicken stock and tomato sauce. Simmer 5 minutes.</li>
-        <li><strong>Incorporate the pasta:</strong> Add linguine and toss until sauce thickens and coats the noodles.</li>
+        <li><strong>Season the vegetables:</strong> Mix peppers, onion, garlic, Cajun seasoning, and pepper.</li>
+        <li><strong>Sear the shrimp:</strong> Cook 30–60 seconds per side.</li>
+        <li><strong>Cook the sausage:</strong> Sauté 1 minute.</li>
+        <li><strong>Cook the vegetables:</strong> Sear 3–4 minutes.</li>
+        <li><strong>Build the sauce:</strong> Add stock + tomato sauce, simmer 5 minutes.</li>
+        <li><strong>Add pasta:</strong> Toss 2–3 minutes until coated.</li>
     </ol>
-
-    <a class="recipe-link" href="recipes.html">← Back to Recipes</a>
-</div>
-
-<script>
-    // ----------------------------
-    // CHEF MODE (Wake Lock API)
-    // ----------------------------
-    let wakeLock = null;
-    const chefBtn = document.getElementById("chefModeBtn");
-
-    async function enableChefMode() {
-        try {
-            wakeLock = await navigator.wakeLock.request("screen");
-            chefBtn.classList.add("chef-on");
-        } catch (err) {
-            console.log("Wake Lock error:", err);
-        }
-    }
-
-    function disableChefMode() {
-        if (wakeLock) {
-            wakeLock.release();
-            wakeLock = null;
-        }
-        chefBtn.classList.remove("chef-on");
-    }
-
-    chefBtn.addEventListener("click", async () => {
-        if (wakeLock) disableChefMode();
-        else enableChefMode();
-    });
-
-    document.addEventListener("visibilitychange", async () => {
-        if (wakeLock !== null && document.visibilityState === "visible") {
-            enableChefMode();
-        }
-    });
-
-
-    // -----------------------------------
-    // SERVING SIZE SCALER
-    // -----------------------------------
-    const servingsInput = document.getElementById("servingsInput");
-    const ingredients = document.querySelectorAll("#ingredientList li");
-
-    servingsInput.addEventListener("input", () => {
-        const newServings = servingsInput.value;
-        const scaleFactor = newServings / 4;
-
-        ingredients.forEach(li => {
-            const baseAmount = parseFloat(li.getAttribute("data-amount"));
-            const newAmount = baseAmount * scaleFactor;
-
-            if (baseAmount > 10) {
-                li.textContent = `${Math.round(newAmount)} shrimp`;
-            } else {
-                li.textContent = `${newAmount % 1 === 0 ? newAmount : newAmount.toFixed(2)} ${li.innerText.split(" ").slice(1).join(" ")}`;
-            }
-        });
-    });
-</script>
+</section>
 
 </body>
 </html>
