@@ -4,84 +4,406 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jambalaya Recipe - ShuCooks</title>
-
-    <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32.png">
-    <link rel="icon" type="image/png" sizes="64x64" href="images/favicon-64.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-
-    <link rel="stylesheet" href="style.css">
-
-    <script>
-        function printRecipe() {
-            window.print();
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        let wakeLock = null;
-        let chefMode = false;
-
-        async function toggleChefMode() {
-            chefMode = !chefMode;
-            const btn = document.getElementById("chefBtn");
-
-            if (chefMode) {
-                btn.classList.add("chef-on");
-                try {
-                    if ("wakeLock" in navigator) {
-                        wakeLock = await navigator.wakeLock.request("screen");
-                    }
-                } catch (err) {
-                    console.log("Wake Lock failed:", err);
-                }
-            } else {
-                btn.classList.remove("chef-on");
-                if (wakeLock) {
-                    wakeLock.release();
-                    wakeLock = null;
-                }
-            }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #fafafa;
         }
-    </script>
+        /* Navbar */
+        .navbar {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            background: #ffffffcc;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .navbar a {
+            padding: 10px 20px;
+            background: #f2f2f2;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .navbar a:hover {
+            background: #ffd6a5;
+        }
+        .navbar .logo {
+            background: #ffd6a5;
+        }
+        /* Content */
+        .content {
+            padding: 30px;
+            max-width: 900px;
+            margin: auto;
+        }
+        .recipe-photo {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        /* Buttons */
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 18px;
+            border: none;
+            background: #ffe5b4;
+            border-radius: 14px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #ffc988;
+        }
+        .chef-on {
+            background: #8fd694 !important;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        h2 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        ul, ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        
+        /* Ingredient Checklist */
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .ingredient-item:hover {
+            background: #f0f0f0;
+        }
+        .ingredient-item input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .ingredient-item.checked {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        
+        /* Chef Mode Styles */
+        .chef-mode-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #1a1a1a;
+            color: white;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .chef-mode-container.active {
+            display: block;
+        }
+        .chef-mode-header {
+            background: #2a2a2a;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .chef-mode-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+        .exit-chef-mode {
+            background: #ff4444;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .chef-mode-content {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .progress-bar {
+            background: #333;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            background: #8fd694;
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .progress-text {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .current-step {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            border: 3px solid #8fd694;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .current-step:active {
+            transform: scale(0.98);
+        }
+        .step-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #8fd694;
+        }
+        .step-text {
+            font-size: 24px;
+            line-height: 1.6;
+        }
+        .timer-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+        }
+        .timer-display {
+            font-size: 48px;
+            font-weight: bold;
+            text-align: center;
+            color: #8fd694;
+            margin: 20px 0;
+        }
+        .timer-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .timer-buttons button {
+            background: #444;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+        }
+        .timer-buttons button:hover {
+            background: #555;
+        }
+        .chef-navigation {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .chef-navigation button {
+            flex: 1;
+            padding: 18px;
+            font-size: 18px;
+            background: #444;
+            color: white;
+        }
+        .chef-navigation button:hover {
+            background: #555;
+        }
+        .chef-navigation button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .all-steps-preview {
+            margin-top: 30px;
+        }
+        .step-preview {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .step-preview:hover {
+            opacity: 0.8;
+        }
+        .step-preview.completed {
+            opacity: 0.3;
+            text-decoration: line-through;
+        }
+        .step-preview.active {
+            opacity: 1;
+            border: 2px solid #8fd694;
+        }
+        .ingredients-toggle {
+            background: #444;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .ingredients-list {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .ingredients-list ul {
+            list-style: none;
+            margin: 0;
+        }
+        .ingredients-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #444;
+        }
+        .voice-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #8fd694;
+            color: #1a1a1a;
+            padding: 15px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            display: none;
+        }
+        .voice-indicator.active {
+            display: block;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .hands-free-badge {
+            display: inline-block;
+            background: #8fd694;
+            color: #1a1a1a;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
 </head>
 <body>
-
 <nav class="navbar">
-    <a href="index.html" class="logo">ShuCooks</a>
-    <a href="index.html">Home</a>
-    <a href="recipes.html">Recipes</a>
-    <a href="contact.html">Contact</a>
+    <a href="#" class="logo">ShuCooks</a>
+    <a href="#">Home</a>
+    <a href="#">Recipes</a>
+    <a href="#">Contact</a>
 </nav>
 
 <section class="content">
     <h1>Jambalaya (CPK-Style)</h1>
-
-    <img src="images/mmexport.jpg" class="recipe-photo">
-
+    <div class="recipe-photo">Jambalaya Photo</div>
+    
     <div class="button-row">
         <button onclick="printRecipe()">🖨️ Print Recipe</button>
         <button id="chefBtn" onclick="toggleChefMode()">👨‍🍳 Chef Mode</button>
     </div>
-
+    
     <h2>Ingredients (Serves 4)</h2>
-    <ul>
-        <li>3 tbsp Cajun spice</li>
-        <li>12–16 shrimp, deveined</li>
-        <li>½ red bell pepper, diced</li>
-        <li>1 jalapeño, diced</li>
-        <li>½ red onion, diced</li>
-        <li>½ lb cooked linguine</li>
-        <li>1 andouille sausage, sliced</li>
-        <li>1 ½ cups chicken stock</li>
-        <li>1 tbsp tomato sauce</li>
-        <li>½ tsp salt</li>
-        <li>¼ tsp black pepper</li>
-        <li>3 cloves garlic, minced</li>
-        <li>3 tbsp cooking oil</li>
-    </ul>
-
+    <div id="ingredientsList">
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>3 tbsp Cajun spice</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>12–16 shrimp, deveined</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>½ red bell pepper, diced</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>1 jalapeño, diced</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>½ red onion, diced</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>½ lb cooked linguine</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>1 andouille sausage, sliced</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>1 ½ cups chicken stock</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>1 tbsp tomato sauce</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>½ tsp salt</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>¼ tsp black pepper</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>3 cloves garlic, minced</span>
+        </div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)">
+            <input type="checkbox">
+            <span>3 tbsp cooking oil</span>
+        </div>
+    </div>
+    
     <h2>Instructions</h2>
-    <ol>
+    <ol id="instructionsList">
         <li><strong>Season the vegetables:</strong> Mix peppers, onion, garlic, Cajun seasoning, and pepper.</li>
         <li><strong>Sear the shrimp:</strong> Cook 30–60 seconds per side.</li>
         <li><strong>Cook the sausage:</strong> Sauté 1 minute.</li>
@@ -90,6 +412,357 @@
         <li><strong>Add pasta:</strong> Toss 2–3 minutes until coated.</li>
     </ol>
 </section>
+
+<!-- Chef Mode Container -->
+<div id="chefModeContainer" class="chef-mode-container">
+    <div class="chef-mode-header">
+        <h2>👨‍🍳 Chef Mode <span class="hands-free-badge">🔓 Screen Unlocked</span></h2>
+        <button class="exit-chef-mode" onclick="toggleChefMode()">✕ Exit</button>
+    </div>
+    
+    <div class="chef-mode-content">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">Step 1 of 6</div>
+        
+        <div class="ingredients-toggle" onclick="toggleIngredientsView()">
+            <strong>📋 Ingredients List</strong> <span id="ingredientsToggleIcon">▼</span>
+        </div>
+        <div class="ingredients-list" id="chefIngredientsList" style="display: none;">
+            <ul id="chefIngredientsContent"></ul>
+        </div>
+        
+        <div class="current-step" id="currentStep" onclick="nextStep()">
+            <div class="step-title" id="stepTitle">Step 1: Season the vegetables</div>
+            <div class="step-text" id="stepText">Mix peppers, onion, garlic, Cajun seasoning, and pepper.</div>
+            
+            <div class="timer-section" id="timerSection" style="display: none;">
+                <div class="timer-display" id="timerDisplay">00:00</div>
+                <div class="timer-buttons">
+                    <button onclick="startTimer(60)">1 min</button>
+                    <button onclick="startTimer(180)">3 min</button>
+                    <button onclick="startTimer(300)">5 min</button>
+                    <button onclick="startTimer(customTimerSeconds)" id="customTimerBtn">Custom</button>
+                    <button onclick="pauseTimer()">⏸ Pause</button>
+                    <button onclick="resetTimer()">🔄 Reset</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chef-navigation">
+            <button onclick="prevStep()" id="prevBtn">⬅️ Previous</button>
+            <button onclick="nextStep()" id="nextBtn">Next ➡️</button>
+        </div>
+        
+        <div class="all-steps-preview">
+            <h3>All Steps</h3>
+            <div id="stepsPreview"></div>
+        </div>
+    </div>
+</div>
+
+<div class="voice-indicator" id="voiceIndicator">
+    🎤 Listening...
+</div>
+
+<script>
+    const steps = [
+        { title: "Season the vegetables", text: "Mix peppers, onion, garlic, Cajun seasoning, and pepper.", timer: null },
+        { title: "Sear the shrimp", text: "Cook 30–60 seconds per side.", timer: 60 },
+        { title: "Cook the sausage", text: "Sauté 1 minute.", timer: 60 },
+        { title: "Cook the vegetables", text: "Sear 3–4 minutes.", timer: 240 },
+        { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes.", timer: 300 },
+        { title: "Add pasta", text: "Toss 2–3 minutes until coated.", timer: 180 }
+    ];
+    
+    let currentStepIndex = 0;
+    let chefMode = false;
+    let wakeLock = null;
+    let timerInterval = null;
+    let timerSeconds = 0;
+    let timerRunning = false;
+    let customTimerSeconds = 0;
+    let recognition = null;
+    let ingredientsVisible = false;
+    let autoAdvance = false;
+    
+    // Initialize voice recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        
+        recognition.onresult = (event) => {
+            const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+            console.log('Heard:', transcript);
+            
+            if (transcript.includes('next') || transcript.includes('next step')) {
+                nextStep();
+                showVoiceIndicator();
+            } else if (transcript.includes('previous') || transcript.includes('back')) {
+                prevStep();
+                showVoiceIndicator();
+            } else if (transcript.includes('repeat')) {
+                speakCurrentStep();
+                showVoiceIndicator();
+            } else if (transcript.includes('timer') || transcript.includes('start timer')) {
+                const currentStep = steps[currentStepIndex];
+                if (currentStep.timer) {
+                    startTimer(currentStep.timer);
+                    showVoiceIndicator();
+                }
+            } else if (transcript.includes('ingredients')) {
+                toggleIngredientsView();
+                showVoiceIndicator();
+            }
+        };
+    }
+    
+    function showVoiceIndicator() {
+        const indicator = document.getElementById('voiceIndicator');
+        indicator.classList.add('active');
+        setTimeout(() => {
+            indicator.classList.remove('active');
+        }, 2000);
+    }
+    
+    function toggleIngredient(element) {
+        const checkbox = element.querySelector('input[type="checkbox"]');
+        checkbox.checked = !checkbox.checked;
+        element.classList.toggle('checked');
+    }
+    
+    async function toggleChefMode() {
+        chefMode = !chefMode;
+        const btn = document.getElementById("chefBtn");
+        const container = document.getElementById("chefModeContainer");
+        
+        if (chefMode) {
+            btn.classList.add("chef-on");
+            container.classList.add("active");
+            currentStepIndex = 0;
+            updateChefMode();
+            renderStepsPreview();
+            updateChefIngredients();
+            
+            // Request wake lock
+            try {
+                if ("wakeLock" in navigator) {
+                    wakeLock = await navigator.wakeLock.request("screen");
+                }
+            } catch (err) {
+                console.log("Wake Lock failed:", err);
+            }
+            
+            // Start voice recognition
+            if (recognition) {
+                try {
+                    recognition.start();
+                } catch (err) {
+                    console.log("Voice recognition failed:", err);
+                }
+            }
+            
+            // Speak first step
+            speakCurrentStep();
+        } else {
+            btn.classList.remove("chef-on");
+            container.classList.remove("active");
+            
+            // Release wake lock
+            if (wakeLock) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+            
+            // Stop voice recognition
+            if (recognition) {
+                recognition.stop();
+            }
+            
+            // Clear timer
+            resetTimer();
+        }
+    }
+    
+    function updateChefMode() {
+        const step = steps[currentStepIndex];
+        document.getElementById('stepTitle').textContent = `Step ${currentStepIndex + 1}: ${step.title}`;
+        document.getElementById('stepText').textContent = step.text;
+        document.getElementById('progressText').textContent = `Step ${currentStepIndex + 1} of ${steps.length}`;
+        document.getElementById('progressFill').style.width = `${((currentStepIndex + 1) / steps.length) * 100}%`;
+        
+        // Update navigation buttons
+        document.getElementById('prevBtn').disabled = currentStepIndex === 0;
+        document.getElementById('nextBtn').disabled = currentStepIndex === steps.length - 1;
+        
+        // Show/hide timer section
+        const timerSection = document.getElementById('timerSection');
+        if (step.timer) {
+            timerSection.style.display = 'block';
+            customTimerSeconds = step.timer;
+            document.getElementById('customTimerBtn').textContent = `${Math.floor(step.timer / 60)} min`;
+        } else {
+            timerSection.style.display = 'none';
+        }
+        
+        resetTimer();
+        renderStepsPreview();
+    }
+    
+    function nextStep() {
+        if (currentStepIndex < steps.length - 1) {
+            currentStepIndex++;
+            updateChefMode();
+            speakCurrentStep();
+        }
+    }
+    
+    function prevStep() {
+        if (currentStepIndex > 0) {
+            currentStepIndex--;
+            updateChefMode();
+            speakCurrentStep();
+        }
+    }
+    
+    function renderStepsPreview() {
+        const container = document.getElementById('stepsPreview');
+        container.innerHTML = '';
+        
+        steps.forEach((step, index) => {
+            const div = document.createElement('div');
+            div.className = 'step-preview';
+            if (index < currentStepIndex) div.classList.add('completed');
+            if (index === currentStepIndex) div.classList.add('active');
+            div.innerHTML = `<strong>Step ${index + 1}:</strong> ${step.title}`;
+            div.onclick = () => {
+                currentStepIndex = index;
+                updateChefMode();
+                speakCurrentStep();
+            };
+            container.appendChild(div);
+        });
+    }
+    
+    function startTimer(seconds) {
+        resetTimer();
+        timerSeconds = seconds;
+        timerRunning = true;
+        updateTimerDisplay();
+        
+        timerInterval = setInterval(() => {
+            if (timerRunning && timerSeconds > 0) {
+                timerSeconds--;
+                updateTimerDisplay();
+                
+                if (timerSeconds === 0) {
+                    timerRunning = false;
+                    playTimerSound();
+                    if (autoAdvance && currentStepIndex < steps.length - 1) {
+                        setTimeout(() => {
+                            nextStep();
+                        }, 1000);
+                    }
+                }
+            }
+        }, 1000);
+    }
+    
+    function pauseTimer() {
+        timerRunning = !timerRunning;
+        const pauseBtn = document.querySelector('.timer-buttons button:nth-child(5)');
+        if (pauseBtn) {
+            pauseBtn.textContent = timerRunning ? '⏸ Pause' : '▶️ Resume';
+        }
+    }
+    
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timerSeconds = 0;
+        timerRunning = false;
+        updateTimerDisplay();
+        const pauseBtn = document.querySelector('.timer-buttons button:nth-child(5)');
+        if (pauseBtn) {
+            pauseBtn.textContent = '⏸ Pause';
+        }
+    }
+    
+    function updateTimerDisplay() {
+        const minutes = Math.floor(timerSeconds / 60);
+        const seconds = timerSeconds % 60;
+        document.getElementById('timerDisplay').textContent = 
+            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+    
+    function playTimerSound() {
+        // Play a beep sound
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = context.createOscillator();
+        const gainNode = context.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(context.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, context.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
+        
+        oscillator.start(context.currentTime);
+        oscillator.stop(context.currentTime + 0.5);
+    }
+    
+    function speakCurrentStep() {
+        if ('speechSynthesis' in window) {
+            const step = steps[currentStepIndex];
+            const utterance = new SpeechSynthesisUtterance(`Step ${currentStepIndex + 1}: ${step.title}. ${step.text}`);
+            utterance.rate = 0.9;
+            speechSynthesis.cancel(); // Cancel any ongoing speech
+            speechSynthesis.speak(utterance);
+        }
+    }
+    
+    function toggleIngredientsView() {
+        ingredientsVisible = !ingredientsVisible;
+        const list = document.getElementById('chefIngredientsList');
+        const icon = document.getElementById('ingredientsToggleIcon');
+        
+        if (ingredientsVisible) {
+            list.style.display = 'block';
+            icon.textContent = '▲';
+        } else {
+            list.style.display = 'none';
+            icon.textContent = '▼';
+        }
+    }
+    
+    function updateChefIngredients() {
+        const container = document.getElementById('chefIngredientsContent');
+        const ingredients = document.querySelectorAll('#ingredientsList .ingredient-item');
+        container.innerHTML = '';
+        
+        ingredients.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item.querySelector('span').textContent;
+            if (item.classList.contains('checked')) {
+                li.style.textDecoration = 'line-through';
+                li.style.opacity = '0.6';
+            }
+            container.appendChild(li);
+        });
+    }
+    
+    function printRecipe() {
+        window.print();
+    }
+    
+    // Update chef ingredients when checkboxes change
+    document.getElementById('ingredientsList').addEventListener('change', updateChefIngredients);
+</script>
 
 </body>
 </html>
