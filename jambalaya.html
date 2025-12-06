@@ -163,16 +163,18 @@
         </div>
         
         <div class="commands-help">
-            <h3>🎤 Say "CHEF" first, then your command:</h3>
+            <h3>🎤 Voice Commands (Natural Language):</h3>
             <ul>
-                <li><code>"Chef, next step"</code></li>
-                <li><code>"Chef, what are the first 2 ingredients?"</code></li>
-                <li><code>"Chef, check off the shrimp"</code></li>
-                <li><code>"Chef, start timer"</code></li>
-                <li><code>"Chef, show ingredients"</code></li>
-                <li><code>"Chef, go to step 3"</code></li>
+                <li><code>"next"</code> or <code>"next step"</code> or <code>"continue"</code></li>
+                <li><code>"back"</code> or <code>"previous"</code> or <code>"go back"</code></li>
+                <li><code>"what are the first 2 ingredients"</code> or <code>"list ingredients"</code></li>
+                <li><code>"check off the shrimp"</code> or <code>"mark ingredient 2"</code></li>
+                <li><code>"start timer"</code> or <code>"set a timer"</code></li>
+                <li><code>"show ingredients"</code> or <code>"hide ingredients"</code></li>
+                <li><code>"go to step 3"</code> or <code>"jump to step 5"</code></li>
+                <li><code>"repeat"</code> or <code>"say that again"</code></li>
             </ul>
-            <p style="margin-top: 10px; color: #8fd694;">✨ The AI understands natural speech!</p>
+            <p style="margin-top: 10px; color: #8fd694;">✨ No wake word needed - just speak naturally!</p>
         </div>
     </div>
 </div>
@@ -181,17 +183,16 @@
 
 <script>
 const steps = [
-    { title: "Season the vegetables", text: "Mix peppers, onion, garlic, Cajun seasoning, and pepper." },
-    { title: "Sear the shrimp", text: "Cook 30–60 seconds per side." },
-    { title: "Cook the sausage", text: "Sauté 1 minute." },
-    { title: "Cook the vegetables", text: "Sear 3–4 minutes." },
-    { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes." },
-    { title: "Add pasta", text: "Toss 2–3 minutes until coated." }
+    { title: "Season the vegetables", text: "Mix peppers, onion, garlic, Cajun seasoning, and pepper.", timer: null },
+    { title: "Sear the shrimp", text: "Cook 30–60 seconds per side.", timer: 45 },
+    { title: "Cook the sausage", text: "Sauté 1 minute.", timer: 60 },
+    { title: "Cook the vegetables", text: "Sear 3–4 minutes.", timer: 210 },
+    { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes.", timer: 300 },
+    { title: "Add pasta", text: "Toss 2–3 minutes until coated.", timer: 150 }
 ];
 
 let currentStepIndex = 0, chefMode = false, wakeLock = null, timerInterval = null, timerSeconds = 0, timerRunning = false;
-let recognition = null, ingredientsVisible = false, detectedTimers = {}, videoWakeLock = null;
-let waitingForCommand = false, commandTimeout = null, recognitionActive = false;
+let recognition = null, ingredientsVisible = false, videoWakeLock = null, recognitionActive = false;
 
 function enableVideoWakeLock() {
     if (videoWakeLock) return;
@@ -206,46 +207,141 @@ function enableVideoWakeLock() {
 
 function disableVideoWakeLock() { if (videoWakeLock) { videoWakeLock.pause(); videoWakeLock.remove(); videoWakeLock = null; } }
 
-async function detectTimersInSteps() {
-    for (let i = 0; i < steps.length; i++) {
-        const txt = steps[i].title + ". " + steps[i].text;
-        try {
-            const r = await fetch("https://api.anthropic.com/v1/messages", {
-                method: "POST", headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    model: "claude-sonnet-4-20250514", max_tokens: 500,
-                    messages: [{role: "user", content: `Extract time from: "${txt}". Return JSON: {"timers":[{"duration_seconds":45,"label":"avg"}]} or {"timers":[]}`}]
-                })
-            });
-            const d = await r.json();
-            const clean = d.content[0].text.replace(/```json|```/g, "").trim();
-            const parsed = JSON.parse(clean);
-            if (parsed.timers?.length) detectedTimers[i] = parsed.timers;
-        } catch(e) { console.log('Timer detect skip', i); }
+// Simple pattern matching for voice commands (no API needed!)
+function processVoiceCommand(transcript) {
+    const text = transcript.toLowerCase().trim();
+    console.log('Processing:', text);
+    
+    // Navigation commands
+    if (/\b(next|continue|forward|advance)\b/.test(text)) {
+        nextStep();
+        speak("Next step");
+        return;
     }
-    if (chefMode) updateChefMode();
+    if (/\b(back|previous|prior|return)\b/.test(text)) {
+        prevStep();
+        speak("Going back");
+        return;
+    }
+    if (/\brepeat\b/.test(text)) {
+        speakCurrentStep();
+        return;
+    }
+    
+    // Go to specific step
+    const stepMatch = text.match(/\b(?:go to|jump to|show me|take me to)\s*step\s*(\d+|one|two|three|four|five|six)\b/);
+    if (stepMatch) {
+        const nums = {one:1,two:2,three:3,four:4,five:5,six:6};
+        const num = isNaN(stepMatch[1]) ? nums[stepMatch[1]] : parseInt(stepMatch[1]);
+        if (num >= 1 && num <= 6) {
+            currentStepIndex = num - 1;
+            updateChefMode();
+            speakCurrentStep();
+            return;
+        }
+    }
+    
+    // Timer commands
+    if (/\b(start|set|begin)\s*(the\s*)?(timer|clock)\b/.test(text)) {
+        const step = steps[currentStepIndex];
+        if (step.timer) {
+            startTimer(step.timer);
+            speak(`Starting timer for ${Math.floor(step.timer/60)} minutes`);
+        } else {
+            speak("No timer for this step");
+        }
+        return;
+    }
+    
+    // Ingredient commands
+    if (/\b(show|display|open|view)\s*(the\s*)?(ingredient|ingredients)\b/.test(text)) {
+        if (!ingredientsVisible) toggleIngredientsView();
+        speak("Showing ingredients");
+        return;
+    }
+    if (/\b(hide|close)\s*(the\s*)?(ingredient|ingredients)\b/.test(text)) {
+        if (ingredientsVisible) toggleIngredientsView();
+        speak("Hiding ingredients");
+        return;
+    }
+    
+    // List ingredients
+    const firstNMatch = text.match(/\b(?:what are|tell me|list|show me)\s*(?:the\s*)?(?:first\s*)?(\d+|one|two|three|four|five)\s*ingredient/);
+    if (firstNMatch) {
+        const nums = {one:1,two:2,three:3,four:4,five:5};
+        const count = isNaN(firstNMatch[1]) ? nums[firstNMatch[1]] : parseInt(firstNMatch[1]);
+        const items = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item span'));
+        const toRead = items.slice(0, count).map(e => e.textContent).join(', and ');
+        speak(toRead);
+        if (!ingredientsVisible) toggleIngredientsView();
+        return;
+    }
+    
+    // Check off ingredient
+    const checkMatch = text.match(/\b(check|mark|cross)\s*(?:off\s*)?(?:the\s*)?(?:ingredient\s*)?(?:number\s*)?(\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen)\b/);
+    if (checkMatch) {
+        const nums = {one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13};
+        const num = isNaN(checkMatch[2]) ? nums[checkMatch[2]] : parseInt(checkMatch[2]);
+        const items = document.querySelectorAll('#ingredientsList .ingredient-item');
+        if (num >= 1 && num <= items.length) {
+            const item = items[num - 1];
+            if (!item.classList.contains('checked')) {
+                toggleIngredient(item);
+                speak(`Checked off ingredient ${num}`);
+            }
+        }
+        return;
+    }
+    
+    // Check by name
+    const ingredients = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item'));
+    for (let i = 0; i < ingredients.length; i++) {
+        const ingText = ingredients[i].querySelector('span').textContent.toLowerCase();
+        if (text.includes('shrimp') && ingText.includes('shrimp')) {
+            if (!ingredients[i].classList.contains('checked')) {
+                toggleIngredient(ingredients[i]);
+                speak("Checked off shrimp");
+            }
+            return;
+        }
+        if (text.includes('cajun') && ingText.includes('cajun')) {
+            if (!ingredients[i].classList.contains('checked')) {
+                toggleIngredient(ingredients[i]);
+                speak("Checked off Cajun spice");
+            }
+            return;
+        }
+        if (text.includes('pepper') && ingText.includes('pepper') && !ingText.includes('black')) {
+            if (!ingredients[i].classList.contains('checked')) {
+                toggleIngredient(ingredients[i]);
+                speak("Checked off bell pepper");
+            }
+            return;
+        }
+    }
+    
+    // If nothing matched
+    speak("I didn't understand that. Try saying next, back, show ingredients, or start timer");
+    showVoiceIndicator("Command not recognized");
 }
 
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SR();
-    recognition.continuous = true; recognition.interimResults = false; recognition.lang = 'en-US';
+    recognition.continuous = true; 
+    recognition.interimResults = false; 
+    recognition.lang = 'en-US';
     
     recognition.onstart = () => {
         recognitionActive = true;
-        document.getElementById('voiceStatus').textContent = '🎤 Say "Chef"';
+        document.getElementById('voiceStatus').textContent = '🎤 Listening';
         document.getElementById('voiceStatus').style.background = '#8fd694';
     };
     
     recognition.onerror = (e) => {
         console.error('Recognition error:', e.error);
         recognitionActive = false;
-        
-        // Don't restart on these errors
-        if (e.error === 'no-speech' || e.error === 'aborted' || e.error === 'audio-capture') {
-            return;
-        }
-        
+        if (e.error === 'no-speech' || e.error === 'aborted' || e.error === 'audio-capture') return;
         document.getElementById('voiceStatus').textContent = '🎤 Click to Retry';
         document.getElementById('voiceStatus').style.background = '#ff4444';
         if (e.error === 'not-allowed') alert('Microphone denied. Allow and refresh.');
@@ -253,126 +349,21 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     
     recognition.onend = () => {
         recognitionActive = false;
-        // Only restart if still in chef mode and not already restarting
         if (chefMode && !recognitionActive) {
             setTimeout(() => { 
                 if (chefMode && !recognitionActive) {
-                    try { 
-                        recognition.start(); 
-                    } catch(e) {
-                        console.log('Could not restart:', e.message);
-                    }
+                    try { recognition.start(); } catch(e) { console.log('Restart failed:', e.message); }
                 }
-            }, 1000); // Increased delay to 1 second
+            }, 1000);
         }
     };
     
-    recognition.onresult = async (e) => {
-        const txt = e.results[e.results.length-1][0].transcript.trim();
-        const low = txt.toLowerCase();
-        console.log('Heard:', txt);
-        showVoiceIndicator(`"${txt}"`);
-        
-        if (!waitingForCommand) {
-            if (low.includes('chef')) {
-                waitingForCommand = true;
-                speak('Yes?');
-                showVoiceIndicator('Listening...');
-                const idx = low.indexOf('chef');
-                const after = txt.slice(idx + 4).trim().replace(/^,|^:/, '').trim();
-                if (after && after.length > 3) {
-                    if (commandTimeout) clearTimeout(commandTimeout);
-                    waitingForCommand = false;
-                    await processVoiceCommand(after);
-                } else {
-                    if (commandTimeout) clearTimeout(commandTimeout);
-                    commandTimeout = setTimeout(() => { waitingForCommand = false; showVoiceIndicator('Timed out'); }, 6000);
-                }
-            }
-        } else {
-            if (commandTimeout) clearTimeout(commandTimeout);
-            waitingForCommand = false;
-            await processVoiceCommand(txt);
-        }
+    recognition.onresult = (e) => {
+        const transcript = e.results[e.results.length-1][0].transcript.trim();
+        console.log('Heard:', transcript);
+        showVoiceIndicator(`"${transcript}"`);
+        processVoiceCommand(transcript);
     };
-}
-
-async function processVoiceCommand(cmd) {
-    showVoiceIndicator('Processing...');
-    const ing = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item span')).map((e,i)=>`${i+1}. ${e.textContent}`).join('\n');
-    const stp = steps.map((s,i)=>`${i+1}. ${s.title}: ${s.text}`).join('\n');
-    
-    try {
-        const r = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST", headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                model: "claude-sonnet-4-20250514", max_tokens: 800,
-                messages: [{role: "user", content: `You are a voice assistant for a cooking app. User is on step ${currentStepIndex+1} of ${steps.length}.
-
-Current step: "${steps[currentStepIndex].title} - ${steps[currentStepIndex].text}"
-
-Ingredients:
-${ing}
-
-Steps:
-${stp}
-
-User said: "${cmd}"
-
-Analyze the command and return ONLY valid JSON (no markdown, no extra text):
-{
-  "action": "<one_of: next_step, prev_step, go_to_step, start_timer, read_ingredients, check_ingredient, toggle_ingredients, unknown>",
-  "step_number": <number or null>,
-  "ingredient_numbers": [<array of ingredient numbers>],
-  "response_text": "<brief spoken response>"
-}
-
-Command examples:
-- "next step" OR "next" OR "continue" → {"action":"next_step","step_number":null,"ingredient_numbers":[],"response_text":"Going to next step"}
-- "what are the first 2 ingredients" OR "tell me the first two ingredients" → {"action":"read_ingredients","step_number":null,"ingredient_numbers":[1,2],"response_text":"3 tablespoons Cajun spice and 12 to 16 shrimp deveined"}
-- "check off the shrimp" OR "mark the shrimp" → {"action":"check_ingredient","step_number":null,"ingredient_numbers":[2],"response_text":"Checked off shrimp"}
-- "go to step 3" OR "jump to step three" → {"action":"go_to_step","step_number":3,"ingredient_numbers":[],"response_text":"Going to step 3"}
-- "start the timer" OR "start timer" → {"action":"start_timer","step_number":null,"ingredient_numbers":[],"response_text":"Starting timer"}
-- "show ingredients" OR "show the ingredients" → {"action":"toggle_ingredients","step_number":null,"ingredient_numbers":[],"response_text":"Showing ingredients"}
-
-Return ONLY the JSON object, nothing else.`}]
-            })
-        });
-        const d = await r.json();
-        const text = d.content[0].text.trim();
-        console.log('Raw AI response:', text);
-        const clean = text.replace(/```json|```/g, "").trim();
-        const c = JSON.parse(clean);
-        console.log('Parsed command:', c);
-        executeVoiceCommand(c);
-    } catch(e) {
-        console.error('AI processing error:', e);
-        speak("Sorry, I didn't understand that");
-        showVoiceIndicator("Error processing command");
-    }
-}
-
-function executeVoiceCommand(c) {
-    if (c.response_text) { speak(c.response_text); showVoiceIndicator(c.response_text); }
-    
-    if (c.action === 'next_step') nextStep();
-    else if (c.action === 'prev_step') prevStep();
-    else if (c.action === 'go_to_step' && c.step_number >= 1 && c.step_number <= steps.length) {
-        currentStepIndex = c.step_number - 1; updateChefMode(); speakCurrentStep();
-    } else if (c.action === 'start_timer') {
-        if (detectedTimers[currentStepIndex]?.[0]) startTimer(detectedTimers[currentStepIndex][0].duration_seconds);
-    } else if (c.action === 'read_ingredients' && c.ingredient_numbers?.length) {
-        const items = document.querySelectorAll('#ingredientsList .ingredient-item span');
-        const txt = c.ingredient_numbers.map(n => items[n-1]?.textContent).filter(Boolean).join(', ');
-        speak(txt || c.response_text);
-    } else if (c.action === 'check_ingredient' && c.ingredient_numbers?.length) {
-        const items = document.querySelectorAll('#ingredientsList .ingredient-item');
-        c.ingredient_numbers.forEach(n => {
-            const it = items[n-1];
-            if (it && !it.classList.contains('checked')) toggleIngredient(it);
-        });
-        updateChefIngredients();
-    } else if (c.action === 'toggle_ingredients') toggleIngredientsView();
 }
 
 function showVoiceIndicator(t) {
@@ -417,7 +408,7 @@ async function toggleChefMode() {
     if (chefMode) {
         btn.classList.add('chef-on'); cont.classList.add('active');
         currentStepIndex = 0;
-        detectTimersInSteps(); updateChefMode(); renderStepsPreview(); updateChefIngredients();
+        updateChefMode(); renderStepsPreview(); updateChefIngredients();
         try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch(e) { enableVideoWakeLock(); }
         if (recognition) try { recognition.start(); } catch(e) { document.getElementById('voiceStatus').textContent = '🎤 Click'; }
         speakCurrentStep();
@@ -440,18 +431,11 @@ function updateChefMode() {
     document.getElementById('nextBtn').disabled = currentStepIndex === steps.length - 1;
     
     const ts = document.getElementById('timerSection');
-    const tb = document.querySelector('.timer-buttons');
-    if (detectedTimers[currentStepIndex]) {
+    if (s.timer) {
         ts.style.display = 'block';
-        tb.querySelectorAll('.ai-timer-btn').forEach(b => b.remove());
-        detectedTimers[currentStepIndex].forEach(t => {
-            const btn = document.createElement('button');
-            btn.className = 'ai-timer-btn';
-            btn.textContent = `⏱️ ${t.label}`;
-            btn.onclick = () => startTimer(t.duration_seconds);
-            tb.insertBefore(btn, tb.firstChild);
-        });
-    } else ts.style.display = 'none';
+    } else {
+        ts.style.display = 'none';
+    }
     
     resetTimer(); renderStepsPreview();
 }
@@ -473,7 +457,7 @@ function renderStepsPreview() {
 function startTimer(sec) {
     resetTimer(); timerSeconds = sec; timerRunning = true; updateTimerDisplay();
     timerInterval = setInterval(() => {
-        if (timerRunning && timerSeconds > 0) { timerSeconds--; updateTimerDisplay(); if (timerSeconds === 0) { timerRunning = false; playTimerSound(); speak('Done!'); } }
+        if (timerRunning && timerSeconds > 0) { timerSeconds--; updateTimerDisplay(); if (timerSeconds === 0) { timerRunning = false; playTimerSound(); speak('Timer done!'); } }
     }, 1000);
 }
 
@@ -524,7 +508,7 @@ function retryVoice() {
     if (recognition && chefMode) {
         try {
             recognition.stop();
-            setTimeout(() => recognition.start(), 100);
+            setTimeout(() => recognition.start(), 500);
         } catch(e) { console.log('Retry fail'); }
     }
 }
