@@ -313,6 +313,38 @@
         .voice-indicator.active {
             display: block;
         }
+        .ai-timer-btn {
+            background: #8fd694 !important;
+            color: #1a1a1a;
+            font-weight: bold;
+        }
+        .ai-timer-btn:hover {
+            background: #7ac682 !important;
+        }
+        .commands-help {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .commands-help h3 {
+            color: #8fd694;
+            margin-bottom: 15px;
+        }
+        .commands-help ul {
+            list-style: none;
+            margin: 0;
+        }
+        .commands-help li {
+            padding: 8px 0;
+            color: #ccc;
+        }
+        .commands-help code {
+            background: #1a1a1a;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #8fd694;
+        }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.6; }
@@ -440,10 +472,10 @@
             <div class="timer-section" id="timerSection" style="display: none;">
                 <div class="timer-display" id="timerDisplay">00:00</div>
                 <div class="timer-buttons">
+                    <!-- AI-detected timers will be inserted here -->
                     <button onclick="startTimer(60)">1 min</button>
                     <button onclick="startTimer(180)">3 min</button>
                     <button onclick="startTimer(300)">5 min</button>
-                    <button onclick="startTimer(customTimerSeconds)" id="customTimerBtn">Custom</button>
                     <button onclick="pauseTimer()">⏸ Pause</button>
                     <button onclick="resetTimer()">🔄 Reset</button>
                 </div>
@@ -459,6 +491,24 @@
             <h3>All Steps</h3>
             <div id="stepsPreview"></div>
         </div>
+        
+        <div class="commands-help">
+            <h3>🎤 Voice Commands</h3>
+            <ul>
+                <li><code>"next step"</code> or <code>"next"</code> - Go to next step</li>
+                <li><code>"previous"</code> or <code>"back"</code> - Go to previous step</li>
+                <li><code>"repeat"</code> - Read current step aloud again</li>
+                <li><code>"timer"</code> or <code>"start timer"</code> - Start the suggested timer</li>
+                <li><code>"ingredients"</code> - Show/hide ingredient list</li>
+            </ul>
+            <h3 style="margin-top: 20px;">⌨️ Other Controls</h3>
+            <ul>
+                <li><strong>Tap the step card</strong> - Advance to next step</li>
+                <li><strong>Use navigation buttons</strong> - Previous/Next at bottom</li>
+                <li><strong>Click any step in preview</strong> - Jump to that step</li>
+                <li><strong>AI Timer Detection</strong> - Automatically creates timer buttons from step text</li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -469,12 +519,14 @@
 <script>
     const steps = [
         { title: "Season the vegetables", text: "Mix peppers, onion, garlic, Cajun seasoning, and pepper.", timer: null },
-        { title: "Sear the shrimp", text: "Cook 30–60 seconds per side.", timer: 60 },
-        { title: "Cook the sausage", text: "Sauté 1 minute.", timer: 60 },
-        { title: "Cook the vegetables", text: "Sear 3–4 minutes.", timer: 240 },
-        { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes.", timer: 300 },
-        { title: "Add pasta", text: "Toss 2–3 minutes until coated.", timer: 180 }
+        { title: "Sear the shrimp", text: "Cook 30–60 seconds per side.", timer: null },
+        { title: "Cook the sausage", text: "Sauté 1 minute.", timer: null },
+        { title: "Cook the vegetables", text: "Sear 3–4 minutes.", timer: null },
+        { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes.", timer: null },
+        { title: "Add pasta", text: "Toss 2–3 minutes until coated.", timer: null }
     ];
+    
+    let detectedTimers = {};
     
     let currentStepIndex = 0;
     let chefMode = false;
@@ -486,6 +538,102 @@
     let recognition = null;
     let ingredientsVisible = false;
     let autoAdvance = false;
+    let videoWakeLock = null;
+    
+    // Fallback wake lock using video element
+    function enableVideoWakeLock() {
+        if (!videoWakeLock) {
+            videoWakeLock = document.createElement('video');
+            videoWakeLock.setAttribute('loop', '');
+            videoWakeLock.setAttribute('muted', '');
+            videoWakeLock.setAttribute('playsinline', '');
+            videoWakeLock.style.position = 'fixed';
+            videoWakeLock.style.opacity = '0';
+            videoWakeLock.style.pointerEvents = 'none';
+            videoWakeLock.style.width = '1px';
+            videoWakeLock.style.height = '1px';
+            
+            // Create a minimal video blob
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            const ctx = canvas.getContext('2d');
+            ctx.fillRect(0, 0, 1, 1);
+            
+            canvas.toBlob(blob => {
+                videoWakeLock.src = URL.createObjectURL(blob);
+                videoWakeLock.play().catch(e => console.log('Video fallback failed:', e));
+            });
+            
+            document.body.appendChild(videoWakeLock);
+        }
+    }
+    
+    function disableVideoWakeLock() {
+        if (videoWakeLock) {
+            videoWakeLock.pause();
+            videoWakeLock.remove();
+            videoWakeLock = null;
+        }
+    }
+    
+    // AI Timer Detection Function
+    async function detectTimersInSteps() {
+        for (let i = 0; i < steps.length; i++) {
+            const step = steps[i];
+            const combinedText = step.title + ". " + step.text;
+            
+            try {
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 1000,
+                        messages: [{
+                            role: "user",
+                            content: `Analyze this cooking step and extract ALL time durations mentioned. Return ONLY a JSON object with this format:
+{
+  "timers": [
+    {"duration_seconds": 45, "label": "30-60 seconds per side (average)"},
+    {"duration_seconds": 120, "label": "2 minutes"}
+  ]
+}
+
+If no times are mentioned, return {"timers": []}.
+
+Cooking step: "${combinedText}"
+
+Rules:
+- For ranges like "30-60 seconds", use the average or middle value
+- For "per side", multiply by 2 for total time
+- Convert all times to seconds
+- Include descriptive labels
+- Return ONLY valid JSON, no other text`
+                        }]
+                    })
+                });
+                
+                const data = await response.json();
+                const text = data.content[0].text.trim();
+                const cleanText = text.replace(/```json|```/g, "").trim();
+                const result = JSON.parse(cleanText);
+                
+                if (result.timers && result.timers.length > 0) {
+                    detectedTimers[i] = result.timers;
+                }
+            } catch (err) {
+                console.error(`AI detection failed for step ${i}:`, err);
+            }
+        }
+    }
+    
+    // Detect timers when page loads
+    if (chefMode) {
+        detectTimersInSteps();
+    }
     
     // Initialize voice recognition
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -543,6 +691,10 @@
             btn.classList.add("chef-on");
             container.classList.add("active");
             currentStepIndex = 0;
+            
+            // Detect timers with AI
+            detectTimersInSteps();
+            
             updateChefMode();
             renderStepsPreview();
             updateChefIngredients();
@@ -551,9 +703,12 @@
             try {
                 if ("wakeLock" in navigator) {
                     wakeLock = await navigator.wakeLock.request("screen");
+                    console.log("Wake Lock activated!");
                 }
             } catch (err) {
-                console.log("Wake Lock failed:", err);
+                console.log("Wake Lock not available - using video fallback");
+                // Fallback: Use hidden video to keep screen awake
+                enableVideoWakeLock();
             }
             
             // Start voice recognition
@@ -598,9 +753,26 @@
         document.getElementById('prevBtn').disabled = currentStepIndex === 0;
         document.getElementById('nextBtn').disabled = currentStepIndex === steps.length - 1;
         
-        // Show/hide timer section
+        // Show/hide timer section with AI-detected timers
         const timerSection = document.getElementById('timerSection');
-        if (step.timer) {
+        const timerButtons = document.querySelector('.timer-buttons');
+        
+        if (detectedTimers[currentStepIndex]) {
+            timerSection.style.display = 'block';
+            
+            // Clear existing custom timer buttons
+            const existingCustom = timerButtons.querySelectorAll('.ai-timer-btn');
+            existingCustom.forEach(btn => btn.remove());
+            
+            // Add AI-detected timer buttons
+            detectedTimers[currentStepIndex].forEach(timer => {
+                const btn = document.createElement('button');
+                btn.className = 'ai-timer-btn';
+                btn.textContent = `⏱️ ${timer.label}`;
+                btn.onclick = () => startTimer(timer.duration_seconds);
+                timerButtons.insertBefore(btn, timerButtons.children[3]);
+            });
+        } else if (step.timer) {
             timerSection.style.display = 'block';
             customTimerSeconds = step.timer;
             document.getElementById('customTimerBtn').textContent = `${Math.floor(step.timer / 60)} min`;
