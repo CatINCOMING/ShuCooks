@@ -307,23 +307,48 @@ async function processVoiceCommand(cmd) {
             method: "POST", headers: {"Content-Type": "application/json"},
             body: JSON.stringify({
                 model: "claude-sonnet-4-20250514", max_tokens: 800,
-                messages: [{role: "user", content: `Voice assistant. Step ${currentStepIndex+1}/${steps.length}.
-Current: "${steps[currentStepIndex].title} - ${steps[currentStepIndex].text}"
-Ingredients:\n${ing}
-Steps:\n${stp}
-User: "${cmd}"
-Return JSON: {"action":"next_step|prev_step|go_to_step|start_timer|read_ingredients|check_ingredient|toggle_ingredients|unknown","step_number":null,"ingredient_numbers":[],"response_text":"text"}`}]
+                messages: [{role: "user", content: `You are a voice assistant for a cooking app. User is on step ${currentStepIndex+1} of ${steps.length}.
+
+Current step: "${steps[currentStepIndex].title} - ${steps[currentStepIndex].text}"
+
+Ingredients:
+${ing}
+
+Steps:
+${stp}
+
+User said: "${cmd}"
+
+Analyze the command and return ONLY valid JSON (no markdown, no extra text):
+{
+  "action": "<one_of: next_step, prev_step, go_to_step, start_timer, read_ingredients, check_ingredient, toggle_ingredients, unknown>",
+  "step_number": <number or null>,
+  "ingredient_numbers": [<array of ingredient numbers>],
+  "response_text": "<brief spoken response>"
+}
+
+Command examples:
+- "next step" OR "next" OR "continue" → {"action":"next_step","step_number":null,"ingredient_numbers":[],"response_text":"Going to next step"}
+- "what are the first 2 ingredients" OR "tell me the first two ingredients" → {"action":"read_ingredients","step_number":null,"ingredient_numbers":[1,2],"response_text":"3 tablespoons Cajun spice and 12 to 16 shrimp deveined"}
+- "check off the shrimp" OR "mark the shrimp" → {"action":"check_ingredient","step_number":null,"ingredient_numbers":[2],"response_text":"Checked off shrimp"}
+- "go to step 3" OR "jump to step three" → {"action":"go_to_step","step_number":3,"ingredient_numbers":[],"response_text":"Going to step 3"}
+- "start the timer" OR "start timer" → {"action":"start_timer","step_number":null,"ingredient_numbers":[],"response_text":"Starting timer"}
+- "show ingredients" OR "show the ingredients" → {"action":"toggle_ingredients","step_number":null,"ingredient_numbers":[],"response_text":"Showing ingredients"}
+
+Return ONLY the JSON object, nothing else.`}]
             })
         });
         const d = await r.json();
-        const clean = d.content[0].text.replace(/```json|```/g, "").trim();
+        const text = d.content[0].text.trim();
+        console.log('Raw AI response:', text);
+        const clean = text.replace(/```json|```/g, "").trim();
         const c = JSON.parse(clean);
-        console.log('AI:', c);
+        console.log('Parsed command:', c);
         executeVoiceCommand(c);
     } catch(e) {
-        console.error('AI fail:', e);
-        speak("Didn't understand");
-        showVoiceIndicator("Error");
+        console.error('AI processing error:', e);
+        speak("Sorry, I didn't understand that");
+        showVoiceIndicator("Error processing command");
     }
 }
 
