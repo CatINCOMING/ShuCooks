@@ -151,12 +151,12 @@
         <div style="margin-top:20px;background:#111;padding:14px;border-radius:8px">
             <h3 style="color:#8fd694;margin-bottom:8px">🎤 Voice Commands (speak naturally)</h3>
             <ul style="color:#ccc;list-style:none;padding-left:0">
-                <li>“Scroll up and show the ingredients”</li>
-                <li>“Cross out the first two ingredients”</li>
-                <li>“Check ingredient 2”</li>
-                <li>“Go to step 3”</li>
-                <li>“Start the timer”</li>
-                <li>“Highlight this step”</li>
+                <li>“Say CHEF, then: Scroll up and show the ingredients”</li>
+                <li>“Say CHEF, then: Cross out the first two ingredients”</li>
+                <li>“Say CHEF, then: Check ingredient 2”</li>
+                <li>“Say CHEF, then: Go to step 3”</li>
+                <li>“Say CHEF, then: Start the timer”</li>
+                <li>“Say CHEF, then: Highlight this step”</li>
             </ul>
         </div>
     </div>
@@ -284,45 +284,116 @@ Rules:
 }
 
 /* =======================
-   Speech recognition + voice parsing
+   Voice wake-word + command flow
+   - Listens for "chef" wake word.
+   - After wake word detected, it waits for the next spoken command (6s window).
+   - Then runs AI + automation and returns to wake-word listening.
    ======================= */
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
+let waitingForCommand = false;
+let commandTimeoutHandle = null;
+
+// Helper to enter command-listening mode after wake word
+function enterCommandMode() {
+    waitingForCommand = true;
+    showVoiceIndicator('Awaiting command...');
+    speak('Yes?');
+    // if no command in 6s, revert to wake-word mode
+    if (commandTimeoutHandle) clearTimeout(commandTimeoutHandle);
+    commandTimeoutHandle = setTimeout(()=> {
+        waitingForCommand = false;
+        showVoiceIndicator('Command timed out.');
+        setTimeout(()=> document.getElementById('voiceIndicator').classList.remove('active'), 1200);
+    }, 6000);
+}
+
+// Replace recognition.onresult to implement wake-word flow
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
-    recognition.continuous = true; recognition.interimResults = false; recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
 
-    recognition.onstart = ()=> {
-        console.log('recognition started');
+    recognition.onstart = () => {
+        console.log('recognition started (wake-word mode)');
         const vs = document.getElementById('voiceStatus');
-        vs.textContent = '🎤 Voice Active'; vs.style.background = '#8fd694';
+        vs.textContent = '🎤 Voice Active';
+        vs.style.background = '#8fd694';
     };
 
-    recognition.onerror = (e)=> {
+    recognition.onerror = (e) => {
         console.error('recognition error', e);
         const vs = document.getElementById('voiceStatus');
-        vs.textContent = '🎤 Click to Retry'; vs.style.background = '#ff4444';
+        vs.textContent = '🎤 Click to Retry';
+        vs.style.background = '#ff4444';
         if (e.error === 'not-allowed') alert('Microphone permission denied. Allow mic and refresh.');
     };
 
-    recognition.onend = ()=> {
+    recognition.onend = () => {
         // auto-restart while chefMode active
         if (chefMode) {
-            setTimeout(()=>{ try { recognition.start(); } catch(_){} }, 200);
+            setTimeout(()=> {
+                try { recognition.start(); } catch(_) { console.log('Could not restart recognition'); }
+            }, 200);
         }
     };
 
     recognition.onresult = async (event) => {
-        const transcript = event.results[event.results.length-1][0].transcript.trim();
-        console.log('Heard:', transcript);
-        showVoiceIndicator(`Heard: "${transcript}"`);
+        // Grab the most recent result
+        const result = event.results[event.results.length-1][0];
+        const transcriptRaw = result.transcript.trim();
+        const transcript = transcriptRaw.toLowerCase();
+        console.log('Heard:', transcriptRaw);
+        showVoiceIndicator(`Heard: "${transcriptRaw}"`);
 
-        // Build context: ingredients + steps
-        const ingredientsList = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item span'))
-            .map((el,i)=> `${i+1}. ${el.textContent}`).join('\n');
-        const stepsText = steps.map((s,i)=> `${i+1}. ${s.title}: ${s.text}`).join('\n');
+        // If we are NOT waiting for command, treat this as wake-word detection only
+        if (!waitingForCommand) {
+            // If wake word present anywhere in the phrase, enter command mode.
+            // Accept "chef" or "hey chef" or "ok chef"
+            if (transcript.includes('chef')) {
+                // If the user said "chef, cross out..." in single phrase, try to extract trailing command.
+                // Find index of 'chef' and anything after it
+                const idx = transcript.indexOf('chef');
+                const after = transcriptRaw.slice(idx + 4).trim().replace(/^,|^:|\-|^\s/, '').trim(); // raw-case tail
+                enterCommandMode();
 
-        // Prompt: request structured "automation_actions" JSON
-        const commandPrompt = `You are a voice assistant for a cooking app. The UI has an ingredients list and numbered steps.
+                if (after && after.length > 0) {
+                    // We have an immediate command after the wake word in same utterance
+                    // Process it immediately (cancel timeout)
+                    if (commandTimeoutHandle) { clearTimeout(commandTimeoutHandle); commandTimeoutHandle = null; }
+                    waitingForCommand = false; // consume command
+                    await processVoiceCommand(after);
+                    return;
+                }
+                // else: wait for next utterance (within timeout)
+                return;
+            } else {
+                // not wake-word, ignore
+                return;
+            }
+        } else {
+            // We ARE waiting for a command — treat this transcript as the command
+            if (commandTimeoutHandle) { clearTimeout(commandTimeoutHandle); commandTimeoutHandle = null; }
+            waitingForCommand = false;
+            await processVoiceCommand(transcriptRaw);
+            return;
+        }
+    };
+} else {
+    document.getElementById('voiceStatus').textContent = '🎤 Not Supported';
+    document.getElementById('voiceStatus').style.background = '#666';
+}
+
+/* Process the spoken command text: ask AI, run automation, speak response */
+async function processVoiceCommand(commandText) {
+    // show feedback
+    showVoiceIndicator('Processing command...');
+    // Build context
+    const ingredientsList = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item span'))
+        .map((el,i)=> `${i+1}. ${el.textContent}`).join('\n');
+    const stepsText = steps.map((s,i)=> `${i+1}. ${s.title}: ${s.text}`).join('\n');
+
+    const commandPrompt = `You are a voice assistant for a cooking app. The UI has an ingredients list and numbered steps.
 
 Current step: ${currentStepIndex+1} / ${steps.length}
 Step title: "${steps[currentStepIndex].title}" - ${steps[currentStepIndex].text}
@@ -333,7 +404,7 @@ ${ingredientsList}
 Steps:
 ${stepsText}
 
-User said: "${transcript}"
+User said: "${commandText}"
 
 Return ONLY valid JSON (no extra text) with this schema:
 {
@@ -353,63 +424,49 @@ Return ONLY valid JSON (no extra text) with this schema:
   "response_text":"brief message to speak"
 }
 
-Examples:
-- "Scroll up and show the ingredients" => { "action":"scroll_to_ingredients", "automation_actions":[{"type":"scroll","target":"ingredients"},{"type":"show_ingredients"}], "response_text":"Showing ingredients" }
-- "Cross out the first two ingredients" => { "action":"cross_out_ingredients", "ingredient_numbers":[1,2], "automation_actions":[{"type":"cross_out","indices":[1,2]}], "response_text":"Crossed out the first two ingredients" }
+Be concise and return valid JSON only.`;
 
-Be concise and return valid JSON only.
-`;
-
-        try {
-            const aiReply = await askLocalAI(commandPrompt);
-            const cleaned = aiReply.replace(/```json|```/g,'').trim();
-            let command;
-            try {
-                command = JSON.parse(cleaned);
-            } catch (err) {
-                console.warn('AI JSON parse failed — fallback heuristics', err);
-                // fallback simple parsing
-                const text = cleaned.toLowerCase();
-                command = { action: 'unknown', step_number: null, ingredient_numbers: [], ingredient_names: [], automation_actions: [], response_text: "Sorry, I didn't understand that." };
-                if (text.includes('next')) command.action='next_step';
-                if (text.includes('previous')||text.includes('back')) command.action='prev_step';
-                const goTo = text.match(/step\s*(\d+)/);
-                if (goTo) { command.action='go_to_step'; command.step_number = parseInt(goTo[1],10); command.response_text = `Going to step ${goTo[1]}`; }
-                const crossMatch = text.match(/first\s*(\d+)\s*ingredients|(\d+)\s*ingredients/);
-                if (crossMatch) {
-                    const n = parseInt(crossMatch[1]||crossMatch[2],10);
-                    if (!isNaN(n)) {
-                        command.action='cross_out_ingredients';
-                        command.ingredient_numbers = Array.from({length:n}, (_,i)=>i+1);
-                        command.automation_actions=[{type:'cross_out',indices:command.ingredient_numbers}];
-                        command.response_text = `Crossed out the first ${n} ingredients`;
-                    }
-                }
+    // Ask local AI
+    let aiReply = await askLocalAI(commandPrompt);
+    const cleaned = aiReply.replace(/```json|```/g,'').trim();
+    let command;
+    try {
+        command = JSON.parse(cleaned);
+    } catch (err) {
+        console.warn('AI JSON parse failed — fallback heuristics', err);
+        // fallback simple parsing (best-effort)
+        const text = cleaned.toLowerCase();
+        command = { action: 'unknown', step_number: null, ingredient_numbers: [], ingredient_names: [], automation_actions: [], response_text: "Sorry, I didn't understand that." };
+        if (text.includes('next')) command.action='next_step';
+        if (text.includes('previous')||text.includes('back')) command.action='prev_step';
+        const goTo = text.match(/step\s*(\d+)/);
+        if (goTo) { command.action='go_to_step'; command.step_number = parseInt(goTo[1],10); command.response_text = `Going to step ${goTo[1]}`; }
+        const crossMatch = text.match(/first\s*(\d+)\s*ingredients|(\d+)\s*ingredients/);
+        if (crossMatch) {
+            const n = parseInt(crossMatch[1]||crossMatch[2],10);
+            if (!isNaN(n)) {
+                command.action='cross_out_ingredients';
+                command.ingredient_numbers = Array.from({length:n}, (_,i)=>i+1);
+                command.automation_actions=[{type:'cross_out',indices:command.ingredient_numbers}];
+                command.response_text = `Crossed out the first ${n} ingredients`;
             }
-
-            console.log('AI command:', command);
-            // Execute automation actions first (if present)
-            if (Array.isArray(command.automation_actions) && command.automation_actions.length>0){
-                for (const a of command.automation_actions){
-                    await performAutomationAction(a);
-                }
-            }
-            executeVoiceCommand(command);
-        } catch(e){
-            console.error('Processing voice command failed', e);
-            showVoiceIndicator("Sorry, I didn't understand that");
         }
-    };
-} else {
-    document.getElementById('voiceStatus').textContent = '🎤 Not Supported';
-    document.getElementById('voiceStatus').style.background = '#666';
+    }
+
+    console.log('AI command:', command);
+    // Execute automation actions first (if present)
+    if (Array.isArray(command.automation_actions) && command.automation_actions.length>0){
+        for (const a of command.automation_actions){
+            await performAutomationAction(a);
+        }
+    }
+    executeVoiceCommand(command);
 }
 
 /* =======================
-   Automation action performer
+   Automation action performer (unchanged)
    ======================= */
 async function performAutomationAction(a){
-    // a.type defines the action
     switch(a.type){
         case 'scroll':
             if (a.target === 'ingredients') {
@@ -425,7 +482,6 @@ async function performAutomationAction(a){
             break;
         case 'show_ingredients':
             if (!ingredientsVisible) toggleIngredientsView();
-            // also ensure main ingredients section is visible and scrolled
             document.getElementById('ingredientsList').scrollIntoView({behavior:'smooth', block:'center'});
             break;
         case 'hide_ingredients':
@@ -443,7 +499,6 @@ async function performAutomationAction(a){
             }
             break;
         case 'cross_out':
-            // same as check in UI terms
             if (Array.isArray(a.indices)){
                 const items = document.querySelectorAll('#ingredientsList .ingredient-item');
                 a.indices.forEach(i=>{
@@ -458,13 +513,11 @@ async function performAutomationAction(a){
             if (a.step_number){
                 currentStepIndex = Math.max(0, Math.min(steps.length-1, a.step_number-1));
                 updateChefMode();
-                // visually flash the step
                 const stepPreview = document.querySelectorAll('.step-preview')[currentStepIndex];
                 if (stepPreview){
                     stepPreview.classList.add('active');
                     setTimeout(()=>stepPreview.classList.remove('active'), 2500);
                 }
-                // scroll the step into view
                 const ol = document.getElementById('instructionsList');
                 if (ol){
                     const li = ol.children[currentStepIndex];
@@ -477,7 +530,6 @@ async function performAutomationAction(a){
             else if (detectedTimers[currentStepIndex] && detectedTimers[currentStepIndex][0]) startTimer(detectedTimers[currentStepIndex][0].duration_seconds);
             break;
         default:
-            // unknown or unsupported automation
             break;
     }
 }
@@ -486,7 +538,6 @@ async function performAutomationAction(a){
    Handle parsed command (higher-level)
    ======================= */
 function executeVoiceCommand(command){
-    // speak the response_text if present
     if (command.response_text) speak(command.response_text);
 
     switch(command.action){
@@ -501,14 +552,12 @@ function executeVoiceCommand(command){
             break;
         case 'start_timer':
             if (command.step_number) {
-                // if a specific step is provided
                 if (detectedTimers[command.step_number-1] && detectedTimers[command.step_number-1][0]) startTimer(detectedTimers[command.step_number-1][0].duration_seconds);
             } else {
                 if (detectedTimers[currentStepIndex] && detectedTimers[currentStepIndex][0]) startTimer(detectedTimers[currentStepIndex][0].duration_seconds);
             }
             break;
         case 'read_ingredients':
-            // read specified ingredient names or the first N
             if (Array.isArray(command.ingredient_numbers) && command.ingredient_numbers.length>0){
                 const items = document.querySelectorAll('#ingredientsList .ingredient-item span');
                 const toRead = command.ingredient_numbers.map(n => (items[n-1]?.textContent || '')).filter(Boolean).join(', ');
@@ -558,7 +607,6 @@ function executeVoiceCommand(command){
             if (chefMode) toggleChefMode();
             break;
         default:
-            // unknown — speak fallback
             if (!command.response_text) speak("Sorry, I didn't understand that.");
             break;
     }
@@ -587,7 +635,6 @@ function toggleChefIngredient(element){
     checkbox.checked = !checkbox.checked;
     element.classList.toggle('checked');
 
-    // sync main list
     const mainItems = document.querySelectorAll('#ingredientsList .ingredient-item');
     const mainItem = mainItems[index];
     if (mainItem){
@@ -622,7 +669,6 @@ async function toggleChefMode(){
         renderStepsPreview();
         updateChefIngredients();
 
-        // wake lock
         try {
             if ('wakeLock' in navigator) {
                 wakeLock = await navigator.wakeLock.request('screen');
@@ -631,7 +677,6 @@ async function toggleChefMode(){
             enableVideoWakeLock();
         }
 
-        // start speech recognition
         if (recognition){
             try { recognition.start(); } catch(e){ console.log('recognition start error', e); document.getElementById('voiceStatus').textContent='🎤 Click to Enable'; }
         }
@@ -663,7 +708,6 @@ function updateChefMode(){
 
     if (detectedTimers[currentStepIndex]){
         timerSection.style.display = 'block';
-        // remove existing ai-timer-btns
         const existing = timerButtons.querySelectorAll('.ai-timer-btn');
         existing.forEach(b=>b.remove());
         detectedTimers[currentStepIndex].forEach(timer=>{
