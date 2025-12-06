@@ -163,23 +163,163 @@
         </div>
         
         <div class="commands-help">
-            <h3>🎤 Voice Commands (Natural Language):</h3>
-            <ul>
-                <li><code>"next"</code> or <code>"next step"</code> or <code>"continue"</code></li>
-                <li><code>"back"</code> or <code>"previous"</code> or <code>"go back"</code></li>
-                <li><code>"what are the first 2 ingredients"</code> or <code>"list ingredients"</code></li>
-                <li><code>"check off the shrimp"</code> or <code>"mark ingredient 2"</code></li>
-                <li><code>"start timer"</code> or <code>"set a timer"</code></li>
-                <li><code>"show ingredients"</code> or <code>"hide ingredients"</code></li>
-                <li><code>"go to step 3"</code> or <code>"jump to step 5"</code></li>
-                <li><code>"repeat"</code> or <code>"say that again"</code></li>
-            </ul>
-            <p style="margin-top: 10px; color: #8fd694;">✨ No wake word needed - just speak naturally!</p>
+            <h3>🎤 Voice Commands Reference</h3>
+            
+            <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: #8fd694; margin-bottom: 10px;">✅ CONFIRMED WORKING:</h4>
+                <ul style="color: #8fd694;">
+                    <li><code>"next"</code> or <code>"next step"</code> or <code>"continue"</code></li>
+                    <li><code>"back"</code> or <code>"previous"</code></li>
+                    <li><code>"go to step 3"</code> (works for steps 1-6)</li>
+                    <li><code>"repeat"</code> or <code>"say that again"</code></li>
+                    <li><code>"start timer"</code> or <code>"set a timer"</code></li>
+                    <li><code>"show ingredients"</code></li>
+                    <li><code>"hide ingredients"</code></li>
+                </ul>
+            </div>
+            
+            <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="color: #ffc988; margin-bottom: 10px;">⚠️ MIGHT WORK (Test These):</h4>
+                <ul style="color: #ffc988;">
+                    <li><code>"what are the first 2 ingredients"</code></li>
+                    <li><code>"what are the first three ingredients"</code></li>
+                    <li><code>"check off ingredient 2"</code></li>
+                    <li><code>"check off the shrimp"</code></li>
+                    <li><code>"mark the bell pepper"</code></li>
+                    <li><code>"jump to step five"</code></li>
+                </ul>
+            </div>
+            
+            <div style="background: #1a1a1a; padding: 15px; border-radius: 8px;">
+                <h4 style="color: #ff6b6b; margin-bottom: 10px;">❌ NOT WORKING YET:</h4>
+                <ul style="color: #ff6b6b;">
+                    <li>Complex multi-part commands</li>
+                    <li>Questions about recipe details</li>
+                    <li>Custom timer durations</li>
+                    <li>Temperature or measurement conversions</li>
+                </ul>
+            </div>
+            
+            <p style="margin-top: 15px; color: #8fd694; font-size: 14px;">
+                💡 <strong>Pro Tip:</strong> Speak clearly and use simple, direct commands. 
+                If a command doesn't work, try a simpler version from the "Confirmed Working" list.
+            </p>
+            
+            <button onclick="showCommandTestPage()" style="margin-top: 15px; width: 100%; background: #8fd694; color: #1a1a1a; font-weight: bold;">
+                📋 Open Full Command Reference
+            </button>
         </div>
     </div>
 </div>
 
 <div class="voice-indicator" id="voiceIndicator">🎤 Listening...</div>
+
+<!-- Command Reference Modal -->
+<div id="commandModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; overflow-y: auto; padding: 20px;">
+    <div style="max-width: 900px; margin: 0 auto; background: #1a1a1a; border-radius: 14px; padding: 30px; color: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h2 style="color: #8fd694; margin: 0;">🎤 Complete Voice Commands Reference</h2>
+            <button onclick="closeCommandModal()" style="background: #ff4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 16px;">✕ Close</button>
+        </div>
+        
+        <div style="background: #0a5c0a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #8fd694;">
+            <h3 style="color: #8fd694; margin-bottom: 15px;">✅ CONFIRMED WORKING COMMANDS</h3>
+            <p style="color: #ccc; margin-bottom: 15px;">These commands have been tested and work reliably:</p>
+            
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #8fd694; margin-bottom: 8px;">Navigation:</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🎯 <code style="color: #8fd694;">"next"</code> - Go to next step</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🎯 <code style="color: #8fd694;">"next step"</code> - Go to next step</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🎯 <code style="color: #8fd694;">"continue"</code> - Go to next step</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🎯 <code style="color: #8fd694;">"back"</code> - Go to previous step</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🎯 <code style="color: #8fd694;">"previous"</code> - Go to previous step</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🎯 <code style="color: #8fd694;">"go to step 3"</code> - Jump to step 3 (works for 1-6)</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🎯 <code style="color: #8fd694;">"repeat"</code> - Read current step again</li>
+                </ul>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #8fd694; margin-bottom: 8px;">Timer:</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">⏱️ <code style="color: #8fd694;">"start timer"</code> - Start the timer for current step</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">⏱️ <code style="color: #8fd694;">"set a timer"</code> - Start the timer for current step</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">⏱️ <code style="color: #8fd694;">"begin timer"</code> - Start the timer for current step</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 style="color: #8fd694; margin-bottom: 8px;">Ingredients:</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">📋 <code style="color: #8fd694;">"show ingredients"</code> - Display ingredient list</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">📋 <code style="color: #8fd694;">"hide ingredients"</code> - Hide ingredient list</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="background: #5c4a0a; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #ffc988;">
+            <h3 style="color: #ffc988; margin-bottom: 15px;">⚠️ EXPERIMENTAL - MIGHT WORK</h3>
+            <p style="color: #ccc; margin-bottom: 15px;">These commands use pattern matching and may work depending on pronunciation:</p>
+            
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #ffc988; margin-bottom: 8px;">Reading Ingredients:</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"what are the first 2 ingredients"</code></li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"tell me the first three ingredients"</code></li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"list the first five ingredients"</code></li>
+                </ul>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h4 style="color: #ffc988; margin-bottom: 8px;">Checking Off Ingredients:</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"check off ingredient 2"</code> - Mark ingredient #2</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"mark ingredient five"</code> - Mark ingredient #5</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"check off the shrimp"</code> - Mark shrimp</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"cross off the cajun spice"</code> - Mark cajun spice</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"mark the bell pepper"</code> - Mark bell pepper</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h4 style="color: #ffc988; margin-bottom: 8px;">Alternative Navigation:</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"jump to step five"</code> - Jump to step 5</li>
+                    <li style="padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 4px;">🔶 <code style="color: #ffc988;">"take me to step four"</code> - Jump to step 4</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div style="background: #4a0a0a; padding: 20px; border-radius: 8px; border-left: 5px solid #ff6b6b;">
+            <h3 style="color: #ff6b6b; margin-bottom: 15px;">❌ NOT YET IMPLEMENTED</h3>
+            <p style="color: #ccc; margin-bottom: 15px;">These features are not currently available:</p>
+            <ul style="list-style: none; padding: 0; color: #ff6b6b;">
+                <li style="padding: 5px 0;">❌ Complex multi-part commands ("go to step 3 and start the timer")</li>
+                <li style="padding: 5px 0;">❌ Questions about recipe ("how much salt do I need?")</li>
+                <li style="padding: 5px 0;">❌ Custom timer durations ("set timer for 2 minutes")</li>
+                <li style="padding: 5px 0;">❌ Conversions ("convert 1 cup to milliliters")</li>
+                <li style="padding: 5px 0;">❌ Substitutions ("what can I use instead of shrimp?")</li>
+                <li style="padding: 5px 0;">❌ Pausing/resuming voice commands</li>
+            </ul>
+        </div>
+        
+        <div style="background: #2a2a2a; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <h3 style="color: #8fd694; margin-bottom: 10px;">💡 Tips for Success:</h3>
+            <ul style="color: #ccc; line-height: 1.8;">
+                <li>✅ Speak clearly and at normal pace</li>
+                <li>✅ Use simple, direct commands</li>
+                <li>✅ Wait for the voice indicator before speaking</li>
+                <li>✅ If a command doesn't work, try a simpler version</li>
+                <li>✅ Check the console (F12) to see what the app heard</li>
+                <li>✅ For best results, use Chrome or Edge browser</li>
+            </ul>
+        </div>
+        
+        <button onclick="closeCommandModal()" style="margin-top: 20px; width: 100%; background: #8fd694; color: #1a1a1a; border: none; padding: 15px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">
+            ✓ Got It - Close Reference
+        </button>
+    </div>
+</div>
 
 <script>
 const steps = [
@@ -533,6 +673,20 @@ function updateChefIngredients() {
 }
 
 function printRecipe() { window.print(); }
+
+function showCommandTestPage() {
+    document.getElementById('commandModal').style.display = 'block';
+}
+
+function closeCommandModal() {
+    document.getElementById('commandModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('commandModal');
+    if (e.target === modal) closeCommandModal();
+});
 
 document.getElementById('ingredientsList').addEventListener('change', updateChefIngredients);
 </script>
