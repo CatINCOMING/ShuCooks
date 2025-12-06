@@ -238,16 +238,33 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     };
     
     recognition.onerror = (e) => {
+        console.error('Recognition error:', e.error);
         recognitionActive = false;
-        if (e.error === 'no-speech' || e.error === 'aborted') return;
-        document.getElementById('voiceStatus').textContent = '🎤 Retry';
+        
+        // Don't restart on these errors
+        if (e.error === 'no-speech' || e.error === 'aborted' || e.error === 'audio-capture') {
+            return;
+        }
+        
+        document.getElementById('voiceStatus').textContent = '🎤 Click to Retry';
         document.getElementById('voiceStatus').style.background = '#ff4444';
         if (e.error === 'not-allowed') alert('Microphone denied. Allow and refresh.');
     };
     
     recognition.onend = () => {
         recognitionActive = false;
-        if (chefMode) setTimeout(() => { if (chefMode && !recognitionActive) try { recognition.start(); } catch(e){} }, 500);
+        // Only restart if still in chef mode and not already restarting
+        if (chefMode && !recognitionActive) {
+            setTimeout(() => { 
+                if (chefMode && !recognitionActive) {
+                    try { 
+                        recognition.start(); 
+                    } catch(e) {
+                        console.log('Could not restart:', e.message);
+                    }
+                }
+            }, 1000); // Increased delay to 1 second
+        }
     };
     
     recognition.onresult = async (e) => {
