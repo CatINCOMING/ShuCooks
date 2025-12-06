@@ -1,400 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jambalaya Recipe - ShuCooks</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Jambalaya — ShuCooks (Voice AI Automation)</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #fafafa;
-        }
-        .navbar {
-            display: flex;
-            gap: 20px;
-            padding: 15px;
-            background: #ffffffcc;
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid #ddd;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .navbar a {
-            padding: 10px 20px;
-            background: #f2f2f2;
-            border-radius: 20px;
-            text-decoration: none;
-            color: #333;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-        .navbar a:hover {
-            background: #ffd6a5;
-        }
-        .navbar .logo {
-            background: #ffd6a5;
-        }
-        .content {
-            padding: 30px;
-            max-width: 900px;
-            margin: auto;
-        }
-        .recipe-photo {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-            border-radius: 14px;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, #ff6b35, #f7931e);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 32px;
-            font-weight: bold;
-        }
-        .button-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        button {
-            padding: 10px 18px;
-            border: none;
-            background: #ffe5b4;
-            border-radius: 14px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        button:hover {
-            background: #ffc988;
-        }
-        .chef-on {
-            background: #8fd694 !important;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        h2 {
-            margin-top: 30px;
-            margin-bottom: 15px;
-        }
-        ul, ol {
-            margin-left: 20px;
-            line-height: 1.8;
-        }
-        li {
-            margin-bottom: 8px;
-        }
-        .ingredient-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            transition: 0.2s;
-        }
-        .ingredient-item:hover {
-            background: #f0f0f0;
-        }
-        .ingredient-item input[type="checkbox"] {
-            margin-right: 10px;
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        .ingredient-item.checked {
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-        .chef-mode-container {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #1a1a1a;
-            color: white;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        .chef-mode-container.active {
-            display: block;
-        }
-        .chef-mode-header {
-            background: #2a2a2a;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .chef-mode-header h2 {
-            margin: 0;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .exit-chef-mode {
-            background: #ff4444;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .chef-mode-content {
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .progress-bar {
-            background: #333;
-            height: 8px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-        .progress-fill {
-            background: #8fd694;
-            height: 100%;
-            transition: width 0.3s;
-        }
-        .progress-text {
-            text-align: center;
-            color: #999;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        .current-step {
-            background: #2a2a2a;
-            padding: 30px;
-            border-radius: 14px;
-            margin-bottom: 20px;
-            border: 3px solid #8fd694;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .current-step:active {
-            transform: scale(0.98);
-        }
-        .step-title {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #8fd694;
-        }
-        .step-text {
-            font-size: 24px;
-            line-height: 1.6;
-        }
-        .timer-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #444;
-        }
-        .timer-display {
-            font-size: 48px;
-            font-weight: bold;
-            text-align: center;
-            color: #8fd694;
-            margin: 20px 0;
-        }
-        .timer-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-        .timer-buttons button {
-            background: #444;
-            color: white;
-            padding: 12px 20px;
-            font-size: 16px;
-        }
-        .timer-buttons button:hover {
-            background: #555;
-        }
-        .chef-navigation {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .chef-navigation button {
-            flex: 1;
-            padding: 18px;
-            font-size: 18px;
-            background: #444;
-            color: white;
-        }
-        .chef-navigation button:hover {
-            background: #555;
-        }
-        .chef-navigation button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        .all-steps-preview {
-            margin-top: 30px;
-        }
-        .step-preview {
-            background: #2a2a2a;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            opacity: 0.5;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .step-preview:hover {
-            opacity: 0.8;
-        }
-        .step-preview.completed {
-            opacity: 0.3;
-            text-decoration: line-through;
-        }
-        .step-preview.active {
-            opacity: 1;
-            border: 2px solid #8fd694;
-        }
-        .ingredients-toggle {
-            background: #444;
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-        .ingredients-list {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        .ingredients-list ul {
-            list-style: none;
-            margin: 0;
-        }
-        .chef-ingredient-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #444;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .chef-ingredient-item:hover {
-            background: #333;
-        }
-        .chef-ingredient-item input[type="checkbox"] {
-            margin-right: 12px;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-        .chef-ingredient-item.checked {
-            text-decoration: line-through;
-            opacity: 0.5;
-        }
-        .voice-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #8fd694;
-            color: #1a1a1a;
-            padding: 15px 20px;
-            border-radius: 30px;
-            font-weight: bold;
-            animation: pulse 2s infinite;
-            display: none;
-            max-width: 300px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .voice-indicator.active {
-            display: block;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        .hands-free-badge {
-            display: inline-block;
-            background: #8fd694;
-            color: #1a1a1a;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        #voiceStatus {
-            display: inline-block;
-            background: #ffc988;
-            color: #1a1a1a;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        #voiceStatus:hover {
-            opacity: 0.8;
-        }
-        .ai-timer-btn {
-            background: #8fd694 !important;
-            color: #1a1a1a;
-            font-weight: bold;
-        }
-        .ai-timer-btn:hover {
-            background: #7ac682 !important;
-        }
-        .commands-help {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-        }
-        .commands-help h3 {
-            color: #8fd694;
-            margin-bottom: 15px;
-        }
-        .commands-help ul {
-            list-style: none;
-            margin: 0;
-        }
-        .commands-help li {
-            padding: 8px 0;
-            color: #ccc;
-        }
-        .commands-help code {
-            background: #1a1a1a;
-            padding: 3px 8px;
-            border-radius: 4px;
-            color: #8fd694;
-        }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:Arial,Helvetica,sans-serif;background:#fafafa;color:#111}
+        .navbar{display:flex;gap:20px;padding:15px;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid #ddd;position:sticky;top:0;z-index:30}
+        .navbar a{padding:10px 20px;background:#f2f2f2;border-radius:20px;text-decoration:none;color:#333;font-weight:700}
+        .navbar .logo{background:#ffd6a5}
+        .content{padding:30px;max-width:900px;margin:20px auto}
+        .recipe-photo{width:100%;height:260px;border-radius:14px;margin-bottom:20px;background:linear-gradient(135deg,#ff6b35,#f7931e);display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;font-weight:700}
+        .button-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+        button{padding:10px 18px;border:none;background:#ffe5b4;border-radius:14px;font-size:16px;cursor:pointer;transition:.18s}
+        button:hover{background:#ffc988}
+        .chef-on{background:#8fd694!important}
+        h1{margin-bottom:16px}
+        h2{margin-top:24px;margin-bottom:12px}
+        .ingredient-item{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;cursor:pointer;margin-bottom:8px}
+        .ingredient-item:hover{background:#f0f0f0}
+        .ingredient-item input[type="checkbox"]{width:18px;height:18px;cursor:pointer}
+        .ingredient-item.checked{text-decoration:line-through;opacity:.6}
+        .chef-mode-container{display:none;position:fixed;inset:0;background:#111;color:#fff;z-index:1000;overflow:auto}
+        .chef-mode-container.active{display:block}
+        .chef-mode-header{background:#1f1f1f;padding:15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:20}
+        .exit-chef-mode{background:#ff4444;color:#fff;padding:8px 14px;border-radius:8px;border:none;cursor:pointer}
+        .chef-mode-content{padding:20px;max-width:900px;margin:0 auto}
+        .progress-bar{height:8px;background:#333;border-radius:6px;overflow:hidden;margin-bottom:12px}
+        .progress-fill{height:100%;background:#8fd694;width:0;transition:width .25s}
+        .current-step{background:#222;padding:22px;border-radius:12px;margin-bottom:12px;border:3px solid #8fd694;cursor:pointer}
+        .step-title{font-size:24px;color:#8fd694;margin-bottom:10px}
+        .step-text{font-size:18px;line-height:1.5}
+        .timer-display{font-size:40px;text-align:center;color:#8fd694;margin:12px 0}
+        .timer-buttons{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+        .timer-buttons button{background:#444;color:#fff;padding:10px 14px}
+        .chef-navigation{display:flex;gap:12px;margin:12px 0}
+        .chef-navigation button{flex:1;background:#444;color:#fff;padding:12px;border-radius:8px}
+        .all-steps-preview{margin-top:18px}
+        .step-preview{background:#222;padding:10px;border-radius:8px;margin-bottom:8px;opacity:.6;cursor:pointer}
+        .step-preview.active{opacity:1;border:2px solid #8fd694}
+        .ingredients-toggle{background:#444;color:#fff;padding:12px;border-radius:8px;cursor:pointer;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+        .ingredients-list{background:#222;padding:14px;border-radius:8px;margin-top:8px}
+        .chef-ingredient-item{display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px solid #333;cursor:pointer}
+        .voice-indicator{position:fixed;right:20px;bottom:20px;background:#8fd694;color:#111;padding:10px 14px;border-radius:999px;font-weight:700;box-shadow:0 6px 18px rgba(0,0,0,.2);display:none;z-index:60}
+        .voice-indicator.active{display:block}
+        .hands-free-badge{display:inline-block;background:#8fd694;color:#111;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;margin-left:10px}
+        #voiceStatus{display:inline-block;background:#ffc988;color:#111;padding:6px 10px;border-radius:12px;font-weight:700;cursor:pointer}
     </style>
+
+    <!-- WebLLM: in-browser model (no API key) -->
+    <script src="https://esm.run/@mlc-ai/web-llm"></script>
 </head>
 <body>
+
 <nav class="navbar">
-    <a href="#" class="logo">ShuCooks</a>
+    <a class="logo" href="#">ShuCooks</a>
     <a href="#">Home</a>
     <a href="#">Recipes</a>
     <a href="#">Contact</a>
@@ -403,68 +64,29 @@
 <section class="content">
     <h1>Jambalaya (CPK-Style)</h1>
     <div class="recipe-photo">Jambalaya Photo</div>
-    
+
     <div class="button-row">
         <button onclick="printRecipe()">🖨️ Print Recipe</button>
         <button id="chefBtn" onclick="toggleChefMode()">👨‍🍳 Chef Mode</button>
     </div>
-    
+
     <h2>Ingredients (Serves 4)</h2>
-    <div id="ingredientsList">
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>3 tbsp Cajun spice</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>12–16 shrimp, deveined</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>½ red bell pepper, diced</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>1 jalapeño, diced</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>½ red onion, diced</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>½ lb cooked linguine</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>1 andouille sausage, sliced</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>1 ½ cups chicken stock</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>1 tbsp tomato sauce</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>½ tsp salt</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>¼ tsp black pepper</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>3 cloves garlic, minced</span>
-        </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
-            <input type="checkbox">
-            <span>3 tbsp cooking oil</span>
-        </div>
+    <div id="ingredientsList" tabindex="-1">
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>3 tbsp Cajun spice</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>12–16 shrimp, deveined</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>½ red bell pepper, diced</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>1 jalapeño, diced</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>½ red onion, diced</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>½ lb cooked linguine</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>1 andouille sausage, sliced</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>1 ½ cups chicken stock</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>1 tbsp tomato sauce</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>½ tsp salt</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>¼ tsp black pepper</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>3 cloves garlic, minced</span></div>
+        <div class="ingredient-item" onclick="toggleIngredient(this)"><input type="checkbox"><span>3 tbsp cooking oil</span></div>
     </div>
-    
+
     <h2>Instructions</h2>
     <ol id="instructionsList">
         <li><strong>Season the vegetables:</strong> Mix peppers, onion, garlic, Cajun seasoning, and pepper.</li>
@@ -476,36 +98,36 @@
     </ol>
 </section>
 
-<!-- Chef Mode Container -->
+<!-- Chef Mode -->
 <div id="chefModeContainer" class="chef-mode-container">
     <div class="chef-mode-header">
-        <h2>
+        <h2 style="display:flex;align-items:center;gap:10px">
             <span>👨‍🍳 Chef Mode</span>
             <span class="hands-free-badge">🔓 Screen Unlocked</span>
-            <span id="voiceStatus" onclick="retryVoice()">🎤 Starting...</span>
+            <span id="voiceStatus" onclick="retryVoice()" title="Retry voice">🎤 Initializing AI & mic...</span>
         </h2>
         <button class="exit-chef-mode" onclick="toggleChefMode()">✕ Exit</button>
     </div>
-    
+
     <div class="chef-mode-content">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
+        <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+        <div id="progressText" style="color:#bbb;text-align:center;margin-bottom:12px">Step 1 of 6</div>
+
+        <div id="ingredientsToggleBtn" class="ingredients-toggle" onclick="toggleIngredientsView()">
+            <strong>📋 Ingredients Checklist</strong>
+            <span id="ingredientsToggleIcon">▼</span>
         </div>
-        <div class="progress-text" id="progressText">Step 1 of 6</div>
-        
-        <div class="ingredients-toggle" onclick="toggleIngredientsView()">
-            <strong>📋 Ingredients Checklist</strong> <span id="ingredientsToggleIcon">▼</span>
-        </div>
-        <div class="ingredients-list" id="chefIngredientsList" style="display: none;">
+
+        <div id="chefIngredientsList" class="ingredients-list" style="display:none">
             <div id="chefIngredientsContent"></div>
         </div>
-        
-        <div class="current-step" id="currentStep" onclick="nextStep()">
-            <div class="step-title" id="stepTitle">Step 1: Season the vegetables</div>
-            <div class="step-text" id="stepText">Mix peppers, onion, garlic, Cajun seasoning, and pepper.</div>
-            
-            <div class="timer-section" id="timerSection" style="display: none;">
-                <div class="timer-display" id="timerDisplay">00:00</div>
+
+        <div id="currentStep" class="current-step" onclick="nextStep()">
+            <div id="stepTitle" class="step-title">Step 1: Season the vegetables</div>
+            <div id="stepText" class="step-text">Mix peppers, onion, garlic, Cajun seasoning, and pepper.</div>
+
+            <div id="timerSection" class="timer-section" style="display:none">
+                <div id="timerDisplay" class="timer-display">00:00</div>
                 <div class="timer-buttons">
                     <button onclick="startTimer(60)">1 min</button>
                     <button onclick="startTimer(180)">3 min</button>
@@ -515,596 +137,611 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="chef-navigation">
-            <button onclick="prevStep()" id="prevBtn">⬅️ Previous</button>
-            <button onclick="nextStep()" id="nextBtn">Next ➡️</button>
+            <button id="prevBtn" onclick="prevStep()">⬅️ Previous</button>
+            <button id="nextBtn" onclick="nextStep()">Next ➡️</button>
         </div>
-        
+
         <div class="all-steps-preview">
-            <h3>All Steps</h3>
+            <h3 style="color:#8fd694;margin-bottom:8px">All Steps</h3>
             <div id="stepsPreview"></div>
         </div>
-        
-        <div class="commands-help">
-            <h3>🎤 AI Voice Commands (say anything natural!)</h3>
-            <ul>
-                <li><code>"next step"</code> or <code>"continue"</code> or <code>"go forward"</code></li>
-                <li><code>"go back"</code> or <code>"previous step"</code></li>
-                <li><code>"what are the first 2 ingredients"</code></li>
-                <li><code>"check off the shrimp"</code> or <code>"mark ingredient 2"</code></li>
-                <li><code>"start the timer"</code> or <code>"set a timer"</code></li>
-                <li><code>"repeat that"</code> or <code>"say that again"</code></li>
-                <li><code>"show ingredients"</code> or <code>"hide ingredients"</code></li>
-                <li><code>"go to step 3"</code> or <code>"jump to step 5"</code></li>
+
+        <div style="margin-top:20px;background:#111;padding:14px;border-radius:8px">
+            <h3 style="color:#8fd694;margin-bottom:8px">🎤 Voice Commands (speak naturally)</h3>
+            <ul style="color:#ccc;list-style:none;padding-left:0">
+                <li>“Scroll up and show the ingredients”</li>
+                <li>“Cross out the first two ingredients”</li>
+                <li>“Check ingredient 2”</li>
+                <li>“Go to step 3”</li>
+                <li>“Start the timer”</li>
+                <li>“Highlight this step”</li>
             </ul>
-            <p style="margin-top: 10px; color: #8fd694;">✨ The AI understands natural language - just speak normally!</p>
         </div>
     </div>
 </div>
 
-<div class="voice-indicator" id="voiceIndicator">
-    🎤 Listening...
-</div>
+<div id="voiceIndicator" class="voice-indicator">🎤 Listening...</div>
 
 <script>
-    const steps = [
-        { title: "Season the vegetables", text: "Mix peppers, onion, garlic, Cajun seasoning, and pepper." },
-        { title: "Sear the shrimp", text: "Cook 30–60 seconds per side." },
-        { title: "Cook the sausage", text: "Sauté 1 minute." },
-        { title: "Cook the vegetables", text: "Sear 3–4 minutes." },
-        { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes." },
-        { title: "Add pasta", text: "Toss 2–3 minutes until coated." }
-    ];
-    
-    let currentStepIndex = 0;
-    let chefMode = false;
-    let wakeLock = null;
-    let timerInterval = null;
-    let timerSeconds = 0;
-    let timerRunning = false;
-    let recognition = null;
-    let ingredientsVisible = false;
-    let detectedTimers = {};
-    let videoWakeLock = null;
-    
-    // Fallback wake lock using video element
-    function enableVideoWakeLock() {
-        if (!videoWakeLock) {
-            videoWakeLock = document.createElement('video');
-            videoWakeLock.setAttribute('loop', '');
-            videoWakeLock.setAttribute('muted', '');
-            videoWakeLock.setAttribute('playsinline', '');
-            videoWakeLock.style.position = 'fixed';
-            videoWakeLock.style.opacity = '0';
-            videoWakeLock.style.pointerEvents = 'none';
-            videoWakeLock.style.width = '1px';
-            videoWakeLock.style.height = '1px';
-            
-            const canvas = document.createElement('canvas');
-            canvas.width = 1;
-            canvas.height = 1;
-            const ctx = canvas.getContext('2d');
-            ctx.fillRect(0, 0, 1, 1);
-            
-            canvas.toBlob(blob => {
+/* =======================
+   App data & UI state
+   ======================= */
+const steps = [
+    { title: "Season the vegetables", text: "Mix peppers, onion, garlic, Cajun seasoning, and pepper." },
+    { title: "Sear the shrimp", text: "Cook 30–60 seconds per side." },
+    { title: "Cook the sausage", text: "Sauté 1 minute." },
+    { title: "Cook the vegetables", text: "Sear 3–4 minutes." },
+    { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes." },
+    { title: "Add pasta", text: "Toss 2–3 minutes until coated." }
+];
+
+let currentStepIndex = 0;
+let chefMode = false;
+let wakeLock = null;
+let videoWakeLock = null;
+let timerInterval = null;
+let timerSeconds = 0;
+let timerRunning = false;
+let recognition = null;
+let ingredientsVisible = false;
+let detectedTimers = {};
+
+let webAI = null;
+let webAILoaded = false;
+
+/* =======================
+   WebLLM: local AI init
+   ======================= */
+async function initWebAI(){
+    const vs = document.getElementById('voiceStatus');
+    if (vs){ vs.textContent = '🎤 Loading local AI (may take 30–60s)...'; vs.style.background = '#ffc988'; }
+    try {
+        webAI = await webllm.CreateWebWorkerMLCEngine(
+            new Worker("https://esm.run/@mlc-ai/web-llm/worker?bundle"),
+            { model: "Llama-3.2-1B-Instruct-q4f32_1-MLC" }
+        );
+        webAILoaded = true;
+        if (vs){ vs.textContent = '🎤 AI Ready'; vs.style.background = '#8fd694'; }
+        console.log('WebLLM ready');
+    } catch(e){
+        console.error('WebLLM load failed', e);
+        if (vs){ vs.textContent = '🎤 AI Load Failed'; vs.style.background = '#ff4444'; }
+    }
+}
+initWebAI();
+
+/* Wrapper to call local AI */
+async function askLocalAI(prompt){
+    if (!webAILoaded) return JSON.stringify({error:'AI not ready'});
+    try {
+        const res = await webAI.chat.completions.create({ messages: [{ role: "user", content: prompt }], max_tokens: 800 });
+        const content = res?.choices?.[0]?.message?.content;
+        return (typeof content === 'string') ? content : JSON.stringify({ error: "No content" });
+    } catch (err) {
+        console.error('askLocalAI err', err);
+        return JSON.stringify({ error: 'AI error' });
+    }
+}
+
+/* =======================
+   Wake lock fallback
+   ======================= */
+function enableVideoWakeLock(){
+    if (!videoWakeLock){
+        videoWakeLock = document.createElement('video');
+        videoWakeLock.loop = true; videoWakeLock.muted = true; videoWakeLock.playsInline = true;
+        videoWakeLock.style.position = 'fixed'; videoWakeLock.style.opacity = '0'; videoWakeLock.style.pointerEvents = 'none';
+        const canvas = document.createElement('canvas'); canvas.width = 1; canvas.height = 1;
+        const ctx = canvas.getContext('2d'); ctx.fillRect(0,0,1,1);
+        canvas.toBlob(blob=>{
+            try {
                 videoWakeLock.src = URL.createObjectURL(blob);
-                videoWakeLock.play().catch(e => console.log('Video fallback failed:', e));
-            });
-            
-            document.body.appendChild(videoWakeLock);
-        }
+                videoWakeLock.play().catch(e=>console.log('video fallback play failed',e));
+            } catch(e) { console.log('video fallback fail', e); }
+        });
+        document.body.appendChild(videoWakeLock);
     }
-    
-    function disableVideoWakeLock() {
-        if (videoWakeLock) {
-            videoWakeLock.pause();
-            videoWakeLock.remove();
-            videoWakeLock = null;
-        }
-    }
-    
-    // AI Timer Detection Function
-    async function detectTimersInSteps() {
-        for (let i = 0; i < steps.length; i++) {
-            const step = steps[i];
-            const combinedText = step.title + ". " + step.text;
-            
+}
+function disableVideoWakeLock(){ if (videoWakeLock){ videoWakeLock.pause(); videoWakeLock.remove(); videoWakeLock = null; } }
+
+/* =======================
+   Timer detection using AI (very helpful for auto timer buttons)
+   ======================= */
+async function detectTimersInSteps(){
+    detectedTimers = {};
+    for (let i=0;i<steps.length;i++){
+        const combined = steps[i].title + ". " + steps[i].text;
+        const prompt = `Extract time durations from this cooking step. Return ONLY valid JSON like:
+{"timers":[{"duration_seconds":45,"label":"30-60 sec (avg)"}]}
+If none, return {"timers":[]}
+Step: "${combined}"
+Rules:
+- For ranges use average (round).
+- For "per side" multiply by 2 for total.
+- Convert to seconds.
+`;
+        try {
+            const aiText = await askLocalAI(prompt);
+            const cleaned = aiText.replace(/```json|```/g,'').trim();
             try {
-                const response = await fetch("https://api.anthropic.com/v1/messages", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        model: "claude-sonnet-4-20250514",
-                        max_tokens: 1000,
-                        messages: [{
-                            role: "user",
-                            content: `Extract time durations from this cooking step. Return ONLY valid JSON:
-{"timers": [{"duration_seconds": 45, "label": "30-60 sec (avg)"}]}
-
-If no times mentioned, return {"timers": []}
-
-Step: "${combinedText}"
-
-Rules: For ranges use average, for "per side" multiply by 2, convert to seconds`
-                        }]
-                    })
-                });
-                
-                const data = await response.json();
-                const text = data.content[0].text.trim();
-                const cleanText = text.replace(/```json|```/g, "").trim();
-                const result = JSON.parse(cleanText);
-                
-                if (result.timers && result.timers.length > 0) {
-                    detectedTimers[i] = result.timers;
+                const parsed = JSON.parse(cleaned);
+                if (parsed?.timers?.length) detectedTimers[i] = parsed.timers;
+            } catch(err){
+                // fallback regex heuristics
+                const m = combined.match(/(\d+)\s*(?:-|to|–)\s*(\d+)\s*(seconds|secs|sec|minutes|min|m)/i);
+                if (m){
+                    let a=parseInt(m[1],10), b=parseInt(m[2],10);
+                    const unit = m[3].toLowerCase();
+                    const avg = Math.round(((a+b)/2) * (unit.startsWith('m')?60:1));
+                    detectedTimers[i]=[{duration_seconds:avg,label:`${a}-${b} ${unit} (avg)`}];
                 }
-            } catch (err) {
-                console.error(`AI detection failed for step ${i}:`, err);
             }
-        }
-        updateChefMode();
+        } catch(e){ console.warn('timer detect failed', e); }
     }
-    
-    // Initialize voice recognition with AI
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = false;
-        recognition.lang = 'en-US';
-        
-        recognition.onstart = () => {
-            console.log('Voice recognition started');
-            document.getElementById('voiceStatus').textContent = '🎤 Voice Active';
-            document.getElementById('voiceStatus').style.background = '#8fd694';
-        };
-        
-        recognition.onerror = (event) => {
-            console.error('Voice recognition error:', event.error);
-            document.getElementById('voiceStatus').textContent = '🎤 Click to Retry';
-            document.getElementById('voiceStatus').style.background = '#ff4444';
-            
-            if (event.error === 'not-allowed') {
-                alert('Microphone permission denied. Please allow microphone access and refresh.');
-            }
-        };
-        
-        recognition.onend = () => {
-            if (chefMode) {
-                setTimeout(() => {
-                    try {
-                        recognition.start();
-                    } catch (err) {
-                        console.log('Could not restart recognition');
-                    }
-                }, 100);
-            }
-        };
-        
-        recognition.onresult = async (event) => {
-            const transcript = event.results[event.results.length - 1][0].transcript.trim();
-            console.log('Heard:', transcript);
-            
-            showVoiceIndicator(`Heard: "${transcript}"`);
-            
-            // Get ingredient list
-            const ingredientsList = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item span'))
-                .map((el, i) => `${i + 1}. ${el.textContent}`)
-                .join('\n');
-            
-            // Use AI to understand command
-            try {
-                const response = await fetch("https://api.anthropic.com/v1/messages", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        model: "claude-sonnet-4-20250514",
-                        max_tokens: 1000,
-                        messages: [{
-                            role: "user",
-                            content: `You're a voice assistant for a cooking app. User is on step ${currentStepIndex + 1}/${steps.length}.
+    updateChefMode();
+}
 
-Current step: "${steps[currentStepIndex].title} - ${steps[currentStepIndex].text}"
+/* =======================
+   Speech recognition + voice parsing
+   ======================= */
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = true; recognition.interimResults = false; recognition.lang = 'en-US';
+
+    recognition.onstart = ()=> {
+        console.log('recognition started');
+        const vs = document.getElementById('voiceStatus');
+        vs.textContent = '🎤 Voice Active'; vs.style.background = '#8fd694';
+    };
+
+    recognition.onerror = (e)=> {
+        console.error('recognition error', e);
+        const vs = document.getElementById('voiceStatus');
+        vs.textContent = '🎤 Click to Retry'; vs.style.background = '#ff4444';
+        if (e.error === 'not-allowed') alert('Microphone permission denied. Allow mic and refresh.');
+    };
+
+    recognition.onend = ()=> {
+        // auto-restart while chefMode active
+        if (chefMode) {
+            setTimeout(()=>{ try { recognition.start(); } catch(_){} }, 200);
+        }
+    };
+
+    recognition.onresult = async (event) => {
+        const transcript = event.results[event.results.length-1][0].transcript.trim();
+        console.log('Heard:', transcript);
+        showVoiceIndicator(`Heard: "${transcript}"`);
+
+        // Build context: ingredients + steps
+        const ingredientsList = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item span'))
+            .map((el,i)=> `${i+1}. ${el.textContent}`).join('\n');
+        const stepsText = steps.map((s,i)=> `${i+1}. ${s.title}: ${s.text}`).join('\n');
+
+        // Prompt: request structured "automation_actions" JSON
+        const commandPrompt = `You are a voice assistant for a cooking app. The UI has an ingredients list and numbered steps.
+
+Current step: ${currentStepIndex+1} / ${steps.length}
+Step title: "${steps[currentStepIndex].title}" - ${steps[currentStepIndex].text}
 
 Ingredients:
 ${ingredientsList}
 
 Steps:
-${steps.map((s, i) => `${i + 1}. ${s.title}: ${s.text}`).join('\n')}
+${stepsText}
 
 User said: "${transcript}"
 
-Return ONLY JSON:
+Return ONLY valid JSON (no extra text) with this schema:
 {
-  "action": "next_step" | "prev_step" | "go_to_step" | "start_timer" | "read_ingredients" | "read_step" | "toggle_ingredients" | "check_ingredient" | "unknown",
+  "action":"<one of: next_step, prev_step, go_to_step, start_timer, read_ingredients, read_step, toggle_ingredients, check_ingredient, cross_out_ingredients, scroll_to_ingredients, scroll_to_step, highlight_step, open_chef_mode, close_chef_mode, unknown>",
   "step_number": null,
   "ingredient_numbers": [],
   "ingredient_names": [],
-  "response_text": "brief response"
+  "automation_actions": [
+    {"type":"scroll","target":"ingredients" | "step","step_number": null},
+    {"type":"check_ingredients","indices":[1,2]},
+    {"type":"cross_out","indices":[1,2]},
+    {"type":"show_ingredients"},
+    {"type":"hide_ingredients"},
+    {"type":"highlight_step","step_number":3},
+    {"type":"start_timer","seconds":120}
+  ],
+  "response_text":"brief message to speak"
 }
 
 Examples:
-"next" → {"action":"next_step","step_number":null,"ingredient_numbers":[],"ingredient_names":[],"response_text":"Moving to next step"}
-"what are the first 2 ingredients" → {"action":"read_ingredients","step_number":null,"ingredient_numbers":[1,2],"ingredient_names":["Cajun spice","shrimp"],"response_text":"The first 2 ingredients are Cajun spice and shrimp"}
-"check off the shrimp" → {"action":"check_ingredient","step_number":null,"ingredient_numbers":[2],"ingredient_names":["shrimp"],"response_text":"Checked off shrimp"}
-"go to step 3" → {"action":"go_to_step","step_number":3,"ingredient_numbers":[],"ingredient_names":[],"response_text":"Going to step 3"}`
-                        }]
-                    })
-                });
-                
-                const data = await response.json();
-                const text = data.content[0].text.trim();
-                const cleanText = text.replace(/```json|```/g, "").trim();
-                const command = JSON.parse(cleanText);
-                
-                console.log('AI understood:', command);
-                executeVoiceCommand(command);
-                
+- "Scroll up and show the ingredients" => { "action":"scroll_to_ingredients", "automation_actions":[{"type":"scroll","target":"ingredients"},{"type":"show_ingredients"}], "response_text":"Showing ingredients" }
+- "Cross out the first two ingredients" => { "action":"cross_out_ingredients", "ingredient_numbers":[1,2], "automation_actions":[{"type":"cross_out","indices":[1,2]}], "response_text":"Crossed out the first two ingredients" }
+
+Be concise and return valid JSON only.
+`;
+
+        try {
+            const aiReply = await askLocalAI(commandPrompt);
+            const cleaned = aiReply.replace(/```json|```/g,'').trim();
+            let command;
+            try {
+                command = JSON.parse(cleaned);
             } catch (err) {
-                console.error('AI command processing failed:', err);
-                showVoiceIndicator('Sorry, I didn\'t understand that');
-            }
-        };
-    }
-    
-    function executeVoiceCommand(command) {
-        showVoiceIndicator(command.response_text);
-        
-        switch(command.action) {
-            case 'next_step':
-                nextStep();
-                break;
-            case 'prev_step':
-                prevStep();
-                break;
-            case 'go_to_step':
-                if (command.step_number && command.step_number >= 1 && command.step_number <= steps.length) {
-                    currentStepIndex = command.step_number - 1;
-                    updateChefMode();
-                    speakCurrentStep();
-                }
-                break;
-            case 'start_timer':
-                if (detectedTimers[currentStepIndex] && detectedTimers[currentStepIndex][0]) {
-                    startTimer(detectedTimers[currentStepIndex][0].duration_seconds);
-                }
-                break;
-            case 'read_ingredients':
-                const ingredientsToRead = command.ingredient_names.join(', ');
-                speak(command.response_text);
-                break;
-            case 'read_step':
-                speakCurrentStep();
-                break;
-            case 'toggle_ingredients':
-                toggleIngredientsView();
-                break;
-            case 'check_ingredient':
-                command.ingredient_numbers.forEach(num => {
-                    if (num >= 1 && num <= 13) {
-                        const items = document.querySelectorAll('#ingredientsList .ingredient-item');
-                        const item = items[num - 1];
-                        if (item && !item.classList.contains('checked')) {
-                            toggleIngredient(item);
-                        }
+                console.warn('AI JSON parse failed — fallback heuristics', err);
+                // fallback simple parsing
+                const text = cleaned.toLowerCase();
+                command = { action: 'unknown', step_number: null, ingredient_numbers: [], ingredient_names: [], automation_actions: [], response_text: "Sorry, I didn't understand that." };
+                if (text.includes('next')) command.action='next_step';
+                if (text.includes('previous')||text.includes('back')) command.action='prev_step';
+                const goTo = text.match(/step\s*(\d+)/);
+                if (goTo) { command.action='go_to_step'; command.step_number = parseInt(goTo[1],10); command.response_text = `Going to step ${goTo[1]}`; }
+                const crossMatch = text.match(/first\s*(\d+)\s*ingredients|(\d+)\s*ingredients/);
+                if (crossMatch) {
+                    const n = parseInt(crossMatch[1]||crossMatch[2],10);
+                    if (!isNaN(n)) {
+                        command.action='cross_out_ingredients';
+                        command.ingredient_numbers = Array.from({length:n}, (_,i)=>i+1);
+                        command.automation_actions=[{type:'cross_out',indices:command.ingredient_numbers}];
+                        command.response_text = `Crossed out the first ${n} ingredients`;
                     }
+                }
+            }
+
+            console.log('AI command:', command);
+            // Execute automation actions first (if present)
+            if (Array.isArray(command.automation_actions) && command.automation_actions.length>0){
+                for (const a of command.automation_actions){
+                    await performAutomationAction(a);
+                }
+            }
+            executeVoiceCommand(command);
+        } catch(e){
+            console.error('Processing voice command failed', e);
+            showVoiceIndicator("Sorry, I didn't understand that");
+        }
+    };
+} else {
+    document.getElementById('voiceStatus').textContent = '🎤 Not Supported';
+    document.getElementById('voiceStatus').style.background = '#666';
+}
+
+/* =======================
+   Automation action performer
+   ======================= */
+async function performAutomationAction(a){
+    // a.type defines the action
+    switch(a.type){
+        case 'scroll':
+            if (a.target === 'ingredients') {
+                const el = document.getElementById('ingredientsList');
+                if (el) el.scrollIntoView({behavior:'smooth', block:'center'});
+            } else if (a.target === 'step' && a.step_number){
+                const ol = document.getElementById('instructionsList');
+                if (ol){
+                    const li = ol.children[a.step_number - 1];
+                    if (li) li.scrollIntoView({behavior:'smooth',block:'center'});
+                }
+            }
+            break;
+        case 'show_ingredients':
+            if (!ingredientsVisible) toggleIngredientsView();
+            // also ensure main ingredients section is visible and scrolled
+            document.getElementById('ingredientsList').scrollIntoView({behavior:'smooth', block:'center'});
+            break;
+        case 'hide_ingredients':
+            if (ingredientsVisible) toggleIngredientsView();
+            break;
+        case 'check_ingredients':
+            if (Array.isArray(a.indices)) {
+                const items = document.querySelectorAll('#ingredientsList .ingredient-item');
+                a.indices.forEach(i=>{
+                    const idx = (typeof i === 'number') ? i-1 : parseInt(i,10)-1;
+                    const item = items[idx];
+                    if (item && !item.classList.contains('checked')) toggleIngredient(item);
                 });
                 updateChefIngredients();
-                break;
-        }
-    }
-    
-    function showVoiceIndicator(text) {
-        const indicator = document.getElementById('voiceIndicator');
-        indicator.textContent = text || '🎤 Listening...';
-        indicator.classList.add('active');
-        setTimeout(() => {
-            indicator.classList.remove('active');
-        }, 3000);
-    }
-    
-    function toggleIngredient(element) {
-        const checkbox = element.querySelector('input[type="checkbox"]');
-        checkbox.checked = !checkbox.checked;
-        element.classList.toggle('checked');
-        updateChefIngredients();
-    }
-    
-    function toggleChefIngredient(element) {
-        const checkbox = element.querySelector('input[type="checkbox"]');
-        const index = element.dataset.index;
-        
-        checkbox.checked = !checkbox.checked;
-        element.classList.toggle('checked');
-        
-        // Sync with main ingredient list
-        const mainItems = document.querySelectorAll('#ingredientsList .ingredient-item');
-        const mainItem = mainItems[index];
-        if (mainItem) {
-            const mainCheckbox = mainItem.querySelector('input[type="checkbox"]');
-            mainCheckbox.checked = checkbox.checked;
-            if (checkbox.checked) {
-                mainItem.classList.add('checked');
-            } else {
-                mainItem.classList.remove('checked');
             }
-        }
-    }
-    
-    async function toggleChefMode() {
-        chefMode = !chefMode;
-        const btn = document.getElementById("chefBtn");
-        const container = document.getElementById("chefModeContainer");
-        
-        if (chefMode) {
-            btn.classList.add("chef-on");
-            container.classList.add("active");
-            currentStepIndex = 0;
-            
-            detectTimersInSteps();
-            
-            updateChefMode();
-            renderStepsPreview();
-            updateChefIngredients();
-            
-            try {
-                if ("wakeLock" in navigator) {
-                    wakeLock = await navigator.wakeLock.request("screen");
-                    console.log("Wake Lock activated!");
+            break;
+        case 'cross_out':
+            // same as check in UI terms
+            if (Array.isArray(a.indices)){
+                const items = document.querySelectorAll('#ingredientsList .ingredient-item');
+                a.indices.forEach(i=>{
+                    const idx = (typeof i === 'number') ? i-1 : parseInt(i,10)-1;
+                    const item = items[idx];
+                    if (item && !item.classList.contains('checked')) toggleIngredient(item);
+                });
+                updateChefIngredients();
+            }
+            break;
+        case 'highlight_step':
+            if (a.step_number){
+                currentStepIndex = Math.max(0, Math.min(steps.length-1, a.step_number-1));
+                updateChefMode();
+                // visually flash the step
+                const stepPreview = document.querySelectorAll('.step-preview')[currentStepIndex];
+                if (stepPreview){
+                    stepPreview.classList.add('active');
+                    setTimeout(()=>stepPreview.classList.remove('active'), 2500);
                 }
-            } catch (err) {
-                console.log("Wake Lock not available - using video fallback");
-                enableVideoWakeLock();
-            }
-            
-            if (recognition) {
-                try {
-                    recognition.start();
-                    console.log('Starting voice recognition...');
-                } catch (err) {
-                    console.log("Voice recognition error:", err);
-                    document.getElementById('voiceStatus').textContent = '🎤 Click to Enable';
-                    document.getElementById('voiceStatus').style.background = '#ffc988';
+                // scroll the step into view
+                const ol = document.getElementById('instructionsList');
+                if (ol){
+                    const li = ol.children[currentStepIndex];
+                    if (li) li.scrollIntoView({behavior:'smooth', block:'center'});
                 }
-            } else {
-                document.getElementById('voiceStatus').textContent = '🎤 Not Supported';
-                document.getElementById('voiceStatus').style.background = '#666';
             }
-            
-            speakCurrentStep();
-        } else {
-            btn.classList.remove("chef-on");
-            container.classList.remove("active");
-            
-            if (wakeLock) {
-                wakeLock.release();
-                wakeLock = null;
-            }
-            
-            disableVideoWakeLock();
-            
-            if (recognition) {
-                recognition.stop();
-            }
-            
-            resetTimer();
-        }
+            break;
+        case 'start_timer':
+            if (a.seconds) startTimer(a.seconds);
+            else if (detectedTimers[currentStepIndex] && detectedTimers[currentStepIndex][0]) startTimer(detectedTimers[currentStepIndex][0].duration_seconds);
+            break;
+        default:
+            // unknown or unsupported automation
+            break;
     }
-    
-    function updateChefMode() {
-        const step = steps[currentStepIndex];
-        document.getElementById('stepTitle').textContent = `Step ${currentStepIndex + 1}: ${step.title}`;
-        document.getElementById('stepText').textContent = step.text;
-        document.getElementById('progressText').textContent = `Step ${currentStepIndex + 1} of ${steps.length}`;
-        document.getElementById('progressFill').style.width = `${((currentStepIndex + 1) / steps.length) * 100}%`;
-        
-        document.getElementById('prevBtn').disabled = currentStepIndex === 0;
-        document.getElementById('nextBtn').disabled = currentStepIndex === steps.length - 1;
-        
-        const timerSection = document.getElementById('timerSection');
-        const timerButtons = document.querySelector('.timer-buttons');
-        
-        if (detectedTimers[currentStepIndex]) {
-            timerSection.style.display = 'block';
-            
-            const existingCustom = timerButtons.querySelectorAll('.ai-timer-btn');
-            existingCustom.forEach(btn => btn.remove());
-            
-            detectedTimers[currentStepIndex].forEach(timer => {
-                const btn = document.createElement('button');
-                btn.className = 'ai-timer-btn';
-                btn.textContent = `⏱️ ${timer.label}`;
-                btn.onclick = () => startTimer(timer.duration_seconds);
-                timerButtons.insertBefore(btn, timerButtons.children[0]);
-            });
-        } else {
-            timerSection.style.display = 'none';
-        }
-        
-        resetTimer();
-        renderStepsPreview();
-    }
-    
-    function nextStep() {
-        if (currentStepIndex < steps.length - 1) {
-            currentStepIndex++;
-            updateChefMode();
-            speakCurrentStep();
-        }
-    }
-    
-    function prevStep() {
-        if (currentStepIndex > 0) {
-            currentStepIndex--;
-            updateChefMode();
-            speakCurrentStep();
-        }
-    }
-    
-    function renderStepsPreview() {
-        const container = document.getElementById('stepsPreview');
-        container.innerHTML = '';
-        
-        steps.forEach((step, index) => {
-            const div = document.createElement('div');
-            div.className = 'step-preview';
-            if (index < currentStepIndex) div.classList.add('completed');
-            if (index === currentStepIndex) div.classList.add('active');
-            div.innerHTML = `<strong>Step ${index + 1}:</strong> ${step.title}`;
-            div.onclick = () => {
-                currentStepIndex = index;
+}
+
+/* =======================
+   Handle parsed command (higher-level)
+   ======================= */
+function executeVoiceCommand(command){
+    // speak the response_text if present
+    if (command.response_text) speak(command.response_text);
+
+    switch(command.action){
+        case 'next_step': nextStep(); break;
+        case 'prev_step': prevStep(); break;
+        case 'go_to_step':
+            if (command.step_number && command.step_number>=1 && command.step_number<=steps.length){
+                currentStepIndex = command.step_number - 1;
                 updateChefMode();
                 speakCurrentStep();
-            };
-            container.appendChild(div);
-        });
-    }
-    
-    function startTimer(seconds) {
-        resetTimer();
-        timerSeconds = seconds;
-        timerRunning = true;
-        updateTimerDisplay();
-        
-        timerInterval = setInterval(() => {
-            if (timerRunning && timerSeconds > 0) {
-                timerSeconds--;
-                updateTimerDisplay();
-                
-                if (timerSeconds === 0) {
-                    timerRunning = false;
-                    playTimerSound();
-                    speak('Timer finished!');
-                }
             }
-        }, 1000);
-    }
-    
-    function pauseTimer() {
-        timerRunning = !timerRunning;
-        const pauseBtn = document.querySelector('.timer-buttons button:nth-child(4)');
-        if (pauseBtn) {
-            pauseBtn.textContent = timerRunning ? '⏸ Pause' : '▶️ Resume';
-        }
-    }
-    
-    function resetTimer() {
-        clearInterval(timerInterval);
-        timerSeconds = 0;
-        timerRunning = false;
-        updateTimerDisplay();
-        const pauseBtn = document.querySelector('.timer-buttons button:nth-child(4)');
-        if (pauseBtn) {
-            pauseBtn.textContent = '⏸ Pause';
-        }
-    }
-    
-    function updateTimerDisplay() {
-        const minutes = Math.floor(timerSeconds / 60);
-        const seconds = timerSeconds % 60;
-        document.getElementById('timerDisplay').textContent = 
-            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
-    
-    function playTimerSound() {
-        const context = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = context.createOscillator();
-        const gainNode = context.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(context.destination);
-        
-        oscillator.frequency.value = 800;
-        oscillator.type = 'sine';
-        
-        gainNode.gain.setValueAtTime(0.3, context.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.5);
-        
-        oscillator.start(context.currentTime);
-        oscillator.stop(context.currentTime + 0.5);
-    }
-    
-    function speak(text) {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
-            speechSynthesis.cancel();
-            speechSynthesis.speak(utterance);
-        }
-    }
-    
-    function speakCurrentStep() {
-        const step = steps[currentStepIndex];
-        speak(`Step ${currentStepIndex + 1}: ${step.title}. ${step.text}`);
-    }
-    
-    function retryVoice() {
-        if (recognition && chefMode) {
-            try {
-                recognition.stop();
-                setTimeout(() => {
-                    recognition.start();
-                }, 100);
-            } catch (err) {
-                console.log('Retry failed:', err);
+            break;
+        case 'start_timer':
+            if (command.step_number) {
+                // if a specific step is provided
+                if (detectedTimers[command.step_number-1] && detectedTimers[command.step_number-1][0]) startTimer(detectedTimers[command.step_number-1][0].duration_seconds);
+            } else {
+                if (detectedTimers[currentStepIndex] && detectedTimers[currentStepIndex][0]) startTimer(detectedTimers[currentStepIndex][0].duration_seconds);
             }
-        }
-    }
-    
-    function toggleIngredientsView() {
-        ingredientsVisible = !ingredientsVisible;
-        const list = document.getElementById('chefIngredientsList');
-        const icon = document.getElementById('ingredientsToggleIcon');
-        
-        if (ingredientsVisible) {
-            list.style.display = 'block';
-            icon.textContent = '▲';
-        } else {
-            list.style.display = 'none';
-            icon.textContent = '▼';
-        }
-    }
-    
-    function updateChefIngredients() {
-        const container = document.getElementById('chefIngredientsContent');
-        const ingredients = document.querySelectorAll('#ingredientsList .ingredient-item');
-        container.innerHTML = '';
-        
-        ingredients.forEach((item, index) => {
-            const div = document.createElement('div');
-            div.className = 'chef-ingredient-item';
-            div.dataset.index = index;
-            
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = item.querySelector('input').checked;
-            
-            const span = document.createElement('span');
-            span.textContent = item.querySelector('span').textContent;
-            
-            if (item.classList.contains('checked')) {
-                div.classList.add('checked');
+            break;
+        case 'read_ingredients':
+            // read specified ingredient names or the first N
+            if (Array.isArray(command.ingredient_numbers) && command.ingredient_numbers.length>0){
+                const items = document.querySelectorAll('#ingredientsList .ingredient-item span');
+                const toRead = command.ingredient_numbers.map(n => (items[n-1]?.textContent || '')).filter(Boolean).join(', ');
+                speak(toRead || command.response_text || 'I could not find those ingredients.');
+            } else {
+                speak(command.response_text || 'Here are the ingredients.');
             }
-            
-            div.appendChild(checkbox);
-            div.appendChild(span);
-            div.onclick = () => toggleChefIngredient(div);
-            
-            container.appendChild(div);
-        });
+            break;
+        case 'read_step':
+            speakCurrentStep();
+            break;
+        case 'toggle_ingredients':
+            toggleIngredientsView(); break;
+        case 'check_ingredient':
+        case 'cross_out_ingredients':
+            if (Array.isArray(command.ingredient_numbers) && command.ingredient_numbers.length>0){
+                const items = document.querySelectorAll('#ingredientsList .ingredient-item');
+                command.ingredient_numbers.forEach(num=>{
+                    const idx = num-1;
+                    const item = items[idx];
+                    if (item && !item.classList.contains('checked')) toggleIngredient(item);
+                });
+                updateChefIngredients();
+            }
+            break;
+        case 'scroll_to_ingredients':
+            document.getElementById('ingredientsList').scrollIntoView({behavior:'smooth', block:'center'});
+            if (!ingredientsVisible) toggleIngredientsView();
+            break;
+        case 'scroll_to_step':
+            if (command.step_number){
+                const ol = document.getElementById('instructionsList');
+                const li = ol?.children[command.step_number-1];
+                if (li) li.scrollIntoView({behavior:'smooth', block:'center'});
+            }
+            break;
+        case 'highlight_step':
+            if (command.step_number){
+                currentStepIndex = Math.max(0, Math.min(steps.length-1, command.step_number-1));
+                updateChefMode();
+            }
+            break;
+        case 'open_chef_mode':
+            if (!chefMode) toggleChefMode();
+            break;
+        case 'close_chef_mode':
+            if (chefMode) toggleChefMode();
+            break;
+        default:
+            // unknown — speak fallback
+            if (!command.response_text) speak("Sorry, I didn't understand that.");
+            break;
     }
-    
-    function printRecipe() {
-        window.print();
-    }
-    
-    document.getElementById('ingredientsList').addEventListener('change', updateChefIngredients);
-</script>
+}
 
+/* =======================
+   UI helpers (unchanged)
+   ======================= */
+function showVoiceIndicator(text){
+    const el = document.getElementById('voiceIndicator');
+    el.textContent = text || '🎤 Listening...';
+    el.classList.add('active');
+    setTimeout(()=> el.classList.remove('active'), 3000);
+}
+
+function toggleIngredient(element){
+    const checkbox = element.querySelector('input[type="checkbox"]');
+    checkbox.checked = !checkbox.checked;
+    element.classList.toggle('checked');
+    updateChefIngredients();
+}
+
+function toggleChefIngredient(element){
+    const checkbox = element.querySelector('input[type="checkbox"]');
+    const index = parseInt(element.dataset.index,10);
+    checkbox.checked = !checkbox.checked;
+    element.classList.toggle('checked');
+
+    // sync main list
+    const mainItems = document.querySelectorAll('#ingredientsList .ingredient-item');
+    const mainItem = mainItems[index];
+    if (mainItem){
+        const mainCheckbox = mainItem.querySelector('input[type="checkbox"]');
+        mainCheckbox.checked = checkbox.checked;
+        if (checkbox.checked) mainItem.classList.add('checked'); else mainItem.classList.remove('checked');
+    }
+}
+
+function toggleIngredientsView(){
+    ingredientsVisible = !ingredientsVisible;
+    const list = document.getElementById('chefIngredientsList');
+    const icon = document.getElementById('ingredientsToggleIcon');
+    if (ingredientsVisible){ list.style.display='block'; icon.textContent='▲'; }
+    else { list.style.display='none'; icon.textContent='▼'; }
+}
+
+/* =======================
+   Chef Mode open/close & update logic
+   ======================= */
+async function toggleChefMode(){
+    chefMode = !chefMode;
+    const btn = document.getElementById('chefBtn');
+    const container = document.getElementById('chefModeContainer');
+
+    if (chefMode){
+        btn.classList.add('chef-on'); container.classList.add('active');
+        currentStepIndex = 0;
+
+        await detectTimersInSteps();
+        updateChefMode();
+        renderStepsPreview();
+        updateChefIngredients();
+
+        // wake lock
+        try {
+            if ('wakeLock' in navigator) {
+                wakeLock = await navigator.wakeLock.request('screen');
+            }
+        } catch(e){
+            enableVideoWakeLock();
+        }
+
+        // start speech recognition
+        if (recognition){
+            try { recognition.start(); } catch(e){ console.log('recognition start error', e); document.getElementById('voiceStatus').textContent='🎤 Click to Enable'; }
+        }
+
+        speakCurrentStep();
+    } else {
+        btn.classList.remove('chef-on'); container.classList.remove('active');
+
+        try { if (wakeLock) { wakeLock.release(); wakeLock=null; } } catch(e){}
+        disableVideoWakeLock();
+
+        if (recognition) recognition.stop();
+        resetTimer();
+    }
+}
+
+function updateChefMode(){
+    const step = steps[currentStepIndex];
+    document.getElementById('stepTitle').textContent = `Step ${currentStepIndex+1}: ${step.title}`;
+    document.getElementById('stepText').textContent = step.text;
+    document.getElementById('progressText').textContent = `Step ${currentStepIndex+1} of ${steps.length}`;
+    document.getElementById('progressFill').style.width = `${((currentStepIndex+1)/steps.length)*100}%`;
+
+    document.getElementById('prevBtn').disabled = currentStepIndex===0;
+    document.getElementById('nextBtn').disabled = currentStepIndex===steps.length-1;
+
+    const timerSection = document.getElementById('timerSection');
+    const timerButtons = document.querySelector('.timer-buttons');
+
+    if (detectedTimers[currentStepIndex]){
+        timerSection.style.display = 'block';
+        // remove existing ai-timer-btns
+        const existing = timerButtons.querySelectorAll('.ai-timer-btn');
+        existing.forEach(b=>b.remove());
+        detectedTimers[currentStepIndex].forEach(timer=>{
+            const btn = document.createElement('button');
+            btn.className = 'ai-timer-btn';
+            btn.textContent = `⏱️ ${timer.label}`;
+            btn.onclick = ()=> startTimer(timer.duration_seconds);
+            timerButtons.insertBefore(btn, timerButtons.firstChild);
+        });
+    } else {
+        timerSection.style.display = 'none';
+    }
+    resetTimer();
+    renderStepsPreview();
+}
+
+function nextStep(){ if (currentStepIndex < steps.length - 1){ currentStepIndex++; updateChefMode(); speakCurrentStep(); } }
+function prevStep(){ if (currentStepIndex > 0){ currentStepIndex--; updateChefMode(); speakCurrentStep(); } }
+
+function renderStepsPreview(){
+    const container = document.getElementById('stepsPreview'); container.innerHTML = '';
+    steps.forEach((s,i)=>{
+        const div = document.createElement('div');
+        div.className = 'step-preview';
+        if (i===currentStepIndex) div.classList.add('active');
+        div.innerHTML = `<strong>Step ${i+1}:</strong> ${s.title}`;
+        div.onclick = ()=> { currentStepIndex = i; updateChefMode(); speakCurrentStep(); };
+        container.appendChild(div);
+    });
+}
+
+function startTimer(seconds){
+    resetTimer();
+    timerSeconds = seconds;
+    timerRunning = true;
+    updateTimerDisplay();
+    timerInterval = setInterval(()=>{
+        if (timerRunning && timerSeconds>0){ timerSeconds--; updateTimerDisplay(); if (timerSeconds===0){ timerRunning=false; playTimerSound(); speak('Timer finished!'); } }
+    }, 1000);
+}
+
+function pauseTimer(){ timerRunning = !timerRunning; const pauseBtn = document.querySelector('.timer-buttons button:nth-child(4)'); if (pauseBtn) pauseBtn.textContent = timerRunning ? '⏸ Pause' : '▶️ Resume'; }
+function resetTimer(){ clearInterval(timerInterval); timerSeconds=0; timerRunning=false; updateTimerDisplay(); const pauseBtn = document.querySelector('.timer-buttons button:nth-child(4)'); if (pauseBtn) pauseBtn.textContent='⏸ Pause'; }
+function updateTimerDisplay(){ const m=Math.floor(timerSeconds/60), s=timerSeconds%60; document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+
+function playTimerSound(){
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator(), g = ctx.createGain();
+        osc.connect(g); g.connect(ctx.destination);
+        osc.frequency.value = 800; osc.type='sine';
+        g.gain.setValueAtTime(0.3, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.5);
+    } catch(e){ console.warn('playTimerSound failed', e); }
+}
+
+function speak(text){ if ('speechSynthesis' in window && text){ const u = new SpeechSynthesisUtterance(text); u.rate = 0.95; speechSynthesis.cancel(); speechSynthesis.speak(u); } }
+function speakCurrentStep(){ const step = steps[currentStepIndex]; speak(`Step ${currentStepIndex+1}: ${step.title}. ${step.text}`); }
+
+function retryVoice(){ if (recognition && chefMode){ try { recognition.stop(); setTimeout(()=>recognition.start(), 100); } catch(e){ console.log('retryVoice failed', e); } } }
+
+function updateChefIngredients(){
+    const container = document.getElementById('chefIngredientsContent'); container.innerHTML = '';
+    const ingredients = document.querySelectorAll('#ingredientsList .ingredient-item');
+    ingredients.forEach((item, idx)=>{
+        const div = document.createElement('div'); div.className='chef-ingredient-item'; div.dataset.index=idx;
+        const ch = document.createElement('input'); ch.type='checkbox'; ch.checked = !!item.querySelector('input').checked;
+        const span = document.createElement('span'); span.textContent = item.querySelector('span').textContent;
+        if (item.classList.contains('checked')) div.classList.add('checked');
+        div.appendChild(ch); div.appendChild(span);
+        div.onclick = ()=> toggleChefIngredient(div);
+        container.appendChild(div);
+    });
+}
+
+function printRecipe(){ window.print(); }
+document.getElementById('ingredientsList').addEventListener('change', updateChefIngredients);
+
+</script>
 </body>
 </html>
