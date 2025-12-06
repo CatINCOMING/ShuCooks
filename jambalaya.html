@@ -15,7 +15,6 @@
             font-family: Arial, sans-serif;
             background: #fafafa;
         }
-        /* Navbar */
         .navbar {
             display: flex;
             gap: 20px;
@@ -42,7 +41,6 @@
         .navbar .logo {
             background: #ffd6a5;
         }
-        /* Content */
         .content {
             padding: 30px;
             max-width: 900px;
@@ -62,7 +60,6 @@
             font-size: 32px;
             font-weight: bold;
         }
-        /* Buttons */
         .button-row {
             display: flex;
             gap: 10px;
@@ -98,8 +95,6 @@
         li {
             margin-bottom: 8px;
         }
-        
-        /* Ingredient Checklist */
         .ingredient-item {
             display: flex;
             align-items: center;
@@ -122,8 +117,6 @@
             text-decoration: line-through;
             opacity: 0.6;
         }
-        
-        /* Chef Mode Styles */
         .chef-mode-container {
             display: none;
             position: fixed;
@@ -148,10 +141,16 @@
             position: sticky;
             top: 0;
             z-index: 10;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .chef-mode-header h2 {
             margin: 0;
             font-size: 20px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .exit-chef-mode {
             background: #ff4444;
@@ -294,9 +293,26 @@
             list-style: none;
             margin: 0;
         }
-        .ingredients-list li {
-            padding: 8px 0;
+        .chef-ingredient-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
             border-bottom: 1px solid #444;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .chef-ingredient-item:hover {
+            background: #333;
+        }
+        .chef-ingredient-item input[type="checkbox"] {
+            margin-right: 12px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .chef-ingredient-item.checked {
+            text-decoration: line-through;
+            opacity: 0.5;
         }
         .voice-indicator {
             position: fixed;
@@ -309,9 +325,38 @@
             font-weight: bold;
             animation: pulse 2s infinite;
             display: none;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         .voice-indicator.active {
             display: block;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .hands-free-badge {
+            display: inline-block;
+            background: #8fd694;
+            color: #1a1a1a;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        #voiceStatus {
+            display: inline-block;
+            background: #ffc988;
+            color: #1a1a1a;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        #voiceStatus:hover {
+            opacity: 0.8;
         }
         .ai-timer-btn {
             background: #8fd694 !important;
@@ -344,35 +389,6 @@
             padding: 3px 8px;
             border-radius: 4px;
             color: #8fd694;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        .hands-free-badge {
-            display: inline-block;
-            background: #8fd694;
-            color: #1a1a1a;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        #voiceStatus {
-            display: inline-block;
-            background: #ffc988;
-            color: #1a1a1a;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        #voiceStatus:hover {
-            opacity: 0.8;
         }
     </style>
 </head>
@@ -463,7 +479,11 @@
 <!-- Chef Mode Container -->
 <div id="chefModeContainer" class="chef-mode-container">
     <div class="chef-mode-header">
-        <h2>👨‍🍳 Chef Mode <span class="hands-free-badge">🔓 Screen Unlocked</span> <span id="voiceStatus" onclick="retryVoice()">🎤 Starting...</span></h2>
+        <h2>
+            <span>👨‍🍳 Chef Mode</span>
+            <span class="hands-free-badge">🔓 Screen Unlocked</span>
+            <span id="voiceStatus" onclick="retryVoice()">🎤 Starting...</span>
+        </h2>
         <button class="exit-chef-mode" onclick="toggleChefMode()">✕ Exit</button>
     </div>
     
@@ -474,10 +494,10 @@
         <div class="progress-text" id="progressText">Step 1 of 6</div>
         
         <div class="ingredients-toggle" onclick="toggleIngredientsView()">
-            <strong>📋 Ingredients List</strong> <span id="ingredientsToggleIcon">▼</span>
+            <strong>📋 Ingredients Checklist</strong> <span id="ingredientsToggleIcon">▼</span>
         </div>
         <div class="ingredients-list" id="chefIngredientsList" style="display: none;">
-            <ul id="chefIngredientsContent"></ul>
+            <div id="chefIngredientsContent"></div>
         </div>
         
         <div class="current-step" id="currentStep" onclick="nextStep()">
@@ -487,7 +507,6 @@
             <div class="timer-section" id="timerSection" style="display: none;">
                 <div class="timer-display" id="timerDisplay">00:00</div>
                 <div class="timer-buttons">
-                    <!-- AI-detected timers will be inserted here -->
                     <button onclick="startTimer(60)">1 min</button>
                     <button onclick="startTimer(180)">3 min</button>
                     <button onclick="startTimer(300)">5 min</button>
@@ -508,21 +527,18 @@
         </div>
         
         <div class="commands-help">
-            <h3>🎤 Voice Commands</h3>
+            <h3>🎤 AI Voice Commands (say anything natural!)</h3>
             <ul>
-                <li><code>"next step"</code> or <code>"next"</code> - Go to next step</li>
-                <li><code>"previous"</code> or <code>"back"</code> - Go to previous step</li>
-                <li><code>"repeat"</code> - Read current step aloud again</li>
-                <li><code>"timer"</code> or <code>"start timer"</code> - Start the suggested timer</li>
-                <li><code>"ingredients"</code> - Show/hide ingredient list</li>
+                <li><code>"next step"</code> or <code>"continue"</code> or <code>"go forward"</code></li>
+                <li><code>"go back"</code> or <code>"previous step"</code></li>
+                <li><code>"what are the first 2 ingredients"</code></li>
+                <li><code>"check off the shrimp"</code> or <code>"mark ingredient 2"</code></li>
+                <li><code>"start the timer"</code> or <code>"set a timer"</code></li>
+                <li><code>"repeat that"</code> or <code>"say that again"</code></li>
+                <li><code>"show ingredients"</code> or <code>"hide ingredients"</code></li>
+                <li><code>"go to step 3"</code> or <code>"jump to step 5"</code></li>
             </ul>
-            <h3 style="margin-top: 20px;">⌨️ Other Controls</h3>
-            <ul>
-                <li><strong>Tap the step card</strong> - Advance to next step</li>
-                <li><strong>Use navigation buttons</strong> - Previous/Next at bottom</li>
-                <li><strong>Click any step in preview</strong> - Jump to that step</li>
-                <li><strong>AI Timer Detection</strong> - Automatically creates timer buttons from step text</li>
-            </ul>
+            <p style="margin-top: 10px; color: #8fd694;">✨ The AI understands natural language - just speak normally!</p>
         </div>
     </div>
 </div>
@@ -533,15 +549,13 @@
 
 <script>
     const steps = [
-        { title: "Season the vegetables", text: "Mix peppers, onion, garlic, Cajun seasoning, and pepper.", timer: null },
-        { title: "Sear the shrimp", text: "Cook 30–60 seconds per side.", timer: null },
-        { title: "Cook the sausage", text: "Sauté 1 minute.", timer: null },
-        { title: "Cook the vegetables", text: "Sear 3–4 minutes.", timer: null },
-        { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes.", timer: null },
-        { title: "Add pasta", text: "Toss 2–3 minutes until coated.", timer: null }
+        { title: "Season the vegetables", text: "Mix peppers, onion, garlic, Cajun seasoning, and pepper." },
+        { title: "Sear the shrimp", text: "Cook 30–60 seconds per side." },
+        { title: "Cook the sausage", text: "Sauté 1 minute." },
+        { title: "Cook the vegetables", text: "Sear 3–4 minutes." },
+        { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes." },
+        { title: "Add pasta", text: "Toss 2–3 minutes until coated." }
     ];
-    
-    let detectedTimers = {};
     
     let currentStepIndex = 0;
     let chefMode = false;
@@ -549,10 +563,9 @@
     let timerInterval = null;
     let timerSeconds = 0;
     let timerRunning = false;
-    let customTimerSeconds = 0;
     let recognition = null;
     let ingredientsVisible = false;
-    let autoAdvance = false;
+    let detectedTimers = {};
     let videoWakeLock = null;
     
     // Fallback wake lock using video element
@@ -568,7 +581,6 @@
             videoWakeLock.style.width = '1px';
             videoWakeLock.style.height = '1px';
             
-            // Create a minimal video blob
             const canvas = document.createElement('canvas');
             canvas.width = 1;
             canvas.height = 1;
@@ -609,24 +621,14 @@
                         max_tokens: 1000,
                         messages: [{
                             role: "user",
-                            content: `Analyze this cooking step and extract ALL time durations mentioned. Return ONLY a JSON object with this format:
-{
-  "timers": [
-    {"duration_seconds": 45, "label": "30-60 seconds per side (average)"},
-    {"duration_seconds": 120, "label": "2 minutes"}
-  ]
-}
+                            content: `Extract time durations from this cooking step. Return ONLY valid JSON:
+{"timers": [{"duration_seconds": 45, "label": "30-60 sec (avg)"}]}
 
-If no times are mentioned, return {"timers": []}.
+If no times mentioned, return {"timers": []}
 
-Cooking step: "${combinedText}"
+Step: "${combinedText}"
 
-Rules:
-- For ranges like "30-60 seconds", use the average or middle value
-- For "per side", multiply by 2 for total time
-- Convert all times to seconds
-- Include descriptive labels
-- Return ONLY valid JSON, no other text`
+Rules: For ranges use average, for "per side" multiply by 2, convert to seconds`
                         }]
                     })
                 });
@@ -643,14 +645,10 @@ Rules:
                 console.error(`AI detection failed for step ${i}:`, err);
             }
         }
+        updateChefMode();
     }
     
-    // Detect timers when page loads
-    if (chefMode) {
-        detectTimersInSteps();
-    }
-    
-    // Initialize voice recognition
+    // Initialize voice recognition with AI
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
@@ -666,65 +664,176 @@ Rules:
         
         recognition.onerror = (event) => {
             console.error('Voice recognition error:', event.error);
-            document.getElementById('voiceStatus').textContent = '🎤 Voice Error - Click to Retry';
+            document.getElementById('voiceStatus').textContent = '🎤 Click to Retry';
             document.getElementById('voiceStatus').style.background = '#ff4444';
             
             if (event.error === 'not-allowed') {
-                alert('Microphone permission denied. Please allow microphone access in your browser settings and refresh the page.');
+                alert('Microphone permission denied. Please allow microphone access and refresh.');
             }
         };
         
         recognition.onend = () => {
-            // Auto-restart if in chef mode
             if (chefMode) {
                 setTimeout(() => {
                     try {
                         recognition.start();
                     } catch (err) {
-                        console.log('Could not restart recognition:', err);
+                        console.log('Could not restart recognition');
                     }
                 }, 100);
             }
         };
         
-        recognition.onresult = (event) => {
-            const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+        recognition.onresult = async (event) => {
+            const transcript = event.results[event.results.length - 1][0].transcript.trim();
             console.log('Heard:', transcript);
             
-            if (transcript.includes('next') || transcript.includes('next step')) {
-                nextStep();
-                showVoiceIndicator();
-            } else if (transcript.includes('previous') || transcript.includes('back')) {
-                prevStep();
-                showVoiceIndicator();
-            } else if (transcript.includes('repeat')) {
-                speakCurrentStep();
-                showVoiceIndicator();
-            } else if (transcript.includes('timer') || transcript.includes('start timer')) {
-                const currentStep = steps[currentStepIndex];
-                if (detectedTimers[currentStepIndex] && detectedTimers[currentStepIndex][0]) {
-                    startTimer(detectedTimers[currentStepIndex][0].duration_seconds);
-                    showVoiceIndicator();
-                }
-            } else if (transcript.includes('ingredients')) {
-                toggleIngredientsView();
-                showVoiceIndicator();
+            showVoiceIndicator(`Heard: "${transcript}"`);
+            
+            // Get ingredient list
+            const ingredientsList = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item span'))
+                .map((el, i) => `${i + 1}. ${el.textContent}`)
+                .join('\n');
+            
+            // Use AI to understand command
+            try {
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 1000,
+                        messages: [{
+                            role: "user",
+                            content: `You're a voice assistant for a cooking app. User is on step ${currentStepIndex + 1}/${steps.length}.
+
+Current step: "${steps[currentStepIndex].title} - ${steps[currentStepIndex].text}"
+
+Ingredients:
+${ingredientsList}
+
+Steps:
+${steps.map((s, i) => `${i + 1}. ${s.title}: ${s.text}`).join('\n')}
+
+User said: "${transcript}"
+
+Return ONLY JSON:
+{
+  "action": "next_step" | "prev_step" | "go_to_step" | "start_timer" | "read_ingredients" | "read_step" | "toggle_ingredients" | "check_ingredient" | "unknown",
+  "step_number": null,
+  "ingredient_numbers": [],
+  "ingredient_names": [],
+  "response_text": "brief response"
+}
+
+Examples:
+"next" → {"action":"next_step","step_number":null,"ingredient_numbers":[],"ingredient_names":[],"response_text":"Moving to next step"}
+"what are the first 2 ingredients" → {"action":"read_ingredients","step_number":null,"ingredient_numbers":[1,2],"ingredient_names":["Cajun spice","shrimp"],"response_text":"The first 2 ingredients are Cajun spice and shrimp"}
+"check off the shrimp" → {"action":"check_ingredient","step_number":null,"ingredient_numbers":[2],"ingredient_names":["shrimp"],"response_text":"Checked off shrimp"}
+"go to step 3" → {"action":"go_to_step","step_number":3,"ingredient_numbers":[],"ingredient_names":[],"response_text":"Going to step 3"}`
+                        }]
+                    })
+                });
+                
+                const data = await response.json();
+                const text = data.content[0].text.trim();
+                const cleanText = text.replace(/```json|```/g, "").trim();
+                const command = JSON.parse(cleanText);
+                
+                console.log('AI understood:', command);
+                executeVoiceCommand(command);
+                
+            } catch (err) {
+                console.error('AI command processing failed:', err);
+                showVoiceIndicator('Sorry, I didn\'t understand that');
             }
         };
     }
     
-    function showVoiceIndicator() {
+    function executeVoiceCommand(command) {
+        showVoiceIndicator(command.response_text);
+        
+        switch(command.action) {
+            case 'next_step':
+                nextStep();
+                break;
+            case 'prev_step':
+                prevStep();
+                break;
+            case 'go_to_step':
+                if (command.step_number && command.step_number >= 1 && command.step_number <= steps.length) {
+                    currentStepIndex = command.step_number - 1;
+                    updateChefMode();
+                    speakCurrentStep();
+                }
+                break;
+            case 'start_timer':
+                if (detectedTimers[currentStepIndex] && detectedTimers[currentStepIndex][0]) {
+                    startTimer(detectedTimers[currentStepIndex][0].duration_seconds);
+                }
+                break;
+            case 'read_ingredients':
+                const ingredientsToRead = command.ingredient_names.join(', ');
+                speak(command.response_text);
+                break;
+            case 'read_step':
+                speakCurrentStep();
+                break;
+            case 'toggle_ingredients':
+                toggleIngredientsView();
+                break;
+            case 'check_ingredient':
+                command.ingredient_numbers.forEach(num => {
+                    if (num >= 1 && num <= 13) {
+                        const items = document.querySelectorAll('#ingredientsList .ingredient-item');
+                        const item = items[num - 1];
+                        if (item && !item.classList.contains('checked')) {
+                            toggleIngredient(item);
+                        }
+                    }
+                });
+                updateChefIngredients();
+                break;
+        }
+    }
+    
+    function showVoiceIndicator(text) {
         const indicator = document.getElementById('voiceIndicator');
+        indicator.textContent = text || '🎤 Listening...';
         indicator.classList.add('active');
         setTimeout(() => {
             indicator.classList.remove('active');
-        }, 2000);
+        }, 3000);
     }
     
     function toggleIngredient(element) {
         const checkbox = element.querySelector('input[type="checkbox"]');
         checkbox.checked = !checkbox.checked;
         element.classList.toggle('checked');
+        updateChefIngredients();
+    }
+    
+    function toggleChefIngredient(element) {
+        const checkbox = element.querySelector('input[type="checkbox"]');
+        const index = element.dataset.index;
+        
+        checkbox.checked = !checkbox.checked;
+        element.classList.toggle('checked');
+        
+        // Sync with main ingredient list
+        const mainItems = document.querySelectorAll('#ingredientsList .ingredient-item');
+        const mainItem = mainItems[index];
+        if (mainItem) {
+            const mainCheckbox = mainItem.querySelector('input[type="checkbox"]');
+            mainCheckbox.checked = checkbox.checked;
+            if (checkbox.checked) {
+                mainItem.classList.add('checked');
+            } else {
+                mainItem.classList.remove('checked');
+            }
+        }
     }
     
     async function toggleChefMode() {
@@ -737,14 +846,12 @@ Rules:
             container.classList.add("active");
             currentStepIndex = 0;
             
-            // Detect timers with AI
             detectTimersInSteps();
             
             updateChefMode();
             renderStepsPreview();
             updateChefIngredients();
             
-            // Request wake lock
             try {
                 if ("wakeLock" in navigator) {
                     wakeLock = await navigator.wakeLock.request("screen");
@@ -752,46 +859,39 @@ Rules:
                 }
             } catch (err) {
                 console.log("Wake Lock not available - using video fallback");
-                // Fallback: Use hidden video to keep screen awake
                 enableVideoWakeLock();
             }
             
-            // Start voice recognition
             if (recognition) {
                 try {
                     recognition.start();
                     console.log('Starting voice recognition...');
                 } catch (err) {
                     console.log("Voice recognition error:", err);
-                    document.getElementById('voiceStatus').textContent = '🎤 Click to Enable Voice';
+                    document.getElementById('voiceStatus').textContent = '🎤 Click to Enable';
                     document.getElementById('voiceStatus').style.background = '#ffc988';
                 }
             } else {
-                document.getElementById('voiceStatus').textContent = '🎤 Voice Not Supported';
+                document.getElementById('voiceStatus').textContent = '🎤 Not Supported';
                 document.getElementById('voiceStatus').style.background = '#666';
             }
             
-            // Speak first step
             speakCurrentStep();
         } else {
             btn.classList.remove("chef-on");
             container.classList.remove("active");
             
-            // Release wake lock
             if (wakeLock) {
                 wakeLock.release();
                 wakeLock = null;
             }
             
-            // Disable video fallback
             disableVideoWakeLock();
             
-            // Stop voice recognition
             if (recognition) {
                 recognition.stop();
             }
             
-            // Clear timer
             resetTimer();
         }
     }
@@ -803,33 +903,25 @@ Rules:
         document.getElementById('progressText').textContent = `Step ${currentStepIndex + 1} of ${steps.length}`;
         document.getElementById('progressFill').style.width = `${((currentStepIndex + 1) / steps.length) * 100}%`;
         
-        // Update navigation buttons
         document.getElementById('prevBtn').disabled = currentStepIndex === 0;
         document.getElementById('nextBtn').disabled = currentStepIndex === steps.length - 1;
         
-        // Show/hide timer section with AI-detected timers
         const timerSection = document.getElementById('timerSection');
         const timerButtons = document.querySelector('.timer-buttons');
         
         if (detectedTimers[currentStepIndex]) {
             timerSection.style.display = 'block';
             
-            // Clear existing custom timer buttons
             const existingCustom = timerButtons.querySelectorAll('.ai-timer-btn');
             existingCustom.forEach(btn => btn.remove());
             
-            // Add AI-detected timer buttons
             detectedTimers[currentStepIndex].forEach(timer => {
                 const btn = document.createElement('button');
                 btn.className = 'ai-timer-btn';
                 btn.textContent = `⏱️ ${timer.label}`;
                 btn.onclick = () => startTimer(timer.duration_seconds);
-                timerButtons.insertBefore(btn, timerButtons.children[3]);
+                timerButtons.insertBefore(btn, timerButtons.children[0]);
             });
-        } else if (step.timer) {
-            timerSection.style.display = 'block';
-            customTimerSeconds = step.timer;
-            document.getElementById('customTimerBtn').textContent = `${Math.floor(step.timer / 60)} min`;
         } else {
             timerSection.style.display = 'none';
         }
@@ -887,11 +979,7 @@ Rules:
                 if (timerSeconds === 0) {
                     timerRunning = false;
                     playTimerSound();
-                    if (autoAdvance && currentStepIndex < steps.length - 1) {
-                        setTimeout(() => {
-                            nextStep();
-                        }, 1000);
-                    }
+                    speak('Timer finished!');
                 }
             }
         }, 1000);
@@ -899,7 +987,7 @@ Rules:
     
     function pauseTimer() {
         timerRunning = !timerRunning;
-        const pauseBtn = document.querySelector('.timer-buttons button:nth-child(5)');
+        const pauseBtn = document.querySelector('.timer-buttons button:nth-child(4)');
         if (pauseBtn) {
             pauseBtn.textContent = timerRunning ? '⏸ Pause' : '▶️ Resume';
         }
@@ -910,7 +998,7 @@ Rules:
         timerSeconds = 0;
         timerRunning = false;
         updateTimerDisplay();
-        const pauseBtn = document.querySelector('.timer-buttons button:nth-child(5)');
+        const pauseBtn = document.querySelector('.timer-buttons button:nth-child(4)');
         if (pauseBtn) {
             pauseBtn.textContent = '⏸ Pause';
         }
@@ -924,7 +1012,6 @@ Rules:
     }
     
     function playTimerSound() {
-        // Play a beep sound
         const context = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = context.createOscillator();
         const gainNode = context.createGain();
@@ -942,14 +1029,18 @@ Rules:
         oscillator.stop(context.currentTime + 0.5);
     }
     
-    function speakCurrentStep() {
+    function speak(text) {
         if ('speechSynthesis' in window) {
-            const step = steps[currentStepIndex];
-            const utterance = new SpeechSynthesisUtterance(`Step ${currentStepIndex + 1}: ${step.title}. ${step.text}`);
+            const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = 0.9;
-            speechSynthesis.cancel(); // Cancel any ongoing speech
+            speechSynthesis.cancel();
             speechSynthesis.speak(utterance);
         }
+    }
+    
+    function speakCurrentStep() {
+        const step = steps[currentStepIndex];
+        speak(`Step ${currentStepIndex + 1}: ${step.title}. ${step.text}`);
     }
     
     function retryVoice() {
@@ -984,14 +1075,27 @@ Rules:
         const ingredients = document.querySelectorAll('#ingredientsList .ingredient-item');
         container.innerHTML = '';
         
-        ingredients.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = item.querySelector('span').textContent;
+        ingredients.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'chef-ingredient-item';
+            div.dataset.index = index;
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = item.querySelector('input').checked;
+            
+            const span = document.createElement('span');
+            span.textContent = item.querySelector('span').textContent;
+            
             if (item.classList.contains('checked')) {
-                li.style.textDecoration = 'line-through';
-                li.style.opacity = '0.6';
+                div.classList.add('checked');
             }
-            container.appendChild(li);
+            
+            div.appendChild(checkbox);
+            div.appendChild(span);
+            div.onclick = () => toggleChefIngredient(div);
+            
+            container.appendChild(div);
         });
     }
     
@@ -999,7 +1103,6 @@ Rules:
         window.print();
     }
     
-    // Update chef ingredients when checkboxes change
     document.getElementById('ingredientsList').addEventListener('change', updateChefIngredients);
 </script>
 
