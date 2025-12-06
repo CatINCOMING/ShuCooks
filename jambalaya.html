@@ -359,6 +359,21 @@
             font-weight: bold;
             margin-left: 10px;
         }
+        #voiceStatus {
+            display: inline-block;
+            background: #ffc988;
+            color: #1a1a1a;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        #voiceStatus:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -448,7 +463,7 @@
 <!-- Chef Mode Container -->
 <div id="chefModeContainer" class="chef-mode-container">
     <div class="chef-mode-header">
-        <h2>👨‍🍳 Chef Mode <span class="hands-free-badge">🔓 Screen Unlocked</span></h2>
+        <h2>👨‍🍳 Chef Mode <span class="hands-free-badge">🔓 Screen Unlocked</span> <span id="voiceStatus" onclick="retryVoice()">🎤 Starting...</span></h2>
         <button class="exit-chef-mode" onclick="toggleChefMode()">✕ Exit</button>
     </div>
     
@@ -641,6 +656,36 @@ Rules:
         recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        
+        recognition.onstart = () => {
+            console.log('Voice recognition started');
+            document.getElementById('voiceStatus').textContent = '🎤 Voice Active';
+            document.getElementById('voiceStatus').style.background = '#8fd694';
+        };
+        
+        recognition.onerror = (event) => {
+            console.error('Voice recognition error:', event.error);
+            document.getElementById('voiceStatus').textContent = '🎤 Voice Error - Click to Retry';
+            document.getElementById('voiceStatus').style.background = '#ff4444';
+            
+            if (event.error === 'not-allowed') {
+                alert('Microphone permission denied. Please allow microphone access in your browser settings and refresh the page.');
+            }
+        };
+        
+        recognition.onend = () => {
+            // Auto-restart if in chef mode
+            if (chefMode) {
+                setTimeout(() => {
+                    try {
+                        recognition.start();
+                    } catch (err) {
+                        console.log('Could not restart recognition:', err);
+                    }
+                }, 100);
+            }
+        };
         
         recognition.onresult = (event) => {
             const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
@@ -657,8 +702,8 @@ Rules:
                 showVoiceIndicator();
             } else if (transcript.includes('timer') || transcript.includes('start timer')) {
                 const currentStep = steps[currentStepIndex];
-                if (currentStep.timer) {
-                    startTimer(currentStep.timer);
+                if (detectedTimers[currentStepIndex] && detectedTimers[currentStepIndex][0]) {
+                    startTimer(detectedTimers[currentStepIndex][0].duration_seconds);
                     showVoiceIndicator();
                 }
             } else if (transcript.includes('ingredients')) {
@@ -715,9 +760,15 @@ Rules:
             if (recognition) {
                 try {
                     recognition.start();
+                    console.log('Starting voice recognition...');
                 } catch (err) {
-                    console.log("Voice recognition failed:", err);
+                    console.log("Voice recognition error:", err);
+                    document.getElementById('voiceStatus').textContent = '🎤 Click to Enable Voice';
+                    document.getElementById('voiceStatus').style.background = '#ffc988';
                 }
+            } else {
+                document.getElementById('voiceStatus').textContent = '🎤 Voice Not Supported';
+                document.getElementById('voiceStatus').style.background = '#666';
             }
             
             // Speak first step
@@ -731,6 +782,9 @@ Rules:
                 wakeLock.release();
                 wakeLock = null;
             }
+            
+            // Disable video fallback
+            disableVideoWakeLock();
             
             // Stop voice recognition
             if (recognition) {
@@ -895,6 +949,19 @@ Rules:
             utterance.rate = 0.9;
             speechSynthesis.cancel(); // Cancel any ongoing speech
             speechSynthesis.speak(utterance);
+        }
+    }
+    
+    function retryVoice() {
+        if (recognition && chefMode) {
+            try {
+                recognition.stop();
+                setTimeout(() => {
+                    recognition.start();
+                }, 100);
+            } catch (err) {
+                console.log('Retry failed:', err);
+            }
         }
     }
     
