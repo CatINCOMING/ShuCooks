@@ -37,6 +37,28 @@
     </div>
 
 </section>
+<script>
+function toggleDarkMode() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? '' : 'dark';
+    const btn = document.getElementById('themeToggle');
+    
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+}
 
+// Load saved theme
+window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme');
+    const btn = document.getElementById('themeToggle');
+    
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        btn.textContent = '☀️';
+    }
+});
+</script>
 </body>
 </html>
