@@ -20,12 +20,39 @@
     <a href="index.html">Home</a>
     <a href="recipes.html">Recipes</a>
     <a href="contact.html">Contact</a>
+    <!-- Dark Mode Toggle Button -->
+<button class="theme-toggle" onclick="toggleDarkMode()" id="themeToggle" aria-label="Toggle dark mode">
+    🌙
+</button>
 </nav>
 
 <section class="content">
     <h1>Welcome to ShuCooks!</h1>
     <p>Hi! I’m Shuhao, and I love cooking. This is my personal food blog where I’ll post my favorite dishes and tips!</p>
 </section>
+    <script>
+function toggleDarkMode() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? '' : 'dark';
+    const btn = document.getElementById('themeToggle');
+    
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+}
+
+// Load saved theme
+window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme');
+    const btn = document.getElementById('themeToggle');
+    
+    if (savedTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        btn.textContent = '☀️';
+    }
+});
+</script>
 
 </body>
 </html>
