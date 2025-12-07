@@ -1,206 +1,370 @@
 /* ===================================
-   ShuCooks - Compatible Style Sheet
-   Works with your existing HTML
+   ShuCooks - Beautiful Modern CSS
+   Premium design with smooth animations
    =================================== */
 
 :root {
+    /* Colors */
     --bg-primary: #fafafa;
     --bg-secondary: #ffffff;
-    --bg-card: #ffffff;
-    --text-primary: #111111;
+    --text-primary: #1a1a1a;
     --text-secondary: #666666;
-    --accent-primary: #ffd6a5;
-    --accent-hover: #ffc988;
-    --accent-secondary: #ff6b35;
-    --border-color: #ddd;
-    --shadow-light: rgba(0, 0, 0, 0.1);
-    --shadow-medium: rgba(0, 0, 0, 0.15);
-    --chef-active: #8fd694;
-    --transition-fast: 0.2s ease;
-    --spacing-sm: 15px;
-    --spacing-md: 20px;
-    --spacing-lg: 30px;
-    --radius-md: 14px;
-    --radius-lg: 20px;
+    --accent-orange: #ff6b35;
+    --accent-peach: #ffd6a5;
+    --accent-green: #8fd694;
+    --border-light: #e0e0e0;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+    
+    /* Spacing */
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 20px;
+    --space-lg: 32px;
+    --space-xl: 48px;
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    
+    /* Transitions */
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ============ RESET ============ */
+/* ============ RESET & BASE ============ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 
+                 'Ubuntu', 'Cantarell', sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 /* ============ NAVBAR ============ */
 .navbar {
     display: flex;
-    gap: 20px;
-    padding: 15px;
-    background: #ffffffcc;
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid #ddd;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border-light);
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+    animation: slideDown 0.5s ease;
 }
 
-/* Style ALL navbar links the same first */
 .navbar a {
-    padding: 10px 20px;
-    background: #f2f2f2;
-    border-radius: 20px;
+    padding: 10px 24px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
     text-decoration: none;
-    color: #333;
-    font-weight: bold;
-    transition: 0.2s;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 15px;
+    transition: all var(--transition);
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shimmer effect on hover */
+.navbar a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    transition: left 0.5s;
+}
+
+.navbar a:hover::before {
+    left: 100%;
 }
 
 .navbar a:hover {
-    background: #ffd6a5;
+    background: var(--accent-peach);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent-orange);
 }
 
-/* Then add special styling for the FIRST link (ShuCooks logo) */
-.navbar a:first-child,
-.navbar .logo {
-    background: linear-gradient(135deg, #ffd6a5, #ff6b35);
+.navbar a:active {
+    transform: translateY(0);
+}
+
+/* Logo - First link gets special styling */
+.navbar a:first-child {
+    background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-peach) 100%);
     color: white;
     font-weight: 700;
+    font-size: 18px;
+    padding: 12px 28px;
+    box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+}
+
+.navbar a:first-child:hover {
+    background: linear-gradient(135deg, #ff5722 0%, #ffb380 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 24px rgba(255, 107, 53, 0.4);
 }
 
 /* ============ CONTENT ============ */
 .content {
-    padding: 30px;
-    max-width: 900px;
-    margin: auto;
+    padding: var(--space-xl) var(--space-lg);
+    max-width: 1000px;
+    margin: 0 auto;
+    animation: fadeIn 0.6s ease;
 }
 
 h1 {
-    margin-bottom: 20px;
-    font-size: 2.5rem;
-    color: var(--text-primary);
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: var(--space-lg);
+    background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-peach) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    animation: slideUp 0.6s ease;
 }
 
 h2 {
-    margin-top: 30px;
-    margin-bottom: 15px;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-top: var(--space-xl);
+    margin-bottom: var(--space-md);
     color: var(--text-primary);
 }
 
 h3 {
-    margin-top: 15px;
-    margin-bottom: 10px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+    color: var(--text-primary);
 }
 
 p {
-    line-height: 1.6;
-    margin-bottom: 15px;
+    line-height: 1.8;
+    margin-bottom: var(--space-md);
     color: var(--text-secondary);
+    font-size: 16px;
 }
 
 ul, ol {
-    margin-left: 20px;
-    line-height: 1.8;
+    margin-left: var(--space-lg);
+    line-height: 1.9;
 }
 
 li {
-    margin-bottom: 8px;
+    margin-bottom: var(--space-sm);
+    color: var(--text-secondary);
 }
 
 /* ============ RECIPE GRID ============ */
 .recipe-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
 }
 
 .recipe-card {
-    background: white;
-    border-radius: 14px;
-    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
     text-decoration: none;
-    color: black;
-    transition: 0.2s;
-    border: 1px solid #ddd;
+    color: var(--text-primary);
+    border: 2px solid var(--border-light);
+    transition: all var(--transition);
+    overflow: hidden;
+    position: relative;
+    animation: fadeInUp 0.6s ease backwards;
+}
+
+/* Gradient border on hover */
+.recipe-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-orange), var(--accent-peach));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--transition);
+}
+
+.recipe-card:hover::before {
+    transform: scaleX(1);
+}
+
+.recipe-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-peach);
 }
 
 .recipe-card img {
     width: 100%;
-    border-radius: 14px;
-    margin-bottom: 10px;
+    height: 240px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    transition: transform var(--transition);
 }
 
-.recipe-card:hover {
-    transform: scale(1.03);
-    border-color: orange;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+.recipe-card:hover img {
+    transform: scale(1.05);
 }
+
+.recipe-card h3 {
+    margin-top: var(--space-sm);
+    font-size: 1.3rem;
+}
+
+/* Stagger animation for cards */
+.recipe-card:nth-child(1) { animation-delay: 0.1s; }
+.recipe-card:nth-child(2) { animation-delay: 0.2s; }
+.recipe-card:nth-child(3) { animation-delay: 0.3s; }
+.recipe-card:nth-child(4) { animation-delay: 0.4s; }
 
 /* ============ RECIPE PAGE ============ */
 .recipe-photo {
     width: 100%;
-    border-radius: 14px;
-    margin-bottom: 20px;
+    height: 450px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-lg);
+    box-shadow: var(--shadow-lg);
+    animation: zoomIn 0.7s ease;
 }
 
 /* ============ BUTTONS ============ */
 .button-row {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
 }
 
 button {
-    padding: 10px 18px;
+    padding: 14px 28px;
     border: none;
-    background: #ffe5b4;
-    border-radius: 14px;
+    background: linear-gradient(135deg, var(--accent-peach) 0%, #ffb380 100%);
+    border-radius: var(--radius-md);
     font-size: 16px;
+    font-weight: 600;
+    color: #333;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all var(--transition);
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Ripple effect */
+button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+button:active::after {
+    width: 300px;
+    height: 300px;
 }
 
 button:hover {
-    background: #ffc988;
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+button:active {
+    transform: translateY(-1px);
 }
 
 .chef-on {
-    background: #8fd694 !important;
+    background: linear-gradient(135deg, var(--accent-green) 0%, #7ac682 100%) !important;
+    box-shadow: 0 4px 16px rgba(143, 214, 148, 0.4) !important;
+    color: white !important;
 }
 
-/* ============ INGREDIENT CHECKLIST ============ */
+/* ============ INGREDIENTS ============ */
 .ingredient-item {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    transition: 0.2s;
+    transition: all var(--transition);
 }
 
 .ingredient-item:hover {
-    background: #f0f0f0;
+    background: var(--accent-peach);
+    transform: translateX(8px);
+    box-shadow: var(--shadow-sm);
+    border-color: var(--accent-orange);
 }
 
 .ingredient-item input[type="checkbox"] {
-    margin-right: 10px;
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     cursor: pointer;
+    accent-color: var(--accent-green);
+    transition: transform 0.2s;
+}
+
+.ingredient-item input[type="checkbox"]:checked {
+    transform: scale(1.2);
 }
 
 .ingredient-item.checked {
     text-decoration: line-through;
-    opacity: 0.6;
+    opacity: 0.5;
+    background: #f5f5f5;
+}
+
+.ingredient-item span {
+    flex: 1;
+    font-size: 16px;
 }
 
 /* ============ CHEF MODE ============ */
@@ -208,7 +372,7 @@ button:hover {
     display: none;
     position: fixed;
     inset: 0;
-    background: #1a1a1a;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
     color: white;
     z-index: 1000;
     overflow-y: auto;
@@ -216,106 +380,130 @@ button:hover {
 
 .chef-mode-container.active {
     display: block;
+    animation: fadeIn 0.3s ease;
 }
 
 .chef-mode-header {
-    background: #2a2a2a;
-    padding: 15px 20px;
+    background: rgba(42, 42, 42, 0.95);
+    backdrop-filter: blur(20px);
+    padding: var(--space-md) var(--space-lg);
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
     z-index: 10;
-    flex-wrap: wrap;
-    gap: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 .chef-mode-header h2 {
     margin: 0;
-    font-size: 20px;
+    font-size: 22px;
     display: flex;
     align-items: center;
+    gap: var(--space-md);
     flex-wrap: wrap;
-    gap: 10px;
 }
 
 .exit-chef-mode {
     background: #ff4444;
     color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.exit-chef-mode:hover {
+    background: #ff2222;
+    transform: scale(1.05);
 }
 
 .chef-mode-content {
-    padding: 20px;
-    max-width: 800px;
+    padding: var(--space-lg);
+    max-width: 900px;
     margin: 0 auto;
 }
 
+/* Progress Bar */
 .progress-bar {
     background: #333;
-    height: 8px;
-    border-radius: 4px;
-    margin-bottom: 20px;
+    height: 10px;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-lg);
     overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .progress-fill {
-    background: #8fd694;
+    background: linear-gradient(90deg, var(--accent-green), #7ac682);
     height: 100%;
-    transition: width 0.3s;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 20px rgba(143, 214, 148, 0.6);
 }
 
 .progress-text {
     text-align: center;
     color: #999;
-    margin-bottom: 30px;
-    font-size: 14px;
+    margin-bottom: var(--space-lg);
+    font-size: 16px;
+    font-weight: 500;
 }
 
+/* Current Step */
 .current-step {
-    background: #2a2a2a;
-    padding: 30px;
-    border-radius: 14px;
-    margin-bottom: 20px;
-    border: 3px solid #8fd694;
+    background: rgba(42, 42, 42, 0.8);
+    padding: var(--space-xl);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-lg);
+    border: 3px solid var(--accent-green);
     cursor: pointer;
-    transition: 0.2s;
+    transition: all var(--transition);
+    box-shadow: 0 8px 32px rgba(143, 214, 148, 0.3);
+}
+
+.current-step:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 40px rgba(143, 214, 148, 0.4);
+}
+
+.current-step:active {
+    transform: scale(0.98);
 }
 
 .step-title {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #8fd694;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+    color: var(--accent-green);
 }
 
 .step-text {
-    font-size: 24px;
-    line-height: 1.6;
+    font-size: 1.4rem;
+    line-height: 1.7;
+    color: #e0e0e0;
 }
 
+/* Timer */
 .timer-section {
-    margin-top: 20px;
-    padding-top: 20px;
-    border-top: 1px solid #444;
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 2px solid #444;
 }
 
 .timer-display {
-    font-size: 48px;
-    font-weight: bold;
+    font-size: 4rem;
+    font-weight: 700;
     text-align: center;
-    color: #8fd694;
-    margin: 20px 0;
+    color: var(--accent-green);
+    margin: var(--space-lg) 0;
+    text-shadow: 0 0 30px rgba(143, 214, 148, 0.6);
+    font-family: 'Courier New', monospace;
 }
 
 .timer-buttons {
     display: flex;
-    gap: 10px;
+    gap: var(--space-sm);
     justify-content: center;
     flex-wrap: wrap;
 }
@@ -324,13 +512,17 @@ button:hover {
     background: #444;
     color: white;
     padding: 12px 20px;
-    font-size: 16px;
 }
 
+.timer-buttons button:hover {
+    background: #555;
+}
+
+/* Navigation */
 .chef-navigation {
     display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
 }
 
 .chef-navigation button {
@@ -341,67 +533,87 @@ button:hover {
     color: white;
 }
 
+.chef-navigation button:hover {
+    background: #555;
+}
+
 .chef-navigation button:disabled {
     opacity: 0.3;
     cursor: not-allowed;
 }
 
+/* Steps Preview */
 .all-steps-preview {
-    margin-top: 30px;
+    margin-top: var(--space-xl);
 }
 
 .step-preview {
-    background: #2a2a2a;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    opacity: 0.5;
+    background: rgba(42, 42, 42, 0.6);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-sm);
+    opacity: 0.6;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all var(--transition);
+    border: 2px solid transparent;
 }
 
 .step-preview:hover {
-    opacity: 0.8;
+    opacity: 0.9;
+    transform: translateX(8px);
+    border-color: #555;
 }
 
 .step-preview.active {
     opacity: 1;
-    border: 2px solid #8fd694;
+    background: rgba(42, 42, 42, 0.9);
+    border-color: var(--accent-green);
+    box-shadow: 0 4px 16px rgba(143, 214, 148, 0.3);
 }
 
+/* Ingredients Toggle */
 .ingredients-toggle {
     background: #444;
     color: white;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
     cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ingredients-toggle:hover {
+    background: #555;
 }
 
 .ingredients-list {
-    background: #2a2a2a;
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 10px;
+    background: rgba(42, 42, 42, 0.8);
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-sm);
 }
 
 .chef-ingredient-item {
     display: flex;
     align-items: center;
-    padding: 10px 0;
+    gap: var(--space-md);
+    padding: var(--space-md) 0;
     border-bottom: 1px solid #444;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.2s;
 }
 
 .chef-ingredient-item:hover {
-    background: #333;
+    background: rgba(68, 68, 68, 0.5);
+    padding-left: var(--space-sm);
 }
 
 .chef-ingredient-item input[type="checkbox"] {
-    margin-right: 12px;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     cursor: pointer;
 }
 
@@ -410,98 +622,191 @@ button:hover {
     opacity: 0.5;
 }
 
+/* Voice Indicator */
 .voice-indicator {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #8fd694;
+    bottom: var(--space-lg);
+    right: var(--space-lg);
+    background: var(--accent-green);
     color: #1a1a1a;
-    padding: 15px 20px;
-    border-radius: 30px;
-    font-weight: bold;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-xl);
+    font-weight: 700;
     display: none;
-    max-width: 300px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    max-width: 350px;
+    box-shadow: 0 8px 32px rgba(143, 214, 148, 0.5);
     z-index: 2000;
+    animation: pulse 2s infinite;
 }
 
 .voice-indicator.active {
     display: block;
 }
 
-.hands-free-badge {
+.hands-free-badge,
+#voiceStatus {
     display: inline-block;
-    background: #8fd694;
+    padding: 6px 14px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.hands-free-badge {
+    background: var(--accent-green);
     color: #1a1a1a;
-    padding: 5px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: bold;
 }
 
 #voiceStatus {
-    display: inline-block;
-    background: #ffc988;
-    color: #1a1a1a;
-    padding: 5px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: bold;
+    background: var(--accent-peach);
+    color: #333;
     cursor: pointer;
-    transition: 0.2s;
+    transition: all 0.2s;
 }
 
-.ai-timer-btn {
-    background: #8fd694 !important;
-    color: #1a1a1a;
-    font-weight: bold;
+#voiceStatus:hover {
+    transform: scale(1.05);
 }
 
+/* Commands Help */
 .commands-help {
-    background: #2a2a2a;
-    padding: 20px;
-    border-radius: 8px;
-    margin-top: 30px;
+    background: rgba(42, 42, 42, 0.6);
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-xl);
 }
 
 .commands-help h3 {
-    color: #8fd694;
-    margin-bottom: 15px;
+    color: var(--accent-green);
+    margin-bottom: var(--space-md);
 }
 
 .commands-help ul {
     list-style: none;
-    margin: 0;
+    padding: 0;
 }
 
 .commands-help li {
-    padding: 8px 0;
+    padding: var(--space-sm) 0;
     color: #ccc;
 }
 
 .commands-help code {
     background: #1a1a1a;
-    padding: 3px 8px;
-    border-radius: 4px;
-    color: #8fd694;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: var(--accent-green);
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
 }
 
 /* ============ RESPONSIVE ============ */
 @media (max-width: 768px) {
     .navbar {
         flex-wrap: wrap;
+        padding: var(--space-md);
+        gap: var(--space-sm);
+    }
+    
+    .navbar a:first-child {
+        width: 100%;
+        text-align: center;
     }
     
     .content {
-        padding: 20px;
+        padding: var(--space-lg) var(--space-md);
     }
     
     h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
+    }
+    
+    h2 {
+        font-size: 1.6rem;
     }
     
     .recipe-grid {
         grid-template-columns: 1fr;
+        gap: var(--space-md);
+    }
+    
+    .recipe-photo {
+        height: 300px;
+    }
+    
+    .button-row {
+        flex-direction: column;
+    }
+    
+    button {
+        width: 100%;
+    }
+    
+    .step-title {
+        font-size: 1.6rem;
+    }
+    
+    .step-text {
+        font-size: 1.2rem;
+    }
+    
+    .timer-display {
+        font-size: 3rem;
     }
 }
 
@@ -509,7 +814,18 @@ button:hover {
 @media print {
     .navbar,
     .button-row,
-    .chef-mode-container {
+    .chef-mode-container,
+    .voice-indicator {
         display: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .content {
+        max-width: 100%;
+        padding: 0;
     }
 }
