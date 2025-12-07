@@ -1,628 +1,506 @@
-/* ===================================
-   ShuCooks - Ultimate Style Sheet
-   Features: Modern design, dark mode,
-   animations, optimized & organized
-   =================================== */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShuCooks - Live Preview</title>
+    <style>
+        /* ===================================
+           ShuCooks - Ultimate Style Sheet
+           =================================== */
 
-/* ============ CSS VARIABLES ============ */
-:root {
-    /* Light Mode Colors */
-    --bg-primary: #fafafa;
-    --bg-secondary: #ffffff;
-    --bg-card: #ffffff;
-    --text-primary: #111111;
-    --text-secondary: #666666;
-    --accent-primary: #ffd6a5;
-    --accent-hover: #ffc988;
-    --accent-secondary: #ff6b35;
-    --border-color: #ddd;
-    --shadow-light: rgba(0, 0, 0, 0.1);
-    --shadow-medium: rgba(0, 0, 0, 0.15);
+        :root {
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #666666;
+            --accent-primary: #ffd6a5;
+            --accent-hover: #ffc988;
+            --accent-secondary: #ff6b35;
+            --border-color: #ddd;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --chef-active: #8fd694;
+            --transition-fast: 0.2s ease;
+            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --spacing-xs: 8px;
+            --spacing-sm: 15px;
+            --spacing-md: 20px;
+            --spacing-lg: 30px;
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-full: 9999px;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f0f0f;
+            --bg-secondary: #1a1a1a;
+            --bg-card: #2a2a2a;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --border-color: #333333;
+            --shadow-light: rgba(255, 255, 255, 0.05);
+            --shadow-medium: rgba(255, 255, 255, 0.1);
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color var(--transition-smooth), color var(--transition-smooth);
+        }
+
+        .navbar {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px) saturate(180%);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px var(--shadow-light);
+            animation: slideDown 0.4s ease-out;
+        }
+
+        [data-theme="dark"] .navbar {
+            background: rgba(26, 26, 26, 0.9);
+        }
+
+        .navbar a {
+            padding: 10px 20px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .navbar a:hover {
+            background: var(--accent-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+
+        .navbar .logo {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            font-weight: 700;
+            font-size: 1.1em;
+            padding: 12px 24px;
+            margin-right: auto;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 1.2em;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(180deg) scale(1.1);
+        }
+
+        .content {
+            padding: var(--spacing-lg);
+            max-width: 900px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-md);
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-top: var(--spacing-lg);
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+        }
+
+        p {
+            line-height: 1.8;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-secondary);
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .recipe-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-sm);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-smooth);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            animation: fadeInUp 0.5s ease-out;
+            animation-fill-mode: backwards;
+        }
+
+        .recipe-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform var(--transition-smooth);
+        }
+
+        .recipe-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px var(--shadow-medium);
+            border-color: var(--accent-primary);
+        }
+
+        .recipe-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: var(--radius-md);
+            transition: transform var(--transition-smooth);
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .recipe-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .recipe-card h3 {
+            margin-top: var(--spacing-sm);
+            color: var(--text-primary);
+        }
+
+        .recipe-card:nth-child(1) { animation-delay: 0.1s; }
+        .recipe-card:nth-child(2) { animation-delay: 0.2s; }
+        .recipe-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            margin-bottom: var(--spacing-xs);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .ingredient-item:hover {
+            background: var(--accent-primary);
+            transform: translateX(4px);
+        }
+
+        .ingredient-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--chef-active);
+        }
+
+        .ingredient-item.checked {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 12px rgba(255, 214, 165, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 214, 165, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page-selector {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 200;
+        }
+
+        .page-selector button {
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 12px var(--shadow-medium);
+        }
+
+        .page-selector button.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-secondary);
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        ul {
+            margin-left: 20px;
+            line-height: 1.9;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .demo-notice {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+            box-shadow: 0 4px 12px rgba(255, 214, 165, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+<!-- HOME PAGE -->
+<div id="home" class="page active">
+    <nav class="navbar">
+        <a href="#" class="logo">ShuCooks</a>
+        <a href="#" onclick="showPage('home')">Home</a>
+        <a href="#" onclick="showPage('recipes')">Recipes</a>
+        <a href="#" onclick="showPage('contact')">Contact</a>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </nav>
     
-    /* Chef Mode Colors */
-    --chef-active: #8fd694;
-    --chef-bg: #1a1a1a;
-    --chef-card: #2a2a2a;
-    --chef-text: #ffffff;
+    <section class="content">
+        <div class="demo-notice">
+            ✨ Live Preview with Ultimate CSS - Try Dark Mode! 🌙
+        </div>
+        
+        <h1>Welcome to ShuCooks!</h1>
+        <p>Hi! I'm Shuhao, and I love cooking. This is my personal food blog where I'll post my favorite dishes and tips!</p>
+        
+        <h2>What You'll See Here:</h2>
+        <ul>
+            <li>🎨 Beautiful gradient text</li>
+            <li>✨ Smooth animations on everything</li>
+            <li>🌙 Dark mode toggle (click the moon!)</li>
+            <li>💫 Glassmorphism navbar with blur</li>
+            <li>🎯 Hover effects on all interactive elements</li>
+        </ul>
+    </section>
+</div>
+
+<!-- RECIPES PAGE -->
+<div id="recipes" class="page">
+    <nav class="navbar">
+        <a href="#" class="logo">ShuCooks</a>
+        <a href="#" onclick="showPage('home')">Home</a>
+        <a href="#" onclick="showPage('recipes')">Recipes</a>
+        <a href="#" onclick="showPage('contact')">Contact</a>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </nav>
     
-    /* Transitions */
-    --transition-fast: 0.2s ease;
-    --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    <section class="content">
+        <div class="demo-notice">
+            Hover over the recipe cards to see the animations! 🎬
+        </div>
+        
+        <h1>Recipes</h1>
+        
+        <div class="recipe-grid">
+            <div class="recipe-card">
+                <div style="width: 100%; height: 220px; border-radius: 14px; background: linear-gradient(135deg, #ff6b35, #ffd6a5); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5em;">
+                    Jambalaya
+                </div>
+                <h3>CPK-Style Jambalaya</h3>
+            </div>
+            
+            <div class="recipe-card">
+                <div style="width: 100%; height: 220px; border-radius: 14px; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5em;">
+                    Coming Soon
+                </div>
+                <h3>Next Recipe</h3>
+            </div>
+            
+            <div class="recipe-card">
+                <div style="width: 100%; height: 220px; border-radius: 14px; background: linear-gradient(135deg, #f093fb, #f5576c); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5em;">
+                    Coming Soon
+                </div>
+                <h3>Another Recipe</h3>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- CONTACT PAGE -->
+<div id="contact" class="page">
+    <nav class="navbar">
+        <a href="#" class="logo">ShuCooks</a>
+        <a href="#" onclick="showPage('home')">Home</a>
+        <a href="#" onclick="showPage('recipes')">Recipes</a>
+        <a href="#" onclick="showPage('contact')">Contact</a>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    </nav>
     
-    /* Spacing */
-    --spacing-xs: 8px;
-    --spacing-sm: 15px;
-    --spacing-md: 20px;
-    --spacing-lg: 30px;
-    --spacing-xl: 50px;
+    <section class="content">
+        <h1>Contact Me</h1>
+        <p>You can put your email, social media, or a contact form here.</p>
+        
+        <h2>Sample Features:</h2>
+        <div style="margin-top: 20px;">
+            <button style="margin-right: 10px;">📧 Email Me</button>
+            <button>📱 Social Media</button>
+        </div>
+        
+        <h2>Sample Ingredients with Checkboxes:</h2>
+        <div style="margin-top: 20px;">
+            <div class="ingredient-item" onclick="toggleCheck(this)">
+                <input type="checkbox">
+                <span>3 tbsp Cajun spice</span>
+            </div>
+            <div class="ingredient-item" onclick="toggleCheck(this)">
+                <input type="checkbox">
+                <span>12–16 shrimp, deveined</span>
+            </div>
+            <div class="ingredient-item" onclick="toggleCheck(this)">
+                <input type="checkbox">
+                <span>½ red bell pepper, diced</span>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- PAGE SELECTOR -->
+<div class="page-selector">
+    <button class="active" onclick="showPage('home')">🏠 Home</button>
+    <button onclick="showPage('recipes')">📚 Recipes</button>
+    <button onclick="showPage('contact')">📧 Contact</button>
+</div>
+
+<script>
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
     
-    /* Border Radius */
-    --radius-sm: 8px;
-    --radius-md: 14px;
-    --radius-lg: 20px;
-    --radius-full: 9999px;
-}
-
-/* Dark Mode Variables */
-[data-theme="dark"] {
-    --bg-primary: #0f0f0f;
-    --bg-secondary: #1a1a1a;
-    --bg-card: #2a2a2a;
-    --text-primary: #ffffff;
-    --text-secondary: #aaaaaa;
-    --border-color: #333333;
-    --shadow-light: rgba(255, 255, 255, 0.05);
-    --shadow-medium: rgba(255, 255, 255, 0.1);
-}
-
-/* ============ RESET & BASE ============ */
-*, *::before, *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.6;
-    transition: background-color var(--transition-smooth), color var(--transition-smooth);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-a {
-    color: inherit;
-    text-decoration: none;
-}
-
-/* ============ NAVBAR ============ */
-.navbar {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm);
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 10px var(--shadow-light);
-    animation: slideDown 0.4s ease-out;
-}
-
-[data-theme="dark"] .navbar {
-    background: rgba(26, 26, 26, 0.9);
-}
-
-.navbar a {
-    padding: 10px 20px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    font-weight: 600;
-    transition: all var(--transition-fast);
-    border: 1px solid transparent;
-}
-
-.navbar a:hover {
-    background: var(--accent-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-medium);
-}
-
-.navbar a:active {
-    transform: translateY(0);
-}
-
-.navbar .logo {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-    color: white;
-    font-weight: 700;
-    font-size: 1.1em;
-    padding: 12px 24px;
-    margin-right: auto;
-}
-
-/* Dark Mode Toggle Button */
-.theme-toggle {
-    margin-left: auto;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    padding: 10px;
-    border-radius: var(--radius-full);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    font-size: 1.2em;
-}
-
-.theme-toggle:hover {
-    transform: rotate(180deg) scale(1.1);
-}
-
-/* ============ CONTENT SECTIONS ============ */
-.content {
-    padding: var(--spacing-lg);
-    max-width: 900px;
-    margin: 0 auto;
-    animation: fadeIn 0.6s ease-out;
-}
-
-h1 {
-    font-size: 2.5rem;
-    margin-bottom: var(--spacing-md);
-    background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: slideUp 0.5s ease-out;
-}
-
-h2 {
-    font-size: 1.8rem;
-    margin-top: var(--spacing-lg);
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-primary);
-}
-
-h3 {
-    font-size: 1.4rem;
-    margin-bottom: var(--spacing-xs);
-}
-
-p {
-    line-height: 1.8;
-    margin-bottom: var(--spacing-sm);
-    color: var(--text-secondary);
-}
-
-ul, ol {
-    margin-left: var(--spacing-md);
-    line-height: 1.9;
-}
-
-li {
-    margin-bottom: var(--spacing-xs);
-    color: var(--text-secondary);
-}
-
-/* ============ RECIPE GRID ============ */
-.recipe-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-md);
-}
-
-.recipe-card {
-    background: var(--bg-card);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-sm);
-    border: 1px solid var(--border-color);
-    transition: all var(--transition-smooth);
-    overflow: hidden;
-    position: relative;
-    animation: fadeInUp 0.5s ease-out;
-    animation-fill-mode: backwards;
-}
-
-.recipe-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--transition-smooth);
-}
-
-.recipe-card:hover::before {
-    transform: scaleX(1);
-}
-
-.recipe-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 24px var(--shadow-medium);
-    border-color: var(--accent-primary);
-}
-
-.recipe-card img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-radius: var(--radius-md);
-    transition: transform var(--transition-smooth);
-}
-
-.recipe-card:hover img {
-    transform: scale(1.05);
-}
-
-.recipe-card h3 {
-    margin-top: var(--spacing-sm);
-    color: var(--text-primary);
-}
-
-/* Stagger animation for recipe cards */
-.recipe-card:nth-child(1) { animation-delay: 0.1s; }
-.recipe-card:nth-child(2) { animation-delay: 0.2s; }
-.recipe-card:nth-child(3) { animation-delay: 0.3s; }
-.recipe-card:nth-child(4) { animation-delay: 0.4s; }
-
-/* ============ RECIPE PAGE ============ */
-.recipe-photo {
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-md);
-    box-shadow: 0 8px 24px var(--shadow-medium);
-    animation: zoomIn 0.6s ease-out;
-}
-
-/* ============ BUTTONS ============ */
-.button-row {
-    display: flex;
-    gap: var(--spacing-sm);
-    margin-bottom: var(--spacing-md);
-    flex-wrap: wrap;
-}
-
-button {
-    padding: 12px 24px;
-    border: none;
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
-    border-radius: var(--radius-md);
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    box-shadow: 0 4px 12px rgba(255, 214, 165, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-button::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: translate(-50%, -50%);
-    transition: width 0.5s, height 0.5s;
-}
-
-button:hover::before {
-    width: 300px;
-    height: 300px;
-}
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 214, 165, 0.4);
-}
-
-button:active {
-    transform: translateY(0);
-}
-
-.chef-on {
-    background: linear-gradient(135deg, var(--chef-active), #7ac682) !important;
-    box-shadow: 0 4px 12px rgba(143, 214, 148, 0.4) !important;
-}
-
-/* ============ INGREDIENT CHECKLIST ============ */
-.ingredient-item {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm);
-    margin-bottom: var(--spacing-xs);
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.ingredient-item:hover {
-    background: var(--accent-primary);
-    transform: translateX(4px);
-}
-
-.ingredient-item input[type="checkbox"] {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-    accent-color: var(--chef-active);
-}
-
-.ingredient-item.checked {
-    text-decoration: line-through;
-    opacity: 0.5;
-    background: var(--bg-secondary);
-}
-
-.ingredient-item span {
-    flex: 1;
-}
-
-/* ============ CHEF MODE STYLES ============ */
-.chef-mode-container {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: var(--chef-bg);
-    color: var(--chef-text);
-    z-index: 1000;
-    overflow-y: auto;
-}
-
-.chef-mode-container.active {
-    display: block;
-    animation: fadeIn 0.3s ease-out;
-}
-
-.chef-mode-header {
-    background: var(--chef-card);
-    padding: var(--spacing-sm) var(--spacing-md);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.exit-chef-mode {
-    background: #ff4444;
-    color: white;
-    padding: 10px 20px;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-}
-
-.exit-chef-mode:hover {
-    background: #ff2222;
-}
-
-/* Progress Bar */
-.progress-bar {
-    background: #333;
-    height: 8px;
-    border-radius: var(--radius-sm);
-    margin-bottom: var(--spacing-md);
-    overflow: hidden;
-}
-
-.progress-fill {
-    background: linear-gradient(90deg, var(--chef-active), #7ac682);
-    height: 100%;
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 10px var(--chef-active);
-}
-
-/* Current Step Card */
-.current-step {
-    background: var(--chef-card);
-    padding: var(--spacing-lg);
-    border-radius: var(--radius-md);
-    border: 3px solid var(--chef-active);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    box-shadow: 0 8px 24px rgba(143, 214, 148, 0.2);
-}
-
-.current-step:hover {
-    transform: scale(1.02);
-    box-shadow: 0 12px 32px rgba(143, 214, 148, 0.3);
-}
-
-.current-step:active {
-    transform: scale(0.98);
-}
-
-.step-title {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: var(--chef-active);
-    margin-bottom: var(--spacing-sm);
-}
-
-.step-text {
-    font-size: 1.3rem;
-    line-height: 1.7;
-}
-
-/* ============ ANIMATIONS ============ */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes zoomIn {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* ============ RESPONSIVE DESIGN ============ */
-@media (max-width: 768px) {
-    .navbar {
-        flex-wrap: wrap;
-        gap: var(--spacing-xs);
-    }
+    document.querySelectorAll('.page-selector button').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
     
-    .navbar .logo {
-        width: 100%;
-        text-align: center;
-        margin-right: 0;
-    }
-    
-    .content {
-        padding: var(--spacing-md);
-    }
-    
-    h1 {
-        font-size: 2rem;
-    }
-    
-    .recipe-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .recipe-photo {
-        height: 250px;
-    }
-    
-    .button-row {
-        flex-direction: column;
-    }
-    
-    button {
-        width: 100%;
-    }
+    window.scrollTo(0, 0);
 }
 
-@media (max-width: 480px) {
-    h1 {
-        font-size: 1.8rem;
-    }
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? '' : 'dark';
+    html.setAttribute('data-theme', newTheme);
     
-    h2 {
-        font-size: 1.5rem;
-    }
-    
-    .content {
-        padding: var(--spacing-sm);
-    }
+    const btn = document.querySelector('.theme-toggle');
+    btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
 }
 
-/* ============ ACCESSIBILITY ============ */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
+function toggleCheck(el) {
+    const cb = el.querySelector('input');
+    cb.checked = !cb.checked;
+    el.classList.toggle('checked');
 }
+</script>
 
-/* Focus styles for keyboard navigation */
-a:focus,
-button:focus,
-input:focus {
-    outline: 3px solid var(--accent-primary);
-    outline-offset: 2px;
-}
-
-/* ============ PRINT STYLES ============ */
-@media print {
-    .navbar,
-    .button-row,
-    .chef-mode-container,
-    .theme-toggle {
-        display: none !important;
-    }
-    
-    body {
-        background: white;
-        color: black;
-    }
-    
-    .content {
-        max-width: 100%;
-        padding: 0;
-    }
-    
-    .recipe-photo {
-        max-height: 300px;
-    }
-}
-
-/* ============ UTILITY CLASSES ============ */
-.hidden {
-    display: none !important;
-}
-
-.fade-in {
-    animation: fadeIn 0.5s ease-out;
-}
-
-.slide-up {
-    animation: slideUp 0.5s ease-out;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.mt-lg {
-    margin-top: var(--spacing-lg);
-}
-
-.mb-lg {
-    margin-bottom: var(--spacing-lg);
-}
-
-.shadow-lg {
-    box-shadow: 0 12px 24px var(--shadow-medium);
-}
+</body>
+</html>
