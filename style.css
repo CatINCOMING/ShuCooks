@@ -1,813 +1,186 @@
-/* ===================================
-   ShuCooks - Beautiful Modern CSS
-   Premium design with smooth animations
-   =================================== */
-
-:root {
-    /* Colors */
-    --bg-primary: #fafafa;
-    --bg-secondary: #ffffff;
-    --text-primary: #1a1a1a;
-    --text-secondary: #666666;
-    --accent-orange: #ff6b35;
-    --accent-peach: #ffd6a5;
-    --accent-green: #8fd694;
-    --border-light: #e0e0e0;
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
-    
-    /* Spacing */
-    --space-xs: 8px;
-    --space-sm: 12px;
-    --space-md: 20px;
-    --space-lg: 32px;
-    --space-xl: 48px;
-    
-    /* Border Radius */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    --radius-xl: 24px;
-    
-    /* Transitions */
-    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+/* ============ FOCUS STATES ============ */
+*:focus {
+    outline: 3px solid var(--accent-orange);
+    outline-offset: 2px;
 }
 
-/* ============ RESET & BASE ============ */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+*:focus:not(:focus-visible) {
+    outline: none;
 }
 
-html {
-    scroll-behavior: smooth;
+*:focus-visible {
+    outline: 3px solid var(--accent-orange);
+    outline-offset: 2px;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 
-                 'Ubuntu', 'Cantarell', sans-serif;
+/* ============ SCROLLBAR ============ */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
     background: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
-/* ============ NAVBAR ============ */
-.navbar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    padding: var(--space-md) var(--space-lg);
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-bottom: 1px solid var(--border-light);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: var(--shadow-sm);
-    animation: slideDown 0.5s ease;
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--accent-orange), var(--accent-peach));
+    border-radius: 10px;
+    border: 2px solid var(--bg-primary);
 }
 
-.navbar a {
-    padding: 10px 24px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-xl);
-    text-decoration: none;
-    color: var(--text-primary);
-    font-weight: 600;
-    font-size: 15px;
-    transition: all var(--transition);
-    border: 2px solid transparent;
-    position: relative;
-    overflow: hidden;
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #ff5722, #ffb380);
 }
 
-/* Shimmer effect on hover */
-.navbar a::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0.4),
-        transparent
-    );
-    transition: left 0.5s;
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #4a5568, #2d3748);
 }
 
-.navbar a:hover::before {
-    left: 100%;
-}
-
-.navbar a:hover {
+/* ============ SELECTION ============ */
+::selection {
     background: var(--accent-peach);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent-orange);
-}
-
-.navbar a:active {
-    transform: translateY(0);
-}
-
-/* Logo - First link gets special styling */
-.navbar a:first-child {
-    background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-peach) 100%);
-    color: white;
-    font-weight: 700;
-    font-size: 18px;
-    padding: 12px 28px;
-    box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
-}
-
-.navbar a:first-child:hover {
-    background: linear-gradient(135deg, #ff5722 0%, #ffb380 100%);
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 6px 24px rgba(255, 107, 53, 0.4);
-}
-
-/* ============ CONTENT ============ */
-.content {
-    padding: var(--space-xl) var(--space-lg);
-    max-width: 1000px;
-    margin: 0 auto;
-    animation: fadeIn 0.6s ease;
-}
-
-h1 {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: var(--space-lg);
-    background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-peach) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.2;
-    animation: slideUp 0.6s ease;
-}
-
-h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-top: var(--space-xl);
-    margin-bottom: var(--space-md);
-    color: var(--text-primary);
-}
-
-h3 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin-bottom: var(--space-sm);
-    color: var(--text-primary);
-}
-
-p {
-    line-height: 1.8;
-    margin-bottom: var(--space-md);
-    color: var(--text-secondary);
-    font-size: 16px;
-}
-
-ul, ol {
-    margin-left: var(--space-lg);
-    line-height: 1.9;
-}
-
-li {
-    margin-bottom: var(--space-sm);
-    color: var(--text-secondary);
-}
-
-/* ============ RECIPE GRID ============ */
-.recipe-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--space-lg);
-    margin-top: var(--space-lg);
-}
-
-.recipe-card {
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    padding: var(--space-md);
-    text-decoration: none;
-    color: var(--text-primary);
-    border: 2px solid var(--border-light);
-    transition: all var(--transition);
-    overflow: hidden;
-    position: relative;
-    animation: fadeInUp 0.6s ease backwards;
-}
-
-/* Gradient border on hover */
-.recipe-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--accent-orange), var(--accent-peach));
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--transition);
-}
-
-.recipe-card:hover::before {
-    transform: scaleX(1);
-}
-
-.recipe-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--accent-peach);
-}
-
-.recipe-card img {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-md);
-    transition: transform var(--transition);
-}
-
-.recipe-card:hover img {
-    transform: scale(1.05);
-}
-
-.recipe-card h3 {
-    margin-top: var(--space-sm);
-    font-size: 1.3rem;
-}
-
-/* Stagger animation for cards */
-.recipe-card:nth-child(1) { animation-delay: 0.1s; }
-.recipe-card:nth-child(2) { animation-delay: 0.2s; }
-.recipe-card:nth-child(3) { animation-delay: 0.3s; }
-.recipe-card:nth-child(4) { animation-delay: 0.4s; }
-
-/* ============ RECIPE PAGE ============ */
-.recipe-photo {
-    width: 100%;
-    height: 450px;
-    object-fit: cover;
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-lg);
-    box-shadow: var(--shadow-lg);
-    animation: zoomIn 0.7s ease;
-}
-
-/* ============ BUTTONS ============ */
-.button-row {
-    display: flex;
-    gap: var(--space-md);
-    margin-bottom: var(--space-lg);
-    flex-wrap: wrap;
-}
-
-button {
-    padding: 14px 28px;
-    border: none;
-    background: linear-gradient(135deg, var(--accent-peach) 0%, #ffb380 100%);
-    border-radius: var(--radius-md);
-    font-size: 16px;
-    font-weight: 600;
     color: #333;
-    cursor: pointer;
-    transition: all var(--transition);
-    box-shadow: var(--shadow-sm);
-    position: relative;
-    overflow: hidden;
 }
 
-/* Ripple effect */
-button::after {
+::-moz-selection {
+    background: var(--accent-peach);
+    color: #333;
+}
+
+[data-theme="dark"] ::selection {
+    background: var(--accent-orange);
+    color: white;
+}
+
+/* ============ LOADING STATES ============ */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.loading::after {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 0;
-    height: 0;
+    width: 30px;
+    height: 30px;
+    margin: -15px 0 0 -15px;
+    border: 3px solid var(--accent-peach);
+    border-top-color: var(--accent-orange);
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
+    animation: spin 0.8s linear infinite;
 }
 
-button:active::after {
-    width: 300px;
-    height: 300px;
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
-button:hover {
-    transform: translateY(-3px);
+/* ============ TOOLTIPS ============ */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    padding: 8px 12px;
+    background: #1a1a1a;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
     box-shadow: var(--shadow-md);
-}
-
-button:active {
-    transform: translateY(-1px);
-}
-
-.chef-on {
-    background: linear-gradient(135deg, var(--accent-green) 0%, #7ac682 100%) !important;
-    box-shadow: 0 4px 16px rgba(143, 214, 148, 0.4) !important;
-    color: white !important;
-}
-
-/* ============ INGREDIENTS ============ */
-.ingredient-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    padding: var(--space-md);
-    margin-bottom: var(--space-sm);
-    background: var(--bg-secondary);
-    border: 2px solid var(--border-light);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition);
-}
-
-.ingredient-item:hover {
-    background: var(--accent-peach);
-    transform: translateX(8px);
-    box-shadow: var(--shadow-sm);
-    border-color: var(--accent-orange);
-}
-
-.ingredient-item input[type="checkbox"] {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-    accent-color: var(--accent-green);
-    transition: transform 0.2s;
-}
-
-.ingredient-item input[type="checkbox"]:checked {
-    transform: scale(1.2);
-}
-
-.ingredient-item.checked {
-    text-decoration: line-through;
-    opacity: 0.5;
-    background: #f5f5f5;
-}
-
-.ingredient-item span {
-    flex: 1;
-    font-size: 16px;
-}
-
-/* ============ CHEF MODE ============ */
-.chef-mode-container {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-    color: white;
     z-index: 1000;
-    overflow-y: auto;
 }
 
-.chef-mode-container.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
+[data-tooltip]:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-12px);
 }
 
-.chef-mode-header {
-    background: rgba(42, 42, 42, 0.95);
-    backdrop-filter: blur(20px);
-    padding: var(--space-md) var(--space-lg);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-}
-
-.chef-mode-header h2 {
-    margin: 0;
-    font-size: 22px;
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    flex-wrap: wrap;
-}
-
-.exit-chef-mode {
-    background: #ff4444;
-    color: white;
-    padding: 12px 24px;
-    border-radius: var(--radius-md);
+/* ============ TAGS & BADGES ============ */
+.tag {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--accent-peach);
+    color: #333;
+    border-radius: var(--radius-xl);
+    font-size: 13px;
     font-weight: 600;
+    margin: 4px;
     transition: all 0.2s;
 }
 
-.exit-chef-mode:hover {
-    background: #ff2222;
-    transform: scale(1.05);
+.tag:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
-.chef-mode-content {
-    padding: var(--space-lg);
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-/* Progress Bar */
-.progress-bar {
-    background: #333;
-    height: 10px;
-    border-radius: var(--radius-sm);
-    margin-bottom: var(--space-lg);
-    overflow: hidden;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.progress-fill {
-    background: linear-gradient(90deg, var(--accent-green), #7ac682);
-    height: 100%;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 0 20px rgba(143, 214, 148, 0.6);
-}
-
-.progress-text {
-    text-align: center;
-    color: #999;
-    margin-bottom: var(--space-lg);
-    font-size: 16px;
-    font-weight: 500;
-}
-
-/* Current Step */
-.current-step {
-    background: rgba(42, 42, 42, 0.8);
-    padding: var(--space-xl);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-lg);
-    border: 3px solid var(--accent-green);
-    cursor: pointer;
-    transition: all var(--transition);
-    box-shadow: 0 8px 32px rgba(143, 214, 148, 0.3);
-}
-
-.current-step:hover {
-    transform: scale(1.02);
-    box-shadow: 0 12px 40px rgba(143, 214, 148, 0.4);
-}
-
-.current-step:active {
-    transform: scale(0.98);
-}
-
-.step-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: var(--space-md);
-    color: var(--accent-green);
-}
-
-.step-text {
-    font-size: 1.4rem;
-    line-height: 1.7;
+[data-theme="dark"] .tag {
+    background: #2a2a2a;
     color: #e0e0e0;
 }
 
-/* Timer */
-.timer-section {
-    margin-top: var(--space-lg);
-    padding-top: var(--space-lg);
-    border-top: 2px solid #444;
-}
-
-.timer-display {
-    font-size: 4rem;
-    font-weight: 700;
-    text-align: center;
-    color: var(--accent-green);
-    margin: var(--space-lg) 0;
-    text-shadow: 0 0 30px rgba(143, 214, 148, 0.6);
-    font-family: 'Courier New', monospace;
-}
-
-.timer-buttons {
-    display: flex;
-    gap: var(--space-sm);
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.timer-buttons button {
-    background: #444;
-    color: white;
-    padding: 12px 20px;
-}
-
-.timer-buttons button:hover {
-    background: #555;
-}
-
-/* Navigation */
-.chef-navigation {
-    display: flex;
-    gap: var(--space-md);
-    margin-bottom: var(--space-lg);
-}
-
-.chef-navigation button {
-    flex: 1;
-    padding: 18px;
-    font-size: 18px;
-    background: #444;
-    color: white;
-}
-
-.chef-navigation button:hover {
-    background: #555;
-}
-
-.chef-navigation button:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-/* Steps Preview */
-.all-steps-preview {
-    margin-top: var(--space-xl);
-}
-
-.step-preview {
-    background: rgba(42, 42, 42, 0.6);
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-sm);
-    opacity: 0.6;
-    cursor: pointer;
-    transition: all var(--transition);
-    border: 2px solid transparent;
-}
-
-.step-preview:hover {
-    opacity: 0.9;
-    transform: translateX(8px);
-    border-color: #555;
-}
-
-.step-preview.active {
-    opacity: 1;
-    background: rgba(42, 42, 42, 0.9);
-    border-color: var(--accent-green);
-    box-shadow: 0 4px 16px rgba(143, 214, 148, 0.3);
-}
-
-/* Ingredients Toggle */
-.ingredients-toggle {
-    background: #444;
-    color: white;
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-md);
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.ingredients-toggle:hover {
-    background: #555;
-}
-
-.ingredients-list {
-    background: rgba(42, 42, 42, 0.8);
-    padding: var(--space-lg);
-    border-radius: var(--radius-md);
-    margin-top: var(--space-sm);
-}
-
-.chef-ingredient-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    padding: var(--space-md) 0;
-    border-bottom: 1px solid #444;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.chef-ingredient-item:hover {
-    background: rgba(68, 68, 68, 0.5);
-    padding-left: var(--space-sm);
-}
-
-.chef-ingredient-item input[type="checkbox"] {
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-}
-
-.chef-ingredient-item.checked {
-    text-decoration: line-through;
-    opacity: 0.5;
-}
-
-/* Voice Indicator */
-.voice-indicator {
+/* ============ NOTIFICATION TOAST ============ */
+.toast {
     position: fixed;
-    bottom: var(--space-lg);
-    right: var(--space-lg);
-    background: var(--accent-green);
-    color: #1a1a1a;
+    bottom: 100px;
+    right: 30px;
+    background: linear-gradient(135deg, var(--accent-green), #7ac682);
+    color: white;
     padding: var(--space-md) var(--space-lg);
-    border-radius: var(--radius-xl);
-    font-weight: 700;
-    display: none;
-    max-width: 350px;
-    box-shadow: 0 8px 32px rgba(143, 214, 148, 0.5);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
     z-index: 2000;
-    animation: pulse 2s infinite;
+    animation: slideInRight 0.4s ease, fadeOut 0.4s ease 2.6s;
+    max-width: 350px;
+    font-weight: 600;
 }
 
-.voice-indicator.active {
-    display: block;
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
-.hands-free-badge,
-#voiceStatus {
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 700;
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(400px);
+    }
 }
 
-.hands-free-badge {
-    background: var(--accent-green);
-    color: #1a1a1a;
+/* ============ EMPTY STATES ============ */
+.empty-state {
+    text-align: center;
+    padding: var(--space-xl);
+    color: var(--text-secondary);
 }
 
-#voiceStatus {
-    background: var(--accent-peach);
-    color: #333;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-#voiceStatus:hover {
-    transform: scale(1.05);
-}
-
-/* Commands Help */
-.commands-help {
-    background: rgba(42, 42, 42, 0.6);
-    padding: var(--space-lg);
-    border-radius: var(--radius-md);
-    margin-top: var(--space-xl);
-}
-
-.commands-help h3 {
-    color: var(--accent-green);
+.empty-state-icon {
+    font-size: 4rem;
     margin-bottom: var(--space-md);
+    opacity: 0.3;
 }
 
-.commands-help ul {
-    list-style: none;
-    padding: 0;
-}
-
-.commands-help li {
-    padding: var(--space-sm) 0;
-    color: #ccc;
-}
-
-.commands-help code {
-    background: #1a1a1a;
-    padding: 4px 10px;
-    border-radius: 6px;
-    color: var(--accent-green);
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
-}
-
-/* ============ ANIMATIONS ============ */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes zoomIn {
-    from {
-        opacity: 0;
-        transform: scale(0.92);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.75; }
-}
-
-/* ============ RESPONSIVE ============ */
-@media (max-width: 768px) {
-    .navbar {
-        flex-wrap: wrap;
-        padding: var(--space-md);
-        gap: var(--space-sm);
-    }
-    
-    .navbar a:first-child {
-        width: 100%;
-        text-align: center;
-    }
-    
-    .content {
-        padding: var(--space-lg) var(--space-md);
-    }
-    
-    h1 {
-        font-size: 2.2rem;
-    }
-    
-    h2 {
-        font-size: 1.6rem;
-    }
-    
-    .recipe-grid {
-        grid-template-columns: 1fr;
-        gap: var(--space-md);
-    }
-    
-    .recipe-photo {
-        height: 300px;
-    }
-    
-    .button-row {
-        flex-direction: column;
-    }
-    
-    button {
-        width: 100%;
-    }
-    
-    .step-title {
-        font-size: 1.6rem;
-    }
-    
-    .step-text {
-        font-size: 1.2rem;
-    }
-    
-    .timer-display {
-        font-size: 3rem;
-    }
+.empty-state h3 {
+    color: var(--text-primary);
+    margin-bottom: var(--space-sm);
 }
 
 /* ============ PRINT ============ */
@@ -815,7 +188,9 @@ button:active {
     .navbar,
     .button-row,
     .chef-mode-container,
-    .voice-indicator {
+    .voice-indicator,
+    .theme-toggle,
+    .toast {
         display: none !important;
     }
     
@@ -827,5 +202,9 @@ button:active {
     .content {
         max-width: 100%;
         padding: 0;
+    }
+    
+    .recipe-card {
+        page-break-inside: avoid;
     }
 }
