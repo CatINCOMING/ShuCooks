@@ -10,6 +10,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <!-- External CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,6 +33,7 @@
     </div>
     
     <h2>Ingredients (Serves 4)</h2>
+
     <div id="ingredientsList">
         <div class="ingredient-item" onclick="toggleIngredient(this)">
             <input type="checkbox">
@@ -98,191 +100,106 @@
     </ol>
 </section>
 
-<!-- Chef Mode -->
-<div id="chefModeContainer" class="chef-mode-container">
-    <div class="chef-mode-header">
-        <h2>
-            <span>👨‍🍳 Chef Mode</span>
-            <span class="hands-free-badge">🔓 Screen Unlocked</span>
-            <span id="voiceStatus" onclick="retryVoice()">🎤 Starting...</span>
-        </h2>
-        <button class="exit-chef-mode" onclick="toggleChefMode()">✕ Exit</button>
-    </div>
-    
-    <div class="chef-mode-content">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        <div class="progress-text" id="progressText">Step 1 of 6</div>
-        
-        <div class="ingredients-toggle" onclick="toggleIngredientsView()">
-            <strong>📋 Ingredients Checklist</strong>
-            <span id="ingredientsToggleIcon">▼</span>
-        </div>
-        <div class="ingredients-list" id="chefIngredientsList" style="display: none;">
-            <div id="chefIngredientsContent"></div>
+<!-- Chef Mode - FULLSCREEN OVERLAY -->
+<div id="chefModeContainer" class="chef-mode-container" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="chef-panel" role="document" aria-label="Chef mode panel">
+        <button class="chef-close" onclick="toggleChefMode()" aria-label="Close chef mode">✕</button>
+        <div class="chef-mode-header">
+            <h2>
+                <span>👨‍🍳 Chef Mode</span>
+                <span class="hands-free-badge">🔓 Screen Unlocked</span>
+                <span id="voiceStatus" onclick="retryVoice()">🎤 Starting...</span>
+            </h2>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button class="working-commands-btn" onclick="showWorkingCommandsModal()">📋 Working Commands</button>
+            </div>
         </div>
         
-        <div class="current-step" id="currentStep" onclick="nextStep()">
-            <div class="step-title" id="stepTitle">Step 1: Season the vegetables</div>
-            <div class="step-text" id="stepText">Mix peppers, onion, garlic, Cajun seasoning, and pepper.</div>
-            
-            <div class="timer-section" id="timerSection" style="display: none;">
-                <div class="timer-display" id="timerDisplay">00:00</div>
-                <div class="timer-buttons">
-                    <button onclick="startTimer(60)">1 min</button>
-                    <button onclick="startTimer(180)">3 min</button>
-                    <button onclick="startTimer(300)">5 min</button>
-                    <button onclick="pauseTimer()">⏸ Pause</button>
-                    <button onclick="resetTimer()">🔄 Reset</button>
+        <div class="chef-body">
+            <aside class="chef-sidebar" aria-label="Ingredients and steps preview">
+                <div class="ingredients-toggle" onclick="toggleIngredientsView()">
+                    <strong>📋 Ingredients Checklist</strong>
+                    <span id="ingredientsToggleIcon">▼</span>
+                </div>
+                <div id="chefIngredientsList" style="display: none;">
+                    <div id="chefIngredientsContent"></div>
+                </div>
+                
+                <div style="margin-top:12px;">
+                    <h3 style="margin:8px 0;">All Steps</h3>
+                    <div id="stepsPreview"></div>
+                </div>
+            </aside>
+
+            <main class="chef-main" id="chefMain" tabindex="0">
+                <div class="progress-bar" aria-hidden="true">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="current-step" id="currentStep" onclick="nextStep()" role="button" aria-pressed="false">
+                    <div class="step-title" id="stepTitle">Step 1: Season the vegetables</div>
+                    <div class="step-text" id="stepText">Mix peppers, onion, garlic, Cajun seasoning, and pepper.</div>
+                    
+                    <div class="timer-section" id="timerSection" style="display: none;">
+                        <div class="timer-display" id="timerDisplay">00:00</div>
+                        <div class="timer-buttons">
+                            <button onclick="startTimer(60)">1 min</button>
+                            <button onclick="startTimer(180)">3 min</button>
+                            <button onclick="startTimer(300)">5 min</button>
+                            <button onclick="pauseTimer()">⏸ Pause</button>
+                            <button onclick="resetTimer()">🔄 Reset</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chef-navigation">
+                    <button onclick="prevStep()" id="prevBtn">⬅️ Previous</button>
+                    <button onclick="nextStep()" id="nextBtn">Next ➡️</button>
+                </div>
+            </main>
+        </div>
+        
+        <div style="margin-top:12px;">
+            <div class="commands-help">
+                <h3>🎤 Quick Reference</h3>
+                <div style="background: rgba(10, 92, 10, 0.12); padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                    <h4 style="color: var(--accent-green); margin:0 0 8px 0;">✅ CONFIRMED WORKING:</h4>
+                    <ul style="color: var(--text-secondary); margin:0; padding-left:18px;">
+                        <li><code>next</code> / <code>continue</code> - Next step</li>
+                        <li><code>back</code> / <code>previous</code> - Previous step</li>
+                        <li><code>go to step 3</code> - Jump to step</li>
+                        <li><code>repeat</code> - Repeat current step</li>
+                        <li><code>start timer</code> - Start timer for this step</li>
+                        <li><code>show ingredients</code> - Show list</li>
+                        <li><code>hide ingredients</code> - Hide list</li>
+                    </ul>
                 </div>
             </div>
         </div>
-        
-        <div class="chef-navigation">
-            <button onclick="prevStep()" id="prevBtn">⬅️ Previous</button>
-            <button onclick="nextStep()" id="nextBtn">Next ➡️</button>
-        </div>
-        
-        <div class="all-steps-preview">
-            <h3>All Steps</h3>
-            <div id="stepsPreview"></div>
-        </div>
-        
-        <div class="commands-help">
-            <h3>🎤 Voice Commands Reference</h3>
-            
-            <div style="background: rgba(10, 92, 10, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #8fd694;">
-                <h4 style="color: #8fd694; margin-bottom: 10px;">✅ CONFIRMED WORKING:</h4>
-                <ul style="color: #8fd694; list-style: none; padding: 0;">
-                    <li style="padding: 5px 0;"><code>"next"</code> / <code>"continue"</code> - Next step</li>
-                    <li style="padding: 5px 0;"><code>"back"</code> / <code>"previous"</code> - Previous step</li>
-                    <li style="padding: 5px 0;"><code>"go to step 3"</code> - Jump to step</li>
-                    <li style="padding: 5px 0;"><code>"repeat"</code> - Repeat current step</li>
-                    <li style="padding: 5px 0;"><code>"start timer"</code> - Start timer</li>
-                    <li style="padding: 5px 0;"><code>"show ingredients"</code> - Show list</li>
-                    <li style="padding: 5px 0;"><code>"hide ingredients"</code> - Hide list</li>
-                </ul>
-            </div>
-            
-            <div style="background: rgba(92, 74, 10, 0.3); padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc988;">
-                <h4 style="color: #ffc988; margin-bottom: 10px;">⚠️ MIGHT WORK (Test These):</h4>
-                <ul style="color: #ffc988; list-style: none; padding: 0;">
-                    <li style="padding: 5px 0;"><code>"what are the first 2 ingredients"</code></li>
-                    <li style="padding: 5px 0;"><code>"check off ingredient 2"</code></li>
-                    <li style="padding: 5px 0;"><code>"check off the shrimp"</code></li>
-                    <li style="padding: 5px 0;"><code>"jump to step five"</code></li>
-                </ul>
-            </div>
-            
-            <div style="background: rgba(74, 10, 10, 0.3); padding: 15px; border-radius: 8px; border-left: 4px solid #ff6b6b;">
-                <h4 style="color: #ff6b6b; margin-bottom: 10px;">❌ NOT WORKING YET:</h4>
-                <ul style="color: #ff6b6b; list-style: none; padding: 0;">
-                    <li style="padding: 5px 0;">Complex multi-part commands</li>
-                    <li style="padding: 5px 0;">Questions about recipe details</li>
-                    <li style="padding: 5px 0;">Custom timer durations</li>
-                    <li style="padding: 5px 0;">Temperature conversions</li>
-                </ul>
-            </div>
-            
-            <p style="color: #8fd694; margin-top: 16px; font-size: 14px;">
-                💡 <strong>Pro Tip:</strong> Speak clearly and use simple commands. If something doesn't work, try a simpler version from the green list!
-            </p>
-            
-            <button onclick="showFullCommandModal()" style="margin-top: 15px; width: 100%; background: linear-gradient(135deg, #8fd694, #7ac682); color: white; font-weight: bold; padding: 14px; border-radius: 12px; border: none; cursor: pointer;">
-                📋 Open Full Command Reference
-            </button>
+    </div>
+</div>
+
+<!-- Working Commands Modal (small popup) -->
+<div id="workingCommandsModal" class="working-commands-modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="working-commands-card" role="document" aria-label="Working voice commands">
+        <button class="working-commands-close" onclick="closeWorkingCommandsModal()" aria-label="Close">✕</button>
+        <h3>✅ Confirmed Working Voice Commands</h3>
+        <ul>
+            <li><strong>next</strong> / <strong>continue</strong> — Next step</li>
+            <li><strong>back</strong> / <strong>previous</strong> — Previous step</li>
+            <li><strong>go to step [number]</strong> — Jump to step</li>
+            <li><strong>repeat</strong> — Repeat current step</li>
+            <li><strong>start timer</strong> — Start the step timer (if available)</li>
+            <li><strong>show ingredients</strong> — Reveal ingredients</li>
+            <li><strong>hide ingredients</strong> — Hide ingredients</li>
+        </ul>
+        <p style="color: var(--text-secondary); margin-top:8px;">Tip: Speak clearly and wait for the voice indicator.</p>
+        <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+            <button onclick="closeWorkingCommandsModal()">Close</button>
         </div>
     </div>
 </div>
 
 <div class="voice-indicator" id="voiceIndicator">🎤 Listening...</div>
-
-<!-- Full Command Reference Modal -->
-<div id="fullCommandModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; overflow-y: auto; padding: 20px;">
-    <div style="max-width: 900px; margin: 0 auto; background: #1a1a1a; border-radius: 16px; padding: 40px; color: white;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h2 style="color: #8fd694; margin: 0; font-size: 28px;">🎤 Complete Voice Commands Guide</h2>
-            <button onclick="closeFullCommandModal()" style="background: #ff4444; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">✕ Close</button>
-        </div>
-        
-        <div style="background: rgba(10, 92, 10, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #8fd694;">
-            <h3 style="color: #8fd694; margin-bottom: 20px; font-size: 22px;">✅ CONFIRMED WORKING COMMANDS</h3>
-            <p style="color: #ccc; margin-bottom: 20px;">These commands have been tested and work reliably:</p>
-            
-            <div style="margin-bottom: 20px;">
-                <h4 style="color: #8fd694; margin-bottom: 12px; font-size: 18px;">Navigation Commands:</h4>
-                <ul style="list-style: none; padding: 0;">
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🎯 <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"next"</code> - Go to next step</li>
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🎯 <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"continue"</code> - Go to next step</li>
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🎯 <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"back"</code> - Go to previous step</li>
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🎯 <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"previous"</code> - Go to previous step</li>
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🎯 <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"go to step 3"</code> - Jump to step 3</li>
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🎯 <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"repeat"</code> - Read current step again</li>
-                </ul>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-                <h4 style="color: #8fd694; margin-bottom: 12px; font-size: 18px;">Timer Commands:</h4>
-                <ul style="list-style: none; padding: 0;">
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">⏱️ <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"start timer"</code> - Start the timer</li>
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">⏱️ <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"set a timer"</code> - Start the timer</li>
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">⏱️ <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"begin timer"</code> - Start the timer</li>
-                </ul>
-            </div>
-            
-            <div>
-                <h4 style="color: #8fd694; margin-bottom: 12px; font-size: 18px;">Ingredient Commands:</h4>
-                <ul style="list-style: none; padding: 0;">
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">📋 <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"show ingredients"</code> - Display list</li>
-                    <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">📋 <code style="color: #8fd694; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"hide ingredients"</code> - Hide list</li>
-                </ul>
-            </div>
-        </div>
-        
-        <div style="background: rgba(92, 74, 10, 0.3); padding: 25px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #ffc988;">
-            <h3 style="color: #ffc988; margin-bottom: 20px; font-size: 22px;">⚠️ EXPERIMENTAL - MIGHT WORK</h3>
-            <p style="color: #ccc; margin-bottom: 20px;">These commands use pattern matching and may work depending on pronunciation:</p>
-            
-            <ul style="list-style: none; padding: 0;">
-                <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🔶 <code style="color: #ffc988; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"what are the first 2 ingredients"</code></li>
-                <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🔶 <code style="color: #ffc988; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"tell me the first three ingredients"</code></li>
-                <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🔶 <code style="color: #ffc988; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"check off ingredient 2"</code></li>
-                <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🔶 <code style="color: #ffc988; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"check off the shrimp"</code></li>
-                <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🔶 <code style="color: #ffc988; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"mark the bell pepper"</code></li>
-                <li style="padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 8px; border-radius: 6px;">🔶 <code style="color: #ffc988; background: #0a0a0a; padding: 4px 8px; border-radius: 4px;">"jump to step five"</code></li>
-            </ul>
-        </div>
-        
-        <div style="background: rgba(74, 10, 10, 0.3); padding: 25px; border-radius: 12px; border-left: 5px solid #ff6b6b;">
-            <h3 style="color: #ff6b6b; margin-bottom: 20px; font-size: 22px;">❌ NOT YET IMPLEMENTED</h3>
-            <p style="color: #ccc; margin-bottom: 20px;">These features are not currently available:</p>
-            <ul style="list-style: none; padding: 0; color: #ff6b6b;">
-                <li style="padding: 8px 0;">❌ Complex multi-part commands ("go to step 3 and start timer")</li>
-                <li style="padding: 8px 0;">❌ Recipe questions ("how much salt do I need?")</li>
-                <li style="padding: 8px 0;">❌ Custom timer durations ("set timer for 2 minutes")</li>
-                <li style="padding: 8px 0;">❌ Conversions ("convert 1 cup to milliliters")</li>
-                <li style="padding: 8px 0;">❌ Ingredient substitutions</li>
-            </ul>
-        </div>
-        
-        <div style="background: rgba(42, 42, 42, 0.8); padding: 25px; border-radius: 12px; margin-top: 20px;">
-            <h3 style="color: #8fd694; margin-bottom: 15px; font-size: 20px;">💡 Tips for Success:</h3>
-            <ul style="color: #ccc; line-height: 1.9; padding-left: 20px;">
-                <li>✅ Speak clearly at normal pace</li>
-                <li>✅ Use simple, direct commands</li>
-                <li>✅ Wait for voice indicator before speaking</li>
-                <li>✅ If command fails, try simpler version from green list</li>
-                <li>✅ Check browser console (F12) to see what was heard</li>
-                <li>✅ Works best in Chrome or Edge</li>
-            </ul>
-        </div>
-        
-        <button onclick="closeFullCommandModal()" style="margin-top: 25px; width: 100%; background: linear-gradient(135deg, #8fd694, #7ac682); color: white; border: none; padding: 16px; border-radius: 12px; cursor: pointer; font-size: 18px; font-weight: bold;">
-            ✓ Got It - Close Reference
-        </button>
-    </div>
-</div>
 
 <script>
 const steps = [
@@ -461,6 +378,8 @@ async function toggleChefMode() {
     if (chefMode) {
         btn.classList.add('chef-on');
         cont.classList.add('active');
+        cont.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden'; // prevent background scroll
         currentStepIndex = 0;
         updateChefMode();
         renderStepsPreview();
@@ -481,6 +400,8 @@ async function toggleChefMode() {
     } else {
         btn.classList.remove('chef-on');
         cont.classList.remove('active');
+        cont.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = 'auto';
         
         try {
             if (wakeLock) {
@@ -499,7 +420,6 @@ function updateChefMode() {
     const s = steps[currentStepIndex];
     document.getElementById('stepTitle').textContent = `Step ${currentStepIndex+1}: ${s.title}`;
     document.getElementById('stepText').textContent = s.text;
-    document.getElementById('progressText').textContent = `Step ${currentStepIndex+1} of ${steps.length}`;
     document.getElementById('progressFill').style.width = `${((currentStepIndex+1)/steps.length)*100}%`;
     document.getElementById('prevBtn').disabled = currentStepIndex === 0;
     document.getElementById('nextBtn').disabled = currentStepIndex === steps.length - 1;
@@ -644,22 +564,26 @@ function printRecipe() {
     window.print();
 }
 
-function showFullCommandModal() {
-    document.getElementById('fullCommandModal').style.display = 'block';
-    document.body.style.overflow = 'hidden';
+/* WORKING COMMANDS MODAL */
+function showWorkingCommandsModal() {
+    const m = document.getElementById('workingCommandsModal');
+    m.classList.add('active');
+    m.setAttribute('aria-hidden', 'false');
+    // keep chef overlay visible; modal sits above
+}
+function closeWorkingCommandsModal() {
+    const m = document.getElementById('workingCommandsModal');
+    m.classList.remove('active');
+    m.setAttribute('aria-hidden', 'true');
 }
 
-function closeFullCommandModal() {
-    document.getElementById('fullCommandModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-// Close modal when clicking outside
+/* Close modal when clicking outside */
 document.addEventListener('click', (e) => {
-    const modal = document.getElementById('fullCommandModal');
-    if (e.target === modal) closeFullCommandModal();
+    const modal = document.getElementById('workingCommandsModal');
+    if (modal && modal.classList.contains('active') && e.target === modal) closeWorkingCommandsModal();
 });
 
+/* ensure chef ingredients update when checklist changes */
 document.getElementById('ingredientsList').addEventListener('change', updateChefIngredients);
 </script>
 </body>
