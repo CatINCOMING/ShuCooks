@@ -1,25 +1,29 @@
 // script.js - central site JS: theme toggle + chef mode + working commands
-// Drop this file at the site root and add <script src="script.js"></script> before </body>.
+// Place this file in the site root and add <script src="script.js"></script> before </body>.
 
 /* ================= THEME (dark) ================= */
+let previousThemeBeforeChef = null;
+let voiceMuted = false;
+
 function toggleDarkMode() {
     const html = document.documentElement;
     const currentTheme = html.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? '' : 'dark';
-    const buttons = document.querySelectorAll('.theme-toggle');
-    html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    buttons.forEach(btn => btn.textContent = newTheme === 'dark' ? '☀️' : '🌙');
+    applyTheme(newTheme);
 }
+
+function applyTheme(theme) {
+    const html = document.documentElement;
+    html.setAttribute('data-theme', theme || '');
+    localStorage.setItem('theme', theme || '');
+    document.querySelectorAll('.theme-toggle').forEach(btn => {
+        btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    });
+}
+
 function loadSavedTheme() {
     const savedTheme = localStorage.getItem('theme');
-    const buttons = document.querySelectorAll('.theme-toggle');
-    if (savedTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        buttons.forEach(btn => btn.textContent = '☀️');
-    } else {
-        buttons.forEach(btn => btn.textContent = '🌙');
-    }
+    applyTheme(savedTheme);
 }
 
 /* ================= CHEF MODE / VOICE / TIMERS ================= */
@@ -69,59 +73,217 @@ function disableVideoWakeLock() {
     }
 }
 
-/* Voice command processing (simple patterns) */
+/* Speech / speak with mute support */
+function speak(txt) {
+    if (voiceMuted) return;
+    if ('speechSynthesis' in window && txt) {
+        const u = new SpeechSynthesisUtterance(txt);
+        u.rate = 0.95;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+    }
+}
+
+/* ================== VOICE COMMAND PROCESSING (expanded list) ================== */
+function parseNumber(text) {
+    // simple numbers for minutes/steps (digits or words up to 60)
+    const words = {
+        zero:0, one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,
+        eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,
+        thirty:30,forty:40,fifty:50,sixty:60
+    };
+    const digitMatch = text.match(/(\d+)/);
+    if (digitMatch) return parseInt(digitMatch[1], 10);
+    // sum words e.g. "twenty five"
+    const parts = text.toLowerCase().split(/[\s-]+/);
+    let total = 0;
+    parts.forEach(p => {
+        if (words[p] !== undefined) total += words[p];
+    });
+    return total || null;
+}
+
 function processVoiceCommand(transcript) {
     const text = transcript.toLowerCase().trim();
-    if (/\b(next|continue|forward)\b/.test(text)) {
-        nextStep();
-        speak("Next step");
-        return;
-    }
-    if (/\b(back|previous)\b/.test(text)) {
-        prevStep();
-        speak("Going back");
-        return;
-    }
-    if (/\brepeat\b/.test(text)) {
-        speakCurrentStep();
-        return;
-    }
-    const stepMatch = text.match(/\bstep\s*(\d+|one|two|three|four|five|six)\b/);
+    console.log('Processing voice:', text);
+
+    // Basic navigation
+    if (/\b(next|continue|forward)\b/.test(text)) { nextStep(); speak("Next step"); return; }
+    if (/\b(back|previous|go back)\b/.test(text)) { prevStep(); speak("Going back"); return; }
+    if (/\brepeat\b/.test(text)) { speakCurrentStep(); return; }
+    if (/\b(current step|what is (the )?step)\b/.test(text)) { speakCurrentStep(); return; }
+
+    // Jump to step: "go to step 3" or "jump to step three"
+    let stepMatch = text.match(/\b(step|go to step|jump to step)\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
     if (stepMatch) {
-        const nums = {one:1,two:2,three:3,four:4,five:5,six:6};
-        const num = isNaN(stepMatch[1]) ? nums[stepMatch[1]] : parseInt(stepMatch[1],10);
-        if (num >= 1 && num <= steps.length) {
-            currentStepIndex = num - 1;
+        const n = parseNumber(stepMatch[2]) || parseInt(stepMatch[2],10);
+        if (n && n >=1 && n <= steps.length) {
+            currentStepIndex = n - 1;
             updateChefMode();
             speakCurrentStep();
             return;
         }
     }
+
+    // Start timer: "start timer" or "set timer for 2 minutes"
     if (/\b(start|set|begin)\s*(timer|clock)\b/.test(text)) {
+        // try to parse custom duration "set timer for 2 minutes"
+        const m = text.match(/(\d+|one|two|three|four|five|ten|fifteen|twenty|thirty)\s*(seconds|second|minutes|minute|mins|min)/);
+        if (m) {
+            const num = parseNumber(m[1]) || parseInt(m[1],10);
+            const unit = m[2];
+            let sec = num;
+            if (/min|minute/.test(unit)) sec = num * 60;
+            if (/sec/.test(unit)) sec = num;
+            startTimer(sec);
+            speak(`Starting timer for ${num} ${unit}`);
+            return;
+        }
+        // fallback to step timer if available
         const step = steps[currentStepIndex];
-        if (step.timer) {
-            startTimer(step.timer);
-            speak(`Starting timer for ${Math.floor(step.timer/60)} minutes`);
+        if (step.timer) { startTimer(step.timer); speak(`Starting timer for ${Math.round(step.timer/60)} minutes`); return; }
+        speak("No timer for this step");
+        return;
+    }
+
+    // Pause/resume timer
+    if (/\b(pause|hold)\b.*timer\b/.test(text) || /\bpause\b/.test(text) && /\btimer\b/.test(text)) { if (timerRunning) { pauseTimer(); speak("Timer paused"); } else { speak("Timer is not running"); } return; }
+    if (/\b(resume|continue)\b.*timer\b/.test(text) || /\bresume\b/.test(text) && /\btimer\b/.test(text)) { if (!timerRunning && timerSeconds>0) { pauseTimer(); speak("Timer resumed"); } else { speak("No timer to resume"); } return; }
+    if (/\b(reset|stop)\b.*timer\b/.test(text)) { resetTimer(); speak("Timer reset"); return; }
+
+    // Ingredients visibility
+    if (/\b(show|display|reveal)\b.*ingredients?\b/.test(text)) { if (!ingredientsVisible) toggleIngredientsView(); speak("Showing ingredients"); return; }
+    if (/\b(hide|dismiss|close)\b.*ingredients?\b/.test(text)) { if (ingredientsVisible) toggleIngredientsView(); speak("Hiding ingredients"); return; }
+
+    // Ingredient size controls
+    if (/\b(increase|bigger|larger|zoom in|zoom)\b.*ingredients?\b/.test(text) || /\bincrease the size of the ingredients\b/.test(text)) { increaseIngredientsSize(); speak("Increasing ingredient text size"); return; }
+    if (/\b(decrease|smaller|shrink|zoom out)\b.*ingredients?\b/.test(text)) { decreaseIngredientsSize(); speak("Decreasing ingredient text size"); return; }
+    if (/\b(reset|normal|default)\b.*ingredients?\b/.test(text)) { resetIngredientsSize(); speak("Ingredient text size reset"); return; }
+
+    // Check/uncheck ingredient by number "check off ingredient 2" or "check ingredient two"
+    let checkNum = text.match(/\b(check( off)?|tick)\b.*ingredient\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
+    if (checkNum) {
+        const n = parseNumber(checkNum[3]) || parseInt(checkNum[3],10);
+        if (n) { toggleIngredientByIndex(n-1, true); speak(`Checked ingredient ${n}`); } else speak("Couldn't find that ingredient number");
+        return;
+    }
+    let uncheckNum = text.match(/\b(uncheck|undo|untick|uncheck off)\b.*ingredient\s*(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b/);
+    if (uncheckNum) {
+        const n = parseNumber(uncheckNum[2]) || parseInt(uncheckNum[2],10);
+        if (n) { toggleIngredientByIndex(n-1, false); speak(`Unchecked ingredient ${n}`); } else speak("Couldn't find that ingredient number");
+        return;
+    }
+
+    // Check/uncheck by name: "check off the shrimp" or "uncheck shrimp"
+    let checkName = text.match(/\b(check|check off|tick)\b.*the?\s*([a-z0-9 ,'-]+)$/);
+    if (checkName) {
+        const name = checkName[2].trim();
+        if (toggleIngredientByName(name, true)) speak(`Checked ${name}`); else speak(`Couldn't find ${name}`);
+        return;
+    }
+    let uncheckName = text.match(/\b(uncheck|undo|untick)\b.*the?\s*([a-z0-9 ,'-]+)$/);
+    if (uncheckName) {
+        const name = uncheckName[2].trim();
+        if (toggleIngredientByName(name, false)) speak(`Unchecked ${name}`); else speak(`Couldn't find ${name}`);
+        return;
+    }
+
+    // Read ingredients or read first N ingredients
+    if (/\b(read|say|list)\b.*ingredients?\b/.test(text)) {
+        const nMatch = text.match(/first\s*(\d+|one|two|three|four|five)/);
+        if (nMatch) {
+            const n = parseNumber(nMatch[1]) || parseInt(nMatch[1], 10);
+            readFirstNIngredients(n);
         } else {
-            speak("No timer for this step");
+            readAllIngredients();
         }
         return;
     }
-    if (/\bshow\s*(ingredient|ingredients)\b/.test(text)) {
-        if (!ingredientsVisible) toggleIngredientsView();
-        speak("Showing ingredients");
-        return;
-    }
-    if (/\bhide\s*(ingredient|ingredients)\b/.test(text)) {
-        if (ingredientsVisible) toggleIngredientsView();
-        speak("Hiding ingredients");
-        return;
-    }
-    speak("I didn't understand that");
+
+    // Mute/unmute voice
+    if (/\b(mute|silence)\b( speech| voice)?\b/.test(text)) { voiceMuted = true; speak("Muted"); return; }
+    if (/\b(unmute|sound on|speak)\b/.test(text)) { voiceMuted = false; speak("Unmuted"); return; }
+
+    // Start/stop listening
+    if (/\b(stop listening|don't listen|disable voice)\b/.test(text)) { if (recognition) { recognition.stop(); speak("Stopped listening"); } return; }
+    if (/\b(start listening|listen|enable voice)\b/.test(text)) { if (recognition && chefMode) { try{ recognition.start(); } catch(e){} speak("Listening"); } return; }
+
+    // Working commands modal and list commands
+    if (/\b(open|show)\b.*(working commands|commands list|commands)\b/.test(text) || /\blist commands\b/.test(text)) { showWorkingCommandsModal(); speak("Opening command list"); return; }
+    if (/\b(close|hide|dismiss)\b.*(commands|working commands|command list)\b/.test(text)) { closeWorkingCommandsModal(); speak("Closing command list"); return; }
+
+    // Toggle chef mode via voice
+    if (/\b(open chef mode|enter chef mode|start chef)\b/.test(text)) { if (!chefMode) toggleChefMode(); return; }
+    if (/\b(exit chef mode|leave chef mode|close chef)\b/.test(text)) { if (chefMode) toggleChefMode(); return; }
+
+    // Increase/decrease font size globally while chef mode active
+    if (/\b(increase|bigger|larger)\b.*text\b/.test(text)) { document.documentElement.style.fontSize = (parseFloat(getComputedStyle(document.documentElement).fontSize) + 1) + 'px'; speak("Increased page text size"); return; }
+    if (/\b(decrease|smaller|shrink)\b.*text\b/.test(text)) { document.documentElement.style.fontSize = (parseFloat(getComputedStyle(document.documentElement).fontSize) - 1) + 'px'; speak("Decreased page text size"); return; }
+
+    // If not recognized
+    speak("I didn't understand that command");
     showVoiceIndicator("Command not recognized");
 }
 
-/* Speech recognition setup (if available) */
+/* =========== Helper functions for ingredient toggles and reading =========== */
+function toggleIngredientByIndex(index, checkValue) {
+    const items = document.querySelectorAll('#ingredientsList .ingredient-item');
+    if (!items || index < 0 || index >= items.length) return false;
+    const el = items[index];
+    const cb = el.querySelector('input[type="checkbox"]');
+    if (cb) cb.checked = !!checkValue;
+    el.classList.toggle('checked', !!checkValue);
+    updateChefIngredients();
+    return true;
+}
+function toggleIngredientByName(name, checkValue) {
+    const items = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item'));
+    const found = items.find(it => (it.textContent || '').toLowerCase().includes(name.toLowerCase()));
+    if (!found) return false;
+    const cb = found.querySelector('input[type="checkbox"]');
+    if (cb) cb.checked = !!checkValue;
+    found.classList.toggle('checked', !!checkValue);
+    updateChefIngredients();
+    return true;
+}
+function readAllIngredients() {
+    const items = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item span')).map(s => s.textContent.trim());
+    if (!items.length) { speak("No ingredients found"); return; }
+    speak("Ingredients are: " + items.join(', '));
+}
+function readFirstNIngredients(n) {
+    const items = Array.from(document.querySelectorAll('#ingredientsList .ingredient-item span')).slice(0, n).map(s=>s.textContent.trim());
+    if (!items.length) { speak("No ingredients found"); return; }
+    speak("First " + items.length + " ingredients: " + items.join(', '));
+}
+
+/* ========== Ingredient size controls (chef) ========== */
+let ingredientSizeStep = 0; // negative smaller, positive larger
+function updateIngredientsSizeClass(rootEl) {
+    rootEl.classList.remove('larger-1','larger-2','larger-3','smaller-1','smaller-2');
+    if (ingredientSizeStep >= 3) rootEl.classList.add('larger-3');
+    else if (ingredientSizeStep === 2) rootEl.classList.add('larger-2');
+    else if (ingredientSizeStep === 1) rootEl.classList.add('larger-1');
+    else if (ingredientSizeStep === -1) rootEl.classList.add('smaller-1');
+    else if (ingredientSizeStep <= -2) rootEl.classList.add('smaller-2');
+}
+function increaseIngredientsSize() {
+    ingredientSizeStep = Math.min(3, ingredientSizeStep + 1);
+    const root = document.querySelector('.chef-ingredients-root');
+    if (root) updateIngredientsSizeClass(root);
+}
+function decreaseIngredientsSize() {
+    ingredientSizeStep = Math.max(-2, ingredientSizeStep - 1);
+    const root = document.querySelector('.chef-ingredients-root');
+    if (root) updateIngredientsSizeClass(root);
+}
+function resetIngredientsSize() {
+    ingredientSizeStep = 0;
+    const root = document.querySelector('.chef-ingredients-root');
+    if (root) updateIngredientsSizeClass(root);
+}
+
+/* =========== Speech recognition setup =========== */
 function setupSpeechRecognition() {
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) return;
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -155,6 +317,7 @@ function setupSpeechRecognition() {
     };
     recognition.onresult = (e) => {
         const transcript = e.results[e.results.length-1][0].transcript.trim();
+        console.log('Heard:', transcript);
         showVoiceIndicator(`"${transcript}"`);
         processVoiceCommand(transcript);
     };
@@ -203,9 +366,18 @@ function toggleIngredientsView() {
 async function toggleChefMode() {
     const btn = document.getElementById('chefBtn');
     const cont = document.getElementById('chefModeContainer');
+    const themeButtons = document.querySelectorAll('.theme-toggle');
+
     if (!cont) return;
     chefMode = !chefMode;
     if (chefMode) {
+        // store previous theme and force dark for chef mode
+        previousThemeBeforeChef = document.documentElement.getAttribute('data-theme') || '';
+        applyTheme('dark');
+
+        // disable theme toggles while chef mode active (so the chef view remains consistent)
+        themeButtons.forEach(b => { b.setAttribute('disabled',''); });
+
         if (btn) btn.classList.add('chef-on');
         cont.classList.add('active');
         cont.setAttribute('aria-hidden','false');
@@ -214,6 +386,8 @@ async function toggleChefMode() {
         updateChefMode();
         renderStepsPreview();
         updateChefIngredients();
+        resetIngredientsSize(); // reset to default
+
         try {
             if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
         } catch(e) {
@@ -224,6 +398,10 @@ async function toggleChefMode() {
         }
         speakCurrentStep();
     } else {
+        // restore previous theme
+        applyTheme(previousThemeBeforeChef || '');
+        themeButtons.forEach(b => { b.removeAttribute('disabled'); });
+
         if (btn) btn.classList.remove('chef-on');
         cont.classList.remove('active');
         cont.setAttribute('aria-hidden','true');
@@ -324,46 +502,11 @@ function playTimerSound() {
     } catch(e) {}
 }
 
-/* Speech / speak */
-function speak(txt) {
-    if ('speechSynthesis' in window && txt) {
-        const u = new SpeechSynthesisUtterance(txt);
-        u.rate = 0.9;
-        speechSynthesis.cancel();
-        speechSynthesis.speak(u);
-    }
-}
+/* speak current step */
 function speakCurrentStep() {
     const s = steps[currentStepIndex];
     speak(`Step ${currentStepIndex+1}: ${s.title}. ${s.text}`);
 }
-function retryVoice() {
-    if (recognition && chefMode) {
-        try { recognition.stop(); setTimeout(() => recognition.start(), 500); } catch(e) {}
-    }
-}
-
-/* Sync chef ingredient list with main page */
-function updateChefIngredients() {
-    const c = document.getElementById('chefIngredientsContent');
-    if (!c) return;
-    c.innerHTML = '';
-    document.querySelectorAll('#ingredientsList .ingredient-item').forEach((it,i) => {
-        const d = document.createElement('div');
-        d.className = 'chef-ingredient-item';
-        d.dataset.index = i;
-        const cb = document.createElement('input'); cb.type = 'checkbox';
-        cb.checked = !!it.querySelector('input')?.checked;
-        const sp = document.createElement('span'); sp.textContent = it.querySelector('span')?.textContent || '';
-        if (it.classList.contains('checked')) d.classList.add('checked');
-        d.appendChild(cb); d.appendChild(sp);
-        d.onclick = () => toggleChefIngredient(d);
-        c.appendChild(d);
-    });
-}
-
-/* Print */
-function printRecipe() { window.print(); }
 
 /* WORKING COMMANDS MODAL (above chef mode) */
 function showWorkingCommandsModal() {
@@ -385,12 +528,46 @@ function closeWorkingCommandsModal() {
     // restore scroll only if chef mode is not active
     document.body.style.overflow = (document.getElementById('chefModeContainer')?.classList.contains('active')) ? 'hidden' : 'auto';
 }
-/* Backdrop click only closes when clicking the overlay backdrop */
 document.addEventListener('click', (e) => {
     const modal = document.getElementById('workingCommandsModal');
     if (!modal || !modal.classList.contains('active')) return;
     if (e.target === modal) closeWorkingCommandsModal();
 });
+
+/* Sync chef ingredient list with main page */
+function updateChefIngredients() {
+    const c = document.getElementById('chefIngredientsContent');
+    if (!c) return;
+    c.innerHTML = '';
+    document.querySelectorAll('#ingredientsList .ingredient-item').forEach((it,i) => {
+        const d = document.createElement('div');
+        d.className = 'chef-ingredient-item';
+        d.dataset.index = i;
+        const cb = document.createElement('input'); cb.type = 'checkbox';
+        cb.checked = !!it.querySelector('input')?.checked;
+        const sp = document.createElement('span'); sp.textContent = it.querySelector('span')?.textContent || '';
+        if (it.classList.contains('checked')) d.classList.add('checked');
+        d.appendChild(cb); d.appendChild(sp);
+        d.onclick = () => toggleChefIngredient(d);
+        c.appendChild(d);
+    });
+
+    // ensure chef ingredients container has base class for font sizing
+    const root = document.querySelector('.chef-ingredients-root');
+    if (!root) {
+        const holder = document.getElementById('chefIngredientsList');
+        if (holder) {
+            const r = holder.querySelector('#chefIngredientsContent');
+            if (r) r.classList.add('chef-ingredients-root');
+            // ensure there's a wrapper element we can add classes on
+            const wrapper = holder.querySelector('#chefIngredientsContent');
+            if (wrapper && !wrapper.classList.contains('chef-ingredients-root')) wrapper.classList.add('chef-ingredients-root');
+        }
+    }
+}
+
+/* Print */
+function printRecipe() { window.print(); }
 
 /* Init / DOM wiring */
 window.addEventListener('DOMContentLoaded', () => {
