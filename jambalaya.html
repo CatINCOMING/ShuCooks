@@ -9,86 +9,92 @@
     <link rel="icon" type="image/png" sizes="64x64" href="images/favicon-64.png">
     <link rel="apple-touch-icon" sizes="180x180" href="images/favicon-180.png">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <!-- External CSS -->
+
+    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- Site CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <!-- Navbar -->
 <nav class="navbar">
-    <a href="index.html">ShuCooks</a>
+    <a href="index.html" class="logo">ShuCooks</a>
     <a href="index.html">Home</a>
     <a href="recipes.html">Recipes</a>
     <a href="contact.html">Contact</a>
+
+    <!-- Dark Mode Toggle Button (light switch) -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
 </nav>
 
 <section class="content">
     <h1>Jambalaya (CPK-Style)</h1>
     <img src="images/mmexport.jpg" class="recipe-photo" alt="Jambalaya">
-    
+
     <div class="button-row">
         <button onclick="printRecipe()">🖨️ Print Recipe</button>
-        <button id="chefBtn" onclick="toggleChefMode()">👨‍🍳 Chef Mode</button>
+        <button id="chefBtn">👨‍🍳 Chef Mode</button>
     </div>
-    
+
     <h2>Ingredients (Serves 4)</h2>
 
     <div id="ingredientsList">
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>3 tbsp Cajun spice</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>12–16 shrimp, deveined</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>½ red bell pepper, diced</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>1 jalapeño, diced</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>½ red onion, diced</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>½ lb cooked linguine</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>1 andouille sausage, sliced</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>1 ½ cups chicken stock</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>1 tbsp tomato sauce</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>½ tsp salt</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>¼ tsp black pepper</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>3 cloves garlic, minced</span>
         </div>
-        <div class="ingredient-item" onclick="toggleIngredient(this)">
+        <div class="ingredient-item">
             <input type="checkbox">
             <span>3 tbsp cooking oil</span>
         </div>
     </div>
-    
+
     <h2>Instructions</h2>
     <ol id="instructionsList">
         <li><strong>Season the vegetables:</strong> Mix peppers, onion, garlic, Cajun seasoning, and pepper.</li>
@@ -100,21 +106,23 @@
     </ol>
 </section>
 
-<!-- Chef Mode - FULLSCREEN OVERLAY -->
+<!-- Chef Mode - FULLSCREEN OVERLAY (no internal quick reference) -->
 <div id="chefModeContainer" class="chef-mode-container" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="chef-panel" role="document" aria-label="Chef mode panel">
         <button class="chef-close" onclick="toggleChefMode()" aria-label="Close chef mode">✕</button>
+
         <div class="chef-mode-header">
             <h2>
                 <span>👨‍🍳 Chef Mode</span>
-                <span class="hands-free-badge">🔓 Screen Unlocked</span>
-                <span id="voiceStatus" onclick="retryVoice()">🎤 Starting...</span>
+                <span class="hands-free-badge">🔓 Hands-free</span>
+                <span id="voiceStatus" onclick="retryVoice()" style="padding:6px; border-radius:6px; background:transparent;">🎤 Starting...</span>
             </h2>
+
             <div style="display:flex; gap:10px; align-items:center;">
-                <button class="working-commands-btn" onclick="showWorkingCommandsModal()">📋 Working Commands</button>
+                <button class="working-commands-btn">📋 Working Commands</button>
             </div>
         </div>
-        
+
         <div class="chef-body">
             <aside class="chef-sidebar" aria-label="Ingredients and steps preview">
                 <div class="ingredients-toggle" onclick="toggleIngredientsView()">
@@ -122,9 +130,9 @@
                     <span id="ingredientsToggleIcon">▼</span>
                 </div>
                 <div id="chefIngredientsList" style="display: none;">
-                    <div id="chefIngredientsContent"></div>
+                    <div id="chefIngredientsContent" class="chef-ingredients-root"></div>
                 </div>
-                
+
                 <div style="margin-top:12px;">
                     <h3 style="margin:8px 0;">All Steps</h3>
                     <div id="stepsPreview"></div>
@@ -135,10 +143,11 @@
                 <div class="progress-bar" aria-hidden="true">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
+
                 <div class="current-step" id="currentStep" onclick="nextStep()" role="button" aria-pressed="false">
                     <div class="step-title" id="stepTitle">Step 1: Season the vegetables</div>
                     <div class="step-text" id="stepText">Mix peppers, onion, garlic, Cajun seasoning, and pepper.</div>
-                    
+
                     <div class="timer-section" id="timerSection" style="display: none;">
                         <div class="timer-display" id="timerDisplay">00:00</div>
                         <div class="timer-buttons">
@@ -150,49 +159,44 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="chef-navigation">
                     <button onclick="prevStep()" id="prevBtn">⬅️ Previous</button>
                     <button onclick="nextStep()" id="nextBtn">Next ➡️</button>
                 </div>
             </main>
         </div>
-        
-        <div style="margin-top:12px;">
-            <div class="commands-help">
-                <h3>🎤 Quick Reference</h3>
-                <div style="background: rgba(10, 92, 10, 0.12); padding: 12px; border-radius: 8px; margin-bottom: 8px;">
-                    <h4 style="color: var(--accent-green); margin:0 0 8px 0;">✅ CONFIRMED WORKING:</h4>
-                    <ul style="color: var(--text-secondary); margin:0; padding-left:18px;">
-                        <li><code>next</code> / <code>continue</code> - Next step</li>
-                        <li><code>back</code> / <code>previous</code> - Previous step</li>
-                        <li><code>go to step 3</code> - Jump to step</li>
-                        <li><code>repeat</code> - Repeat current step</li>
-                        <li><code>start timer</code> - Start timer for this step</li>
-                        <li><code>show ingredients</code> - Show list</li>
-                        <li><code>hide ingredients</code> - Hide list</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
-<!-- Working Commands Modal (small popup) -->
+<!-- Working Commands Modal (small popup above chef mode) -->
 <div id="workingCommandsModal" class="working-commands-modal" aria-hidden="true" role="dialog" aria-modal="true">
     <div class="working-commands-card" role="document" aria-label="Working voice commands">
         <button class="working-commands-close" onclick="closeWorkingCommandsModal()" aria-label="Close">✕</button>
-        <h3>✅ Confirmed Working Voice Commands</h3>
+        <h3>✅ Confirmed Working Voice Commands (examples)</h3>
         <ul>
-            <li><strong>next</strong> / <strong>continue</strong> — Next step</li>
-            <li><strong>back</strong> / <strong>previous</strong> — Previous step</li>
-            <li><strong>go to step [number]</strong> — Jump to step</li>
-            <li><strong>repeat</strong> — Repeat current step</li>
-            <li><strong>start timer</strong> — Start the step timer (if available)</li>
-            <li><strong>show ingredients</strong> — Reveal ingredients</li>
-            <li><strong>hide ingredients</strong> — Hide ingredients</li>
+            <li>next / continue / forward — Next step</li>
+            <li>back / previous — Previous step</li>
+            <li>go to step [number] — Jump to step</li>
+            <li>repeat — Repeat current step</li>
+            <li>start timer — Start step timer</li>
+            <li>set timer for 2 minutes — Start a custom timer</li>
+            <li>pause timer / resume timer / reset timer</li>
+            <li>show ingredients / hide ingredients — Toggle ingredient list</li>
+            <li>increase the size of the ingredients / decrease / reset — Change ingredient text size</li>
+            <li>check off ingredient 2 / uncheck ingredient 2 — Toggle by number</li>
+            <li>check off the shrimp / uncheck shrimp — Toggle by name</li>
+            <li>read ingredients / read first 3 ingredients</li>
+            <li>mute / unmute — Mute or unmute voice feedback</li>
+            <li>start listening / stop listening — Control voice recognition</li>
+            <li>open working commands / list commands — Open this list</li>
+            <li>open chef mode / exit chef mode — Toggle chef mode</li>
+            <li>increase text / decrease text — Page text zoom</li>
+            <li>what is the current step / current step — Hear current step</li>
+            <li>show timers — Show timer UI</li>
+            <li>highlight ingredient [name] — Visually highlight ingredient</li>
         </ul>
-        <p style="color: var(--text-secondary); margin-top:8px;">Tip: Speak clearly and wait for the voice indicator.</p>
+        <p style="color: var(--text-secondary); margin-top:8px;">Tip: Speak clearly. For voice features use Chrome or Edge on HTTPS or localhost.</p>
         <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
             <button onclick="closeWorkingCommandsModal()">Close</button>
         </div>
@@ -201,391 +205,7 @@
 
 <div class="voice-indicator" id="voiceIndicator">🎤 Listening...</div>
 
-<script>
-const steps = [
-    { title: "Season the vegetables", text: "Mix peppers, onion, garlic, Cajun seasoning, and pepper.", timer: null },
-    { title: "Sear the shrimp", text: "Cook 30–60 seconds per side.", timer: 45 },
-    { title: "Cook the sausage", text: "Sauté 1 minute.", timer: 60 },
-    { title: "Cook the vegetables", text: "Sear 3–4 minutes.", timer: 210 },
-    { title: "Build the sauce", text: "Add stock + tomato sauce, simmer 5 minutes.", timer: 300 },
-    { title: "Add pasta", text: "Toss 2–3 minutes until coated.", timer: 150 }
-];
-
-let currentStepIndex = 0, chefMode = false, wakeLock = null, timerInterval = null;
-let timerSeconds = 0, timerRunning = false, recognition = null, ingredientsVisible = false;
-let videoWakeLock = null, recognitionActive = false;
-
-function enableVideoWakeLock() {
-    if (videoWakeLock) return;
-    videoWakeLock = document.createElement('video');
-    videoWakeLock.loop = true;
-    videoWakeLock.muted = true;
-    videoWakeLock.playsInline = true;
-    videoWakeLock.style.cssText = 'position:fixed;opacity:0;pointer-events:none;width:1px;height:1px';
-    const c = document.createElement('canvas');
-    c.width = c.height = 1;
-    c.getContext('2d').fillRect(0,0,1,1);
-    c.toBlob(b => {
-        videoWakeLock.src = URL.createObjectURL(b);
-        videoWakeLock.play().catch(()=>{});
-    });
-    document.body.appendChild(videoWakeLock);
-}
-
-function disableVideoWakeLock() {
-    if (videoWakeLock) {
-        videoWakeLock.pause();
-        videoWakeLock.remove();
-        videoWakeLock = null;
-    }
-}
-
-function processVoiceCommand(transcript) {
-    const text = transcript.toLowerCase().trim();
-    console.log('Processing:', text);
-    
-    if (/\b(next|continue|forward)\b/.test(text)) {
-        nextStep();
-        speak("Next step");
-        return;
-    }
-    if (/\b(back|previous)\b/.test(text)) {
-        prevStep();
-        speak("Going back");
-        return;
-    }
-    if (/\brepeat\b/.test(text)) {
-        speakCurrentStep();
-        return;
-    }
-    
-    const stepMatch = text.match(/\bstep\s*(\d+|one|two|three|four|five|six)\b/);
-    if (stepMatch) {
-        const nums = {one:1,two:2,three:3,four:4,five:5,six:6};
-        const num = isNaN(stepMatch[1]) ? nums[stepMatch[1]] : parseInt(stepMatch[1]);
-        if (num >= 1 && num <= 6) {
-            currentStepIndex = num - 1;
-            updateChefMode();
-            speakCurrentStep();
-            return;
-        }
-    }
-    
-    if (/\b(start|set|begin)\s*(timer|clock)\b/.test(text)) {
-        const step = steps[currentStepIndex];
-        if (step.timer) {
-            startTimer(step.timer);
-            speak(`Starting timer for ${Math.floor(step.timer/60)} minutes`);
-        } else {
-            speak("No timer for this step");
-        }
-        return;
-    }
-    
-    if (/\bshow\s*(ingredient|ingredients)\b/.test(text)) {
-        if (!ingredientsVisible) toggleIngredientsView();
-        speak("Showing ingredients");
-        return;
-    }
-    if (/\bhide\s*(ingredient|ingredients)\b/.test(text)) {
-        if (ingredientsVisible) toggleIngredientsView();
-        speak("Hiding ingredients");
-        return;
-    }
-    
-    speak("I didn't understand that");
-    showVoiceIndicator("Command not recognized");
-}
-
-if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SR();
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-    
-    recognition.onstart = () => {
-        recognitionActive = true;
-        document.getElementById('voiceStatus').textContent = '🎤 Listening';
-        document.getElementById('voiceStatus').style.background = '#8fd694';
-    };
-    
-    recognition.onerror = (e) => {
-        recognitionActive = false;
-        if (e.error === 'no-speech' || e.error === 'aborted' || e.error === 'audio-capture') return;
-        document.getElementById('voiceStatus').textContent = '🎤 Click to Retry';
-        document.getElementById('voiceStatus').style.background = '#ff4444';
-    };
-    
-    recognition.onend = () => {
-        recognitionActive = false;
-        if (chefMode && !recognitionActive) {
-            setTimeout(() => {
-                if (chefMode && !recognitionActive) {
-                    try { recognition.start(); } catch(e) {}
-                }
-            }, 1000);
-        }
-    };
-    
-    recognition.onresult = (e) => {
-        const transcript = e.results[e.results.length-1][0].transcript.trim();
-        console.log('Heard:', transcript);
-        showVoiceIndicator(`"${transcript}"`);
-        processVoiceCommand(transcript);
-    };
-}
-
-function showVoiceIndicator(t) {
-    const el = document.getElementById('voiceIndicator');
-    el.textContent = t || '🎤 Listening...';
-    el.classList.add('active');
-    setTimeout(() => el.classList.remove('active'), 3000);
-}
-
-function toggleIngredient(el) {
-    const cb = el.querySelector('input[type="checkbox"]');
-    cb.checked = !cb.checked;
-    el.classList.toggle('checked');
-    updateChefIngredients();
-}
-
-function toggleChefIngredient(el) {
-    const cb = el.querySelector('input[type="checkbox"]');
-    const idx = parseInt(el.dataset.index, 10);
-    cb.checked = !cb.checked;
-    el.classList.toggle('checked');
-    const main = document.querySelectorAll('#ingredientsList .ingredient-item')[idx];
-    if (main) {
-        main.querySelector('input').checked = cb.checked;
-        main.classList.toggle('checked', cb.checked);
-    }
-}
-
-function toggleIngredientsView() {
-    ingredientsVisible = !ingredientsVisible;
-    const list = document.getElementById('chefIngredientsList');
-    const icon = document.getElementById('ingredientsToggleIcon');
-    list.style.display = ingredientsVisible ? 'block' : 'none';
-    icon.textContent = ingredientsVisible ? '▲' : '▼';
-}
-
-async function toggleChefMode() {
-    chefMode = !chefMode;
-    const btn = document.getElementById('chefBtn');
-    const cont = document.getElementById('chefModeContainer');
-    
-    if (chefMode) {
-        btn.classList.add('chef-on');
-        cont.classList.add('active');
-        cont.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden'; // prevent background scroll
-        currentStepIndex = 0;
-        updateChefMode();
-        renderStepsPreview();
-        updateChefIngredients();
-        
-        try {
-            if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-        } catch(e) {
-            enableVideoWakeLock();
-        }
-        
-        if (recognition) {
-            try { recognition.start(); } catch(e) {
-                document.getElementById('voiceStatus').textContent = '🎤 Click';
-            }
-        }
-        speakCurrentStep();
-    } else {
-        btn.classList.remove('chef-on');
-        cont.classList.remove('active');
-        cont.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = 'auto';
-        
-        try {
-            if (wakeLock) {
-                wakeLock.release();
-                wakeLock = null;
-            }
-        } catch(e) {}
-        
-        disableVideoWakeLock();
-        if (recognition) recognition.stop();
-        resetTimer();
-    }
-}
-
-function updateChefMode() {
-    const s = steps[currentStepIndex];
-    document.getElementById('stepTitle').textContent = `Step ${currentStepIndex+1}: ${s.title}`;
-    document.getElementById('stepText').textContent = s.text;
-    document.getElementById('progressFill').style.width = `${((currentStepIndex+1)/steps.length)*100}%`;
-    document.getElementById('prevBtn').disabled = currentStepIndex === 0;
-    document.getElementById('nextBtn').disabled = currentStepIndex === steps.length - 1;
-    
-    const ts = document.getElementById('timerSection');
-    ts.style.display = s.timer ? 'block' : 'none';
-    
-    resetTimer();
-    renderStepsPreview();
-}
-
-function nextStep() {
-    if (currentStepIndex < steps.length - 1) {
-        currentStepIndex++;
-        updateChefMode();
-        speakCurrentStep();
-    }
-}
-
-function prevStep() {
-    if (currentStepIndex > 0) {
-        currentStepIndex--;
-        updateChefMode();
-        speakCurrentStep();
-    }
-}
-
-function renderStepsPreview() {
-    const c = document.getElementById('stepsPreview');
-    c.innerHTML = '';
-    steps.forEach((s, i) => {
-        const d = document.createElement('div');
-        d.className = 'step-preview';
-        if (i === currentStepIndex) d.classList.add('active');
-        d.innerHTML = `<strong>Step ${i+1}:</strong> ${s.title}`;
-        d.onclick = () => {
-            currentStepIndex = i;
-            updateChefMode();
-            speakCurrentStep();
-        };
-        c.appendChild(d);
-    });
-}
-
-function startTimer(sec) {
-    resetTimer();
-    timerSeconds = sec;
-    timerRunning = true;
-    updateTimerDisplay();
-    timerInterval = setInterval(() => {
-        if (timerRunning && timerSeconds > 0) {
-            timerSeconds--;
-            updateTimerDisplay();
-            if (timerSeconds === 0) {
-                timerRunning = false;
-                playTimerSound();
-                speak('Timer done!');
-            }
-        }
-    }, 1000);
-}
-
-function pauseTimer() {
-    timerRunning = !timerRunning;
-    const pb = document.querySelector('.timer-buttons button:nth-child(4)');
-    if (pb) pb.textContent = timerRunning ? '⏸ Pause' : '▶️ Resume';
-}
-
-function resetTimer() {
-    clearInterval(timerInterval);
-    timerSeconds = 0;
-    timerRunning = false;
-    updateTimerDisplay();
-    const pb = document.querySelector('.timer-buttons button:nth-child(4)');
-    if (pb) pb.textContent = '⏸ Pause';
-}
-
-function updateTimerDisplay() {
-    const m = Math.floor(timerSeconds / 60), s = timerSeconds % 60;
-    document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-}
-
-function playTimerSound() {
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator(), g = ctx.createGain();
-        osc.connect(g);
-        g.connect(ctx.destination);
-        osc.frequency.value = 800;
-        osc.type = 'sine';
-        g.gain.setValueAtTime(0.3, ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.5);
-    } catch(e) {}
-}
-
-function speak(txt) {
-    if ('speechSynthesis' in window && txt) {
-        const u = new SpeechSynthesisUtterance(txt);
-        u.rate = 0.9;
-        speechSynthesis.cancel();
-        speechSynthesis.speak(u);
-    }
-}
-
-function speakCurrentStep() {
-    const s = steps[currentStepIndex];
-    speak(`Step ${currentStepIndex+1}: ${s.title}. ${s.text}`);
-}
-
-function retryVoice() {
-    if (recognition && chefMode) {
-        try {
-            recognition.stop();
-            setTimeout(() => recognition.start(), 500);
-        } catch(e) {}
-    }
-}
-
-function updateChefIngredients() {
-    const c = document.getElementById('chefIngredientsContent');
-    c.innerHTML = '';
-    document.querySelectorAll('#ingredientsList .ingredient-item').forEach((it, i) => {
-        const d = document.createElement('div');
-        d.className = 'chef-ingredient-item';
-        d.dataset.index = i;
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.checked = !!it.querySelector('input').checked;
-        const sp = document.createElement('span');
-        sp.textContent = it.querySelector('span').textContent;
-        if (it.classList.contains('checked')) d.classList.add('checked');
-        d.appendChild(cb);
-        d.appendChild(sp);
-        d.onclick = () => toggleChefIngredient(d);
-        c.appendChild(d);
-    });
-}
-
-function printRecipe() {
-    window.print();
-}
-
-/* WORKING COMMANDS MODAL */
-function showWorkingCommandsModal() {
-    const m = document.getElementById('workingCommandsModal');
-    m.classList.add('active');
-    m.setAttribute('aria-hidden', 'false');
-    // keep chef overlay visible; modal sits above
-}
-function closeWorkingCommandsModal() {
-    const m = document.getElementById('workingCommandsModal');
-    m.classList.remove('active');
-    m.setAttribute('aria-hidden', 'true');
-}
-
-/* Close modal when clicking outside */
-document.addEventListener('click', (e) => {
-    const modal = document.getElementById('workingCommandsModal');
-    if (modal && modal.classList.contains('active') && e.target === modal) closeWorkingCommandsModal();
-});
-
-/* ensure chef ingredients update when checklist changes */
-document.getElementById('ingredientsList').addEventListener('change', updateChefIngredients);
-</script>
+<!-- Central script -->
 <script src="script.js"></script>
 </body>
 </html>
