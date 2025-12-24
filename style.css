@@ -1,5 +1,6 @@
 /* ShuCooks - Updated styles
    Full-page chef mode + working-commands popup + site styles
+   (Replace your existing style.css with this)
 */
 
 /* ==================== VARIABLES ==================== */
@@ -131,6 +132,13 @@ html,body{
 .theme-toggle:hover{ transform: translateY(-2px); }
 [data-theme="dark"] .theme-toggle{ border-color: rgba(255,255,255,0.06); color:var(--text-secondary); }
 
+/* Disabled appearance when controls are locked */
+.theme-toggle[disabled]{
+    opacity:0.55;
+    cursor:not-allowed;
+    transform:none;
+}
+
 /* ==================== HERO / PAGE TITLE ==================== */
 h1{
     font-size: clamp(1.6rem, 3vw, 2.2rem);
@@ -204,6 +212,14 @@ button:active{ transform: translateY(-1px); }
 .ingredient-item input{ width:18px; height:18px; }
 .ingredient-item.checked{ opacity:0.7; text-decoration: line-through; }
 [data-theme="dark"] .ingredient-item{ background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.02); }
+
+/* Classes to change ingredient font size in chef mode */
+.chef-ingredients-root { font-size: 1rem; line-height:1.5; }
+.chef-ingredients-root.larger-1 { font-size: 1.1rem; }
+.chef-ingredients-root.larger-2 { font-size: 1.2rem; }
+.chef-ingredients-root.larger-3 { font-size: 1.35rem; }
+.chef-ingredients-root.smaller-1 { font-size: 0.95rem; }
+.chef-ingredients-root.smaller-2 { font-size: 0.9rem; }
 
 /* ==================== CHEF MODE - FULL PAGE ==================== */
 /* chef-mode-container now covers entire viewport and behaves like a full page */
@@ -374,41 +390,6 @@ a:focus, button:focus, .ingredient-item:focus{ outline: none; box-shadow: 0 0 0 
     animation: spin 0.8s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
-
-/* ============ TOOLTIPS ============ */
-[data-tooltip]{ position: relative; }
-[data-tooltip]::before{
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%; left: 50%;
-    transform: translateX(-50%) translateY(-8px);
-    padding: 8px 12px; background: var(--tooltip-background, #1a1a1a);
-    color: var(--tooltip-color, white); font-size:13px; font-weight:500;
-    border-radius: var(--radius-sm); white-space: nowrap; opacity:0; pointer-events:none;
-    transition: opacity .2s, transform .2s; box-shadow: var(--shadow-md); z-index:1001;
-}
-[data-tooltip]:hover::before{ opacity:1; transform: translateX(-50%) translateY(-12px); }
-
-/* ============ TAGS & BADGES ============ */
-.tag { display:inline-block; padding:6px 14px; background: var(--accent-peach); color:#333; border-radius:var(--radius-xl); font-size:13px; font-weight:600; margin:4px; transition: all .2s; }
-.tag:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-[data-theme="dark"] .tag { background: var(--dark-tag-background, #2a2a2a); color: var(--dark-tag-color, #e0e0e0); }
-
-/* ============ NOTIFICATION TOAST ============ */
-.toast {
-    position: fixed; bottom: 100px; right: 30px;
-    background: linear-gradient(135deg, var(--accent-green), #7ac682);
-    color: white; padding: var(--space-md) var(--space-lg);
-    border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: var(--toast-z, 2001);
-    animation: slideInRight .4s ease, fadeOut .4s ease 2.6s; max-width:350px; font-weight:600;
-}
-@keyframes slideInRight { from { transform: translateX(400px); opacity:0; } to { transform: translateX(0); opacity:1; } }
-@keyframes fadeOut { to { opacity:0; transform: translateX(400px); } }
-
-/* ============ EMPTY STATES ============ */
-.empty-state{ text-align:center; padding:var(--space-xl); color:var(--text-secondary); }
-.empty-state-icon{ font-size:4rem; margin-bottom:var(--space-md); opacity:0.3; }
-.empty-state h3{ color: var(--text-primary); margin-bottom: var(--space-sm); }
 
 /* ============ PRINT ============ */
 @media print {
