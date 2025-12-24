@@ -1,8 +1,3 @@
-/* ShuCooks - Updated styles
-   Replaces previous style.css with improved layout, typography, and component styling.
-   Includes full-screen chef-mode overlay and working-commands popup styles.
-*/
-
 /* ==================== VARIABLES ==================== */
 :root{
     --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
