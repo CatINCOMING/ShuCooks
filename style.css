@@ -1,3 +1,356 @@
+/* ShuCooks - Updated styles
+   Replaces previous style.css with improved layout, typography, and component styling.
+*/
+
+/* ==================== VARIABLES ==================== */
+:root{
+    --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    --bg-primary: #fffaf6;
+    --bg-secondary: #fff7f0;
+    --text-primary: #1a1a1a;
+    --text-secondary: #575757;
+    --accent-orange: #ff7a3d;
+    --accent-peach: #ffd9c7;
+    --accent-orange-hover: #ff8f52;
+    --accent-peach-hover: #ffe6d9;
+    --accent-green: #8fd694;
+    --accent-peach-2: #f9efe6;
+    --muted: #ececec;
+    --card-bg: #ffffff;
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-xl: 24px;
+    --space-xs: 6px;
+    --space-sm: 12px;
+    --space-md: 18px;
+    --space-lg: 28px;
+    --space-xl: 40px;
+    --shadow-sm: 0 2px 6px rgba(15,15,15,0.06);
+    --shadow-md: 0 6px 20px rgba(15,15,15,0.08);
+    --shadow-lg: 0 12px 40px rgba(10,10,10,0.12);
+    --max-width: 1100px;
+    --text-on-accent: #0a0a0a;
+}
+
+/* DARK THEME */
+[data-theme="dark"]{
+    --bg-primary: #0f1720;
+    --bg-secondary: #0b1220;
+    --card-bg: #0f1724;
+    --text-primary: #e6eef6;
+    --text-secondary: #9fb4c8;
+    --accent-orange: #ff8f52;
+    --accent-peach: #2a2a2a;
+    --accent-green: #7ac682;
+    --muted: #0b1220;
+}
+
+/* ==================== GLOBAL RESET / BASE ==================== */
+*{box-sizing: border-box}
+html,body{
+    height:100%;
+    margin:0;
+    padding:0;
+    font-family: var(--font-sans);
+    background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+    color:var(--text-primary);
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    line-height:1.45;
+    font-size:16px;
+}
+
+/* Content wrapper */
+.content{
+    max-width: var(--max-width);
+    margin: calc(var(--space-xl) + 10px) auto;
+    padding: var(--space-lg);
+    background: transparent;
+}
+
+/* ==================== NAVBAR ==================== */
+.navbar{
+    position: sticky;
+    top:0;
+    z-index: 1000;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    height:64px;
+    padding: 0 20px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.65));
+    backdrop-filter: blur(6px);
+    box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Dark navbar surface */
+[data-theme="dark"] .navbar{
+    background: linear-gradient(180deg, rgba(10,14,20,0.6), rgba(6,8,12,0.6));
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Logo */
+.navbar .logo{
+    font-weight:700;
+    color:var(--accent-orange);
+    text-decoration:none;
+    font-size:1.15rem;
+    letter-spacing:0.4px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    display:inline-flex;
+    align-items:center;
+}
+
+/* Nav links */
+.navbar a{
+    color:var(--text-primary);
+    text-decoration:none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    transition: all 180ms ease;
+    font-weight:600;
+}
+.navbar a:hover, .navbar a:focus{
+    background: var(--accent-peach-2);
+    transform: translateY(-2px);
+    color:var(--text-on-accent);
+}
+[data-theme="dark"] .navbar a{
+    color: var(--text-secondary);
+}
+[data-theme="dark"] .navbar a:hover{
+    background: rgba(255,143,82,0.08);
+}
+
+/* Navbar layout spacing */
+.navbar{
+    gap:14px;
+}
+.navbar > a.logo{ margin-right: 10px; }
+.navbar > a:not(.logo){ margin-right: 6px; }
+
+/* Right-side controls (theme toggle) */
+.theme-toggle{
+    margin-left:auto;
+    background:transparent;
+    border:1px solid rgba(0,0,0,0.06);
+    padding:8px 10px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:1.05rem;
+    transition: transform 120ms ease, background 120ms ease;
+}
+.theme-toggle:hover{ transform: translateY(-2px); }
+[data-theme="dark"] .theme-toggle{ border-color: rgba(255,255,255,0.06); color:var(--text-secondary); }
+
+/* ==================== HERO / PAGE TITLE ==================== */
+h1{
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    margin: 8px 0 12px;
+}
+p{ color:var(--text-secondary); margin:0 0 16px; }
+
+/* ==================== RECIPE GRID & CARDS ==================== */
+.recipe-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-md);
+}
+
+.recipe-card{
+    display:block;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    overflow:hidden;
+    text-decoration:none;
+    color:inherit;
+    box-shadow: var(--shadow-md);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+    border: 1px solid rgba(0,0,0,0.03);
+    padding-bottom: 12px;
+}
+.recipe-card img{
+    width:100%;
+    height:160px;
+    object-fit:cover;
+    display:block;
+}
+.recipe-card h3{
+    margin:12px;
+    font-size:1.05rem;
+}
+.recipe-card:hover{
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ==================== RECIPE PAGE: PHOTO, BUTTONS ==================== */
+.recipe-photo{
+    width:100%;
+    max-width: 850px;
+    height:auto;
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    display:block;
+    margin: 10px 0 18px;
+}
+
+/* Buttons */
+.button-row{ display:flex; gap:10px; margin:12px 0 20px; flex-wrap:wrap; }
+.button-row button,
+button{
+    background: linear-gradient(135deg, var(--accent-orange), var(--accent-peach));
+    color:var(--text-on-accent);
+    border:none;
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    box-shadow: var(--shadow-sm);
+    transition: transform 140ms ease, box-shadow 140ms ease, opacity 120ms;
+    font-weight:700;
+}
+button:hover{ transform: translateY(-3px); opacity:0.98; }
+button:active{ transform: translateY(-1px); }
+
+/* Chef mode button highlight */
+#chefBtn.chef-on{
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    outline: 2px solid rgba(255,255,255,0.06);
+}
+
+/* ==================== INGREDIENT LIST / CHECKLIST ==================== */
+#ingredientsList{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:18px;
+}
+.ingredient-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
+    border: 1px solid rgba(0,0,0,0.03);
+    cursor:pointer;
+}
+.ingredient-item input{ width:18px; height:18px; }
+.ingredient-item.checked{
+    opacity:0.7;
+    text-decoration: line-through;
+}
+[data-theme="dark"] .ingredient-item{
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.02);
+}
+
+/* ==================== CHEF MODE OVERLAY ==================== */
+.chef-mode-container{
+    position:fixed;
+    inset: 8% 6% auto 6%;
+    bottom: 40px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,250,250,0.95));
+    border-radius: 16px;
+    padding: 18px;
+    width: calc(100% - 12%);
+    max-width: 1100px;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(24px);
+    opacity:0;
+    pointer-events:none;
+    transition: all 220ms ease;
+    z-index: 2500;
+}
+.chef-mode-container.active{
+    transform: translateY(0);
+    opacity:1;
+    pointer-events:auto;
+}
+.chef-mode-header{ display:flex; align-items:center; gap:12px; justify-content:space-between; }
+.chef-mode-header h2{ margin:0; font-size:1.1rem; display:flex; gap:10px; align-items:center; }
+.chef-mode-header .hands-free-badge{
+    background: var(--accent-peach-2);
+    padding:6px 10px;
+    border-radius: 999px;
+    font-size:0.85rem;
+}
+
+/* Voice status */
+#voiceStatus{
+    cursor:pointer;
+    padding:6px 10px;
+    border-radius:8px;
+    background: #eee;
+    font-size:0.9rem;
+}
+[data-theme="dark"] #voiceStatus{ background: rgba(255,255,255,0.03); }
+
+/* Progress bar */
+.progress-bar{
+    height:10px;
+    background: rgba(0,0,0,0.05);
+    border-radius:999px;
+    overflow:hidden;
+    margin: 12px 0;
+}
+.progress-fill{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, var(--accent-green), #7ac682);
+    transition: width 300ms ease;
+}
+
+/* Steps preview */
+.step-preview{ padding:8px 10px; border-radius:8px; background: rgba(0,0,0,0.03); margin-bottom:8px; cursor:pointer; }
+.step-preview.active{ background: linear-gradient(90deg, rgba(143,214,148,0.12), rgba(122,198,130,0.08)); }
+
+/* Ingredients toggle inside chef */
+.ingredients-toggle{ cursor:pointer; margin:8px 0; display:flex; justify-content:space-between; align-items:center; background:transparent; padding:8px; }
+
+/* Chef ingredients list */
+.chef-ingredient-item{ display:flex; gap:12px; align-items:center; padding:8px; border-radius:8px; background: rgba(0,0,0,0.02); margin-bottom:6px; }
+.chef-ingredient-item.checked{ opacity:0.6; text-decoration:line-through; }
+.chef-ingredient-item input{ width:16px; height:16px; }
+
+/* Timer */
+.timer-section{ margin-top:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.timer-display{ font-family: monospace; font-size:1.1rem; padding:6px 10px; background:rgba(0,0,0,0.04); border-radius:8px; }
+
+/* Chef navigation */
+.chef-navigation{ display:flex; gap:12px; margin-top:14px; }
+
+/* Full-screen voice indicator (floating) */
+.voice-indicator{
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: linear-gradient(135deg, var(--accent-green), #7ac682);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 999px;
+    box-shadow: var(--shadow-lg);
+    z-index: 3000;
+    display:none;
+}
+.voice-indicator.active{ display:block; }
+
+/* ==================== SMALL SCREENS ==================== */
+@media (max-width: 720px){
+    .navbar{ padding: 8px 12px; height:56px; }
+    .theme-toggle{ padding:6px 8px; }
+    .content{ margin: 18px 12px; padding: 14px; }
+    .chef-mode-container{ inset: 12% 4% 12% 4%; width: calc(100% - 8%); bottom:auto; }
+    .recipe-photo{ height:200px; object-fit:cover; }
+    .recipe-grid{ grid-template-columns: 1fr; }
+}
+
+/* ==================== ACCESSIBILITY & INTERACTION ==================== */
+a:focus, button:focus, .ingredient-item:focus{ outline: none; box-shadow: 0 0 0 4px rgba(255,122,61,0.12); border-radius:8px; }
+
 /* ============ FOCUS STATES ============ */
 *:focus-visible {
     outline: 3px solid var(--accent-orange);
@@ -21,7 +374,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, var(--accent-orange-hover), var(--accent-peach-hover)); /* Improved hover colors */
+    background: linear-gradient(135deg, var(--accent-orange-hover), var(--accent-peach-hover));
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
@@ -31,7 +384,7 @@
 /* ============ SELECTION ============ */
 ::selection {
     background: var(--accent-peach);
-    color: #333333; /* Ensure sufficient contrast */
+    color: #333333;
 }
 
 ::-moz-selection {
@@ -41,7 +394,7 @@
 
 [data-theme="dark"] ::selection {
     background: var(--accent-orange);
-    color: var(--text-on-accent, white); /* Use variables for consistency */
+    color: var(--text-on-accent);
 }
 
 /* ============ LOADING STATES ============ */
@@ -49,7 +402,7 @@
     opacity: 0.6;
     pointer-events: none;
     position: relative;
-    will-change: opacity; /* Specify composited properties for smoother animation */
+    will-change: opacity;
 }
 
 .loading::after {
@@ -64,7 +417,7 @@
     border-top-color: var(--accent-orange);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
-    will-change: transform; /* Improves animation performance */
+    will-change: transform;
 }
 
 @keyframes spin {
@@ -83,8 +436,8 @@
     left: 50%;
     transform: translateX(-50%) translateY(-8px);
     padding: 8px 12px;
-    background: var(--tooltip-background, #1a1a1a); /* Added variable */
-    color: var(--tooltip-color, white); /* Added variable */
+    background: var(--tooltip-background, #1a1a1a);
+    color: var(--tooltip-color, white);
     font-size: 13px;
     font-weight: 500;
     border-radius: var(--radius-sm);
@@ -93,7 +446,7 @@
     pointer-events: none;
     transition: opacity 0.2s, transform 0.2s;
     box-shadow: var(--shadow-md);
-    z-index: var(--tooltip-z, 1001); /* Scoped z-index */
+    z-index: var(--tooltip-z, 1001);
 }
 
 [data-tooltip]:hover::before {
@@ -120,8 +473,8 @@
 }
 
 [data-theme="dark"] .tag {
-    background: var(--dark-tag-background, #2a2a2a); /* Use variables */
-    color: var(--dark-tag-color, #e0e0e0); /* Use variables */
+    background: var(--dark-tag-background, #2a2a2a);
+    color: var(--dark-tag-color, #e0e0e0);
 }
 
 /* ============ NOTIFICATION TOAST ============ */
@@ -134,7 +487,7 @@
     padding: var(--space-md) var(--space-lg);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
-    z-index: var(--toast-z, 2001); /* Scoped z-index */
+    z-index: var(--toast-z, 2001);
     animation: slideInRight 0.4s ease, fadeOut 0.4s ease 2.6s;
     max-width: 350px;
     font-weight: 600;
@@ -184,7 +537,7 @@
     .voice-indicator,
     .theme-toggle,
     .toast {
-        display: none; /* Avoid !important unless absolutely necessary */
+        display: none;
     }
     
     body {
