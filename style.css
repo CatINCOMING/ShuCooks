@@ -1,13 +1,4 @@
 /* ============ FOCUS STATES ============ */
-*:focus {
-    outline: 3px solid var(--accent-orange);
-    outline-offset: 2px;
-}
-
-*:focus:not(:focus-visible) {
-    outline: none;
-}
-
 *:focus-visible {
     outline: 3px solid var(--accent-orange);
     outline-offset: 2px;
@@ -30,27 +21,27 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #ff5722, #ffb380);
+    background: linear-gradient(135deg, var(--accent-orange-hover), var(--accent-peach-hover)); /* Improved hover colors */
 }
 
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #4a5568, #2d3748);
+    background: linear-gradient(135deg, var(--dark-scrollbar-start, #4a5568), var(--dark-scrollbar-end, #2d3748));
 }
 
 /* ============ SELECTION ============ */
 ::selection {
     background: var(--accent-peach);
-    color: #333;
+    color: #333333; /* Ensure sufficient contrast */
 }
 
 ::-moz-selection {
     background: var(--accent-peach);
-    color: #333;
+    color: #333333;
 }
 
 [data-theme="dark"] ::selection {
     background: var(--accent-orange);
-    color: white;
+    color: var(--text-on-accent, white); /* Use variables for consistency */
 }
 
 /* ============ LOADING STATES ============ */
@@ -58,6 +49,7 @@
     opacity: 0.6;
     pointer-events: none;
     position: relative;
+    will-change: opacity; /* Specify composited properties for smoother animation */
 }
 
 .loading::after {
@@ -72,6 +64,7 @@
     border-top-color: var(--accent-orange);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
+    will-change: transform; /* Improves animation performance */
 }
 
 @keyframes spin {
@@ -90,8 +83,8 @@
     left: 50%;
     transform: translateX(-50%) translateY(-8px);
     padding: 8px 12px;
-    background: #1a1a1a;
-    color: white;
+    background: var(--tooltip-background, #1a1a1a); /* Added variable */
+    color: var(--tooltip-color, white); /* Added variable */
     font-size: 13px;
     font-weight: 500;
     border-radius: var(--radius-sm);
@@ -100,7 +93,7 @@
     pointer-events: none;
     transition: opacity 0.2s, transform 0.2s;
     box-shadow: var(--shadow-md);
-    z-index: 1000;
+    z-index: var(--tooltip-z, 1001); /* Scoped z-index */
 }
 
 [data-tooltip]:hover::before {
@@ -127,8 +120,8 @@
 }
 
 [data-theme="dark"] .tag {
-    background: #2a2a2a;
-    color: #e0e0e0;
+    background: var(--dark-tag-background, #2a2a2a); /* Use variables */
+    color: var(--dark-tag-color, #e0e0e0); /* Use variables */
 }
 
 /* ============ NOTIFICATION TOAST ============ */
@@ -141,7 +134,7 @@
     padding: var(--space-md) var(--space-lg);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
-    z-index: 2000;
+    z-index: var(--toast-z, 2001); /* Scoped z-index */
     animation: slideInRight 0.4s ease, fadeOut 0.4s ease 2.6s;
     max-width: 350px;
     font-weight: 600;
@@ -191,7 +184,7 @@
     .voice-indicator,
     .theme-toggle,
     .toast {
-        display: none !important;
+        display: none; /* Avoid !important unless absolutely necessary */
     }
     
     body {
