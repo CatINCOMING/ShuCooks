@@ -1,3 +1,7 @@
+/* ShuCooks - Updated styles
+   Full-page chef mode + working-commands popup + site styles
+*/
+
 /* ==================== VARIABLES ==================== */
 :root{
     --font-sans: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -79,14 +83,10 @@ html,body{
     box-shadow: var(--shadow-sm);
     border-bottom: 1px solid rgba(0,0,0,0.04);
 }
-
-/* Dark navbar surface */
 [data-theme="dark"] .navbar{
     background: linear-gradient(180deg, rgba(10,14,20,0.6), rgba(6,8,12,0.6));
     border-bottom: 1px solid rgba(255,255,255,0.04);
 }
-
-/* Logo */
 .navbar .logo{
     font-weight:700;
     color:var(--accent-orange);
@@ -98,8 +98,6 @@ html,body{
     display:inline-flex;
     align-items:center;
 }
-
-/* Nav links */
 .navbar a{
     color:var(--text-primary);
     text-decoration:none;
@@ -113,17 +111,9 @@ html,body{
     transform: translateY(-2px);
     color:var(--text-on-accent);
 }
-[data-theme="dark"] .navbar a{
-    color: var(--text-secondary);
-}
-[data-theme="dark"] .navbar a:hover{
-    background: rgba(255,143,82,0.08);
-}
-
-/* Navbar layout spacing */
-.navbar{
-    gap:14px;
-}
+[data-theme="dark"] .navbar a{ color: var(--text-secondary); }
+[data-theme="dark"] .navbar a:hover{ background: rgba(255,143,82,0.08); }
+.navbar{ gap:14px; }
 .navbar > a.logo{ margin-right: 10px; }
 .navbar > a:not(.logo){ margin-right: 6px; }
 
@@ -155,7 +145,6 @@ p{ color:var(--text-secondary); margin:0 0 16px; }
     gap: var(--space-lg);
     margin-top: var(--space-md);
 }
-
 .recipe-card{
     display:block;
     background: var(--card-bg);
@@ -174,14 +163,8 @@ p{ color:var(--text-secondary); margin:0 0 16px; }
     object-fit:cover;
     display:block;
 }
-.recipe-card h3{
-    margin:12px;
-    font-size:1.05rem;
-}
-.recipe-card:hover{
-    transform: translateY(-6px) scale(1.01);
-    box-shadow: var(--shadow-lg);
-}
+.recipe-card h3{ margin:12px; font-size:1.05rem; }
+.recipe-card:hover{ transform: translateY(-6px) scale(1.01); box-shadow: var(--shadow-lg); }
 
 /* ==================== RECIPE PAGE: PHOTO, BUTTONS ==================== */
 .recipe-photo{
@@ -196,8 +179,7 @@ p{ color:var(--text-secondary); margin:0 0 16px; }
 
 /* Buttons */
 .button-row{ display:flex; gap:10px; margin:12px 0 20px; flex-wrap:wrap; }
-.button-row button,
-button{
+.button-row button, button{
     background: linear-gradient(135deg, var(--accent-orange), var(--accent-peach));
     color:var(--text-on-accent);
     border:none;
@@ -211,84 +193,49 @@ button{
 button:hover{ transform: translateY(-3px); opacity:0.98; }
 button:active{ transform: translateY(-1px); }
 
-/* Chef mode button highlight */
-#chefBtn.chef-on{
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-    outline: 2px solid rgba(255,255,255,0.06);
-}
-
 /* ==================== INGREDIENT LIST / CHECKLIST ==================== */
-#ingredientsList{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    margin-bottom:18px;
-}
+#ingredientsList{ display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
 .ingredient-item{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:10px 12px;
-    border-radius:10px;
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:10px;
     background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
-    border: 1px solid rgba(0,0,0,0.03);
-    cursor:pointer;
+    border: 1px solid rgba(0,0,0,0.03); cursor:pointer;
 }
 .ingredient-item input{ width:18px; height:18px; }
-.ingredient-item.checked{
-    opacity:0.7;
-    text-decoration: line-through;
-}
-[data-theme="dark"] .ingredient-item{
-    background: rgba(255,255,255,0.02);
-    border-color: rgba(255,255,255,0.02);
-}
+.ingredient-item.checked{ opacity:0.7; text-decoration: line-through; }
+[data-theme="dark"] .ingredient-item{ background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.02); }
 
-/* ==================== CHEF MODE - FULLSCREEN OVERLAY ==================== */
-/* Fullscreen overlay that covers the entire viewport */
+/* ==================== CHEF MODE - FULL PAGE ==================== */
+/* chef-mode-container now covers entire viewport and behaves like a full page */
 .chef-mode-container{
     position: fixed;
     inset: 0;
-    background: rgba(10, 12, 15, 0.65); /* dim background */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
+    background: var(--card-bg);
+    display: none;            /* hidden by default */
     z-index: 3000;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 220ms ease, transform 220ms ease;
-    transform: translateY(10px);
+    overflow: auto;
 }
-
-/* When active, show overlay */
 .chef-mode-container.active{
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
+    display: block;
 }
 
-/* Inner panel for chef-mode content */
+/* Inner panel fills viewport (no rounded modal) */
 .chef-panel{
     width: 100%;
-    max-width: 1100px;
-    height: calc(100vh - 96px); /* leave a bit of space for safety on mobile */
-    background: linear-gradient(180deg, var(--card-bg), rgba(255,255,255,0.98));
-    border-radius: 14px;
-    padding: 18px;
-    box-shadow: var(--shadow-lg);
+    height: 100vh;
+    margin: 0;
+    max-width: none;
+    border-radius: 0;
+    padding: 26px;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     overflow: auto;
     position: relative;
 }
+[data-theme="dark"] .chef-panel{ background: linear-gradient(180deg, var(--card-bg), rgba(10,12,15,0.95)); }
 
-/* For dark theme the panel surface */
-[data-theme="dark"] .chef-panel{
-    background: linear-gradient(180deg, var(--card-bg), rgba(10,12,15,0.95));
-}
-
-/* Close (X) button at top-right */
+/* Close (X) button pinned to top-right */
 .chef-close{
     position: absolute;
     right: 12px;
@@ -296,7 +243,7 @@ button:active{ transform: translateY(-1px); }
     background: transparent;
     border: none;
     color: var(--text-secondary);
-    font-size: 20px;
+    font-size: 22px;
     padding: 8px;
     border-radius: 8px;
     cursor: pointer;
@@ -305,79 +252,45 @@ button:active{ transform: translateY(-1px); }
 
 /* Header inside the panel */
 .chef-mode-header{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    justify-content: space-between;
-    margin-bottom: 8px;
+    display:flex; align-items:center; gap:12px; justify-content: space-between; margin-bottom: 8px;
 }
 .chef-mode-header h2{ margin:0; font-size:1.1rem; display:flex; gap:10px; align-items:center; }
-.chef-mode-header .hands-free-badge{
-    background: var(--accent-peach-2);
-    padding:6px 10px;
-    border-radius: 999px;
-    font-size:0.85rem;
-}
+.chef-mode-header .hands-free-badge{ background: var(--accent-peach-2); padding:6px 10px; border-radius: 999px; font-size:0.85rem; }
 
-/* Left column + main content layout */
-.chef-body{
-    display: grid;
-    grid-template-columns: 320px 1fr;
-    gap: 18px;
-    align-items: start;
-}
+/* Body layout fills space */
+.chef-body{ display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start; height: calc(100vh - 180px); }
+@media (max-width: 880px){ .chef-body{ grid-template-columns: 1fr; height: auto; } }
 
-/* On small screens stack columns */
-@media (max-width: 880px){
-    .chef-body{ grid-template-columns: 1fr; }
-}
-
-/* Side panel (ingredients + steps preview) */
 .chef-sidebar{
     background: rgba(0,0,0,0.03);
     padding: 12px;
     border-radius: 10px;
-    max-height: calc(100vh - 220px);
+    max-height: calc(100vh - 260px);
     overflow: auto;
 }
+.chef-main{ display:flex; flex-direction:column; gap:12px; }
 
-/* Main area */
-.chef-main{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-}
-
-/* Progress bar etc reuse previous styles */
+/* Progress bar */
 .progress-bar{ height:10px; background: rgba(0,0,0,0.05); border-radius:999px; overflow:hidden; margin: 12px 0; }
 .progress-fill{ height:100%; width:0%; background: linear-gradient(90deg, var(--accent-green), #7ac682); transition: width 300ms ease; }
 
-/* Small floating button to open Working Commands modal */
-.working-commands-btn{
-    background: linear-gradient(135deg, var(--accent-green), #7ac682);
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 700;
-}
+/* Steps preview */
+.step-preview{ padding:8px 10px; border-radius:8px; background: rgba(0,0,0,0.03); margin-bottom:8px; cursor:pointer; }
+.step-preview.active{ background: linear-gradient(90deg, rgba(143,214,148,0.12), rgba(122,198,130,0.08)); }
 
-/* ==================== WORKING COMMANDS POPUP (SMALLER MODAL) ==================== */
+/* Working commands small popup should appear above chef page */
 .working-commands-modal{
     position: fixed;
     inset: 0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index: 3500;
+    display: none;                 /* hidden by default */
+    align-items: center;
+    justify-content: center;
+    z-index: 5000;                 /* higher than chef-mode */
     background: rgba(10,12,15,0.5);
-    opacity: 0;
     pointer-events: none;
-    transition: opacity 180ms ease;
 }
 .working-commands-modal.active{
-    opacity: 1;
+    display: flex;
     pointer-events: auto;
 }
 .working-commands-card{
@@ -388,6 +301,7 @@ button:active{ transform: translateY(-1px); }
     padding: 20px;
     box-shadow: var(--shadow-lg);
     color: var(--text-primary);
+    position: relative;
 }
 .working-commands-card h3{ margin-top: 0; }
 .working-commands-close{
@@ -400,9 +314,16 @@ button:active{ transform: translateY(-1px); }
     cursor: pointer;
 }
 
-/* Reuse existing chef styles for inner elements */
-.step-preview{ padding:8px 10px; border-radius:8px; background: rgba(0,0,0,0.03); margin-bottom:8px; cursor:pointer; }
-.step-preview.active{ background: linear-gradient(90deg, rgba(143,214,148,0.12), rgba(122,198,130,0.08)); }
+/* Small floating button to open Working Commands modal */
+.working-commands-btn{
+    background: linear-gradient(135deg, var(--accent-green), #7ac682);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
 
 /* ==================== SMALL SCREENS ==================== */
 @media (max-width: 720px){
@@ -418,101 +339,81 @@ button:active{ transform: translateY(-1px); }
 a:focus, button:focus, .ingredient-item:focus{ outline: none; box-shadow: 0 0 0 4px rgba(255,122,61,0.12); border-radius:8px; }
 
 /* ============ FOCUS STATES ============ */
-*:focus-visible {
-    outline: 3px solid var(--accent-orange);
-    outline-offset: 2px;
-}
+*:focus-visible { outline: 3px solid var(--accent-orange); outline-offset: 2px; }
 
-/* Rest of the file remains the same (scrollbar, selection, loading, tooltips, tags, toasts, print) */
 /* ============ SCROLLBAR ============ */
-::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-primary);
-}
-
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
 ::-webkit-scrollbar-thumb {
     background: linear-gradient(135deg, var(--accent-orange), var(--accent-peach));
     border-radius: 10px;
     border: 2px solid var(--bg-primary);
 }
-
 ::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(135deg, var(--accent-orange-hover), var(--accent-peach-hover));
 }
-
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
     background: linear-gradient(135deg, var(--dark-scrollbar-start, #4a5568), var(--dark-scrollbar-end, #2d3748));
 }
 
 /* ============ SELECTION ============ */
-::selection {
-    background: var(--accent-peach);
-    color: #333333;
-}
-
-::-moz-selection {
-    background: var(--accent-peach);
-    color: #333333;
-}
-
-[data-theme="dark"] ::selection {
-    background: var(--accent-orange);
-    color: var(--text-on-accent);
-}
+::selection { background: var(--accent-peach); color: #333333; }
+::-moz-selection { background: var(--accent-peach); color: #333333; }
+[data-theme="dark"] ::selection { background: var(--accent-orange); color: var(--text-on-accent); }
 
 /* ============ LOADING STATES ============ */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-    position: relative;
-    will-change: opacity;
-}
-
+.loading { opacity: 0.6; pointer-events: none; position: relative; will-change: opacity; }
 .loading::after {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 30px;
-    height: 30px;
-    margin: -15px 0 0 -15px;
+    top: 50%; left: 50%;
+    width: 30px; height: 30px; margin: -15px 0 0 -15px;
     border: 3px solid var(--accent-peach);
     border-top-color: var(--accent-orange);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
-    will-change: transform;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
+/* ============ TOOLTIPS ============ */
+[data-tooltip]{ position: relative; }
+[data-tooltip]::before{
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%; left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    padding: 8px 12px; background: var(--tooltip-background, #1a1a1a);
+    color: var(--tooltip-color, white); font-size:13px; font-weight:500;
+    border-radius: var(--radius-sm); white-space: nowrap; opacity:0; pointer-events:none;
+    transition: opacity .2s, transform .2s; box-shadow: var(--shadow-md); z-index:1001;
 }
+[data-tooltip]:hover::before{ opacity:1; transform: translateX(-50%) translateY(-12px); }
+
+/* ============ TAGS & BADGES ============ */
+.tag { display:inline-block; padding:6px 14px; background: var(--accent-peach); color:#333; border-radius:var(--radius-xl); font-size:13px; font-weight:600; margin:4px; transition: all .2s; }
+.tag:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+[data-theme="dark"] .tag { background: var(--dark-tag-background, #2a2a2a); color: var(--dark-tag-color, #e0e0e0); }
+
+/* ============ NOTIFICATION TOAST ============ */
+.toast {
+    position: fixed; bottom: 100px; right: 30px;
+    background: linear-gradient(135deg, var(--accent-green), #7ac682);
+    color: white; padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: var(--toast-z, 2001);
+    animation: slideInRight .4s ease, fadeOut .4s ease 2.6s; max-width:350px; font-weight:600;
+}
+@keyframes slideInRight { from { transform: translateX(400px); opacity:0; } to { transform: translateX(0); opacity:1; } }
+@keyframes fadeOut { to { opacity:0; transform: translateX(400px); } }
+
+/* ============ EMPTY STATES ============ */
+.empty-state{ text-align:center; padding:var(--space-xl); color:var(--text-secondary); }
+.empty-state-icon{ font-size:4rem; margin-bottom:var(--space-md); opacity:0.3; }
+.empty-state h3{ color: var(--text-primary); margin-bottom: var(--space-sm); }
 
 /* ============ PRINT ============ */
 @media print {
-    .navbar,
-    .button-row,
-    .chef-mode-container,
-    .voice-indicator,
-    .theme-toggle,
-    .toast {
-        display: none;
-    }
-    
-    body {
-        background: white;
-        color: black;
-    }
-    
-    .content {
-        max-width: 100%;
-        padding: 0;
-    }
-    
-    .recipe-card {
-        page-break-inside: avoid;
-    }
+    .navbar, .button-row, .chef-mode-container, .voice-indicator, .theme-toggle, .toast { display:none; }
+    body { background: white; color: black; }
+    .content { max-width:100%; padding:0; }
+    .recipe-card { page-break-inside: avoid; }
 }
